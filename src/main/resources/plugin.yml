@@ -1,0 +1,13 @@
+name: CLFeatures
+main: de.craftlancer.clfeatures.CLFeatures
+api-version: 1.14
+author: Syd Montague
+version: ${project.version}
+depend: [CLCore]
+commands:
+  portal:
+    description: "Portal related commands"
+    usage: /portal [list|name]
+permissions:
+  clfeature.portal.ignoreLimit:
+    default: op
