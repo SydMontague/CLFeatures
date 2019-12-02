@@ -78,8 +78,6 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             }
         });
         
-        //getInitialBlock().getWorld().playEffect(location, effect, data);
-        
         Bukkit.getOnlinePlayers().stream().filter(a -> a.getPortalCooldown() == 0)
               .filter(a -> !a.getLocation().getBlock().getLocation().equals(getInitialBlock()))
               .filter(a -> getStructure().containsBlock(a.getLocation().getBlock())).forEach(a -> {
