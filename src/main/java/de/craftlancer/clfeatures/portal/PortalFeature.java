@@ -24,7 +24,6 @@ import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 
-// TODO particle effects
 public class PortalFeature extends Feature {
     
     private static final Material LECTERN_MATERIAL = Material.LECTERN;

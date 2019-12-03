@@ -2,7 +2,9 @@ package de.craftlancer.clfeatures.portal;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -21,6 +23,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.util.BoundingBox;
 
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
@@ -40,11 +43,27 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
     private String currentTarget;
     private int ticksWithoutBook = 0;
     
+    private List<Location> airBlocks;
+    private BoundingBox box;
+    
     public PortalFeatureInstance(PortalFeature manager, Player owner, BlockStructure blocks, Block initialBlock) {
         super(owner.getUniqueId(), blocks, initialBlock.getLocation());
         
         this.manager = manager;
         this.lastUsage = Instant.now().getEpochSecond();
+        
+        calcInitialStuff();
+    }
+    
+    private void calcInitialStuff() {
+        airBlocks = getStructure().getBlocks().stream().filter(a -> a.getBlock().getType().isAir()).collect(Collectors.toList());
+        int minX = airBlocks.stream().map(a -> a.getBlockX()).min(Integer::compare).get();
+        int minY = airBlocks.stream().map(a -> a.getBlockY()).min(Integer::compare).get();
+        int minZ = airBlocks.stream().map(a -> a.getBlockZ()).min(Integer::compare).get();
+        int maxX = airBlocks.stream().map(a -> a.getBlockX()).max(Integer::compare).get();
+        int maxY = airBlocks.stream().map(a -> a.getBlockY()).max(Integer::compare).get();
+        int maxZ = airBlocks.stream().map(a -> a.getBlockZ()).max(Integer::compare).get();
+        box = new BoundingBox(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1);
     }
     
     @Override
@@ -71,19 +90,20 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             return;
         
         World w = getInitialBlock().getWorld();
-        getStructure().forEach(a -> {
-            if(a.getBlock().getType().isAir()) {
-                w.spawnParticle(Particle.SPELL_WITCH, a.clone().add(Math.random(), Math.random(), Math.random()), 3);
-                w.spawnParticle(Particle.PORTAL, a.clone().add(Math.random(), Math.random(), Math.random()), 3);
-            }
+        airBlocks.forEach(a -> {
+            w.spawnParticle(Particle.SPELL_WITCH, a.clone().add(Math.random(), Math.random(), Math.random()), 3);
+            w.spawnParticle(Particle.PORTAL, a.clone().add(Math.random(), Math.random(), Math.random()), 3);
         });
         
-        Bukkit.getOnlinePlayers().stream().filter(a -> a.getPortalCooldown() == 0)
-              .filter(a -> !a.getLocation().getBlock().getLocation().equals(getInitialBlock()))
-              .filter(a -> getStructure().containsBlock(a.getLocation().getBlock())).forEach(a -> {
-                  a.teleport(target.getTargetLocation(), TeleportCause.PLUGIN);
-                  a.setPortalCooldown(manager.getPortalCooldown());
-              });
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getPortalCooldown() != 0)
+                return;
+            
+            if (box.contains(p.getLocation().toVector())) {
+                p.teleport(target.getTargetLocation(), TeleportCause.PLUGIN);
+                p.setPortalCooldown(manager.getPortalCooldown());
+            }
+        }
     }
     
     private Location getTargetLocation() {
@@ -148,6 +168,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         
         this.name = (String) map.getOrDefault("name", "");
         this.lastUsage = ((Number) map.get("lastUsed")).longValue();
+        calcInitialStuff();
     }
     
     @Override
