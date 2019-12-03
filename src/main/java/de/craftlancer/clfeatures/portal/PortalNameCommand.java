@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 
+import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.SubCommand;
 
 public class PortalNameCommand extends SubCommand {
@@ -31,6 +32,14 @@ public class PortalNameCommand extends SubCommand {
         
         Player p = (Player) sender;
         p.setMetadata("portalRename", new FixedMetadataValue(getPlugin(), name));
+        
+        new LambdaRunnable(() ->  {
+            if(!p.hasMetadata("portalRename"))
+                return;
+            
+            p.removeMetadata("portalRename", getPlugin());
+            p.sendMessage("Portal rename timed out.");
+        }).runTaskLater(getPlugin(), 1200L);
         
         return String.format("Please right click on the portal you want to name %s.", name);
     }
