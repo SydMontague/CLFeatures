@@ -6,6 +6,9 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.conversations.ConversationContext;
+import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,6 +22,8 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import de.craftlancer.core.LambdaRunnable;
+import de.craftlancer.core.conversation.ClickableBooleanPrompt;
+import de.craftlancer.core.conversation.FormattedConversable;
 import de.craftlancer.core.structure.BlockStructure;
 
 public abstract class FeatureInstance implements Listener {
@@ -28,11 +33,14 @@ public abstract class FeatureInstance implements Listener {
     private BlockStructure structure;
     private Location initialBlock;
     
+    private ConversationFactory conversation = new ConversationFactory(CLFeatures.getInstance()).withLocalEcho(false).withModality(false).withTimeout(30)
+                                                                                                .withFirstPrompt(new DestroyPrompt());
+    
     public FeatureInstance(UUID ownerId, BlockStructure blocks, Location location) {
         this.ownerId = ownerId;
         this.structure = blocks;
         this.initialBlock = location;
-
+        
         Bukkit.getPluginManager().registerEvents(this, CLFeatures.getInstance());
         task = new LambdaRunnable(this::tick).runTaskTimer(CLFeatures.getInstance(), 10L, 10L);
     }
@@ -41,11 +49,11 @@ public abstract class FeatureInstance implements Listener {
         this.ownerId = UUID.fromString(map.get("owner").toString());
         this.initialBlock = (Location) map.get("lecternLoc");
         this.structure = (BlockStructure) map.get("structure");
-
+        
         Bukkit.getPluginManager().registerEvents(this, CLFeatures.getInstance());
         task = new LambdaRunnable(this::tick).runTaskTimer(CLFeatures.getInstance(), 10L, 10L);
     }
-
+    
     public boolean isOwner(Player player) {
         return player.getUniqueId().equals(ownerId);
     }
@@ -91,15 +99,15 @@ public abstract class FeatureInstance implements Listener {
         event.blockList().removeIf(structure::containsBlock);
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onInitialDestroy(BlockBreakEvent event) {
         if (!event.getBlock().getLocation().equals(initialBlock))
             return;
         
-        
-        destroy();
+        conversation.buildConversation(new FormattedConversable(event.getPlayer())).begin();
+        event.setCancelled(true);
     }
-
+    
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event.getBlock().getLocation().equals(initialBlock))
@@ -116,5 +124,24 @@ public abstract class FeatureInstance implements Listener {
         
         if (structure.containsBlock(event.getBlock()))
             event.setCancelled(true);
+    }
+    
+    private class DestroyPrompt extends ClickableBooleanPrompt {
+        
+        public DestroyPrompt() {
+            super("Do you really want to destroy this feature? It will be gone forever!");
+        }
+        
+        @Override
+        protected Prompt acceptValidatedInput(ConversationContext context, boolean input) {
+            if (input) {
+                destroy();
+                context.getForWhom().sendRawMessage("You destroyed this feature.");
+            }
+            else
+                context.getForWhom().sendRawMessage("You didn't destroy this feature.");
+            return END_OF_CONVERSATION;
+        }
+        
     }
 }

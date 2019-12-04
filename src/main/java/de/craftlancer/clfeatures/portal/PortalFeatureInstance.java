@@ -97,8 +97,6 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         airBlocks.forEach(a -> {
             w.spawnParticle(Particle.SPELL_WITCH, a.clone().add(Math.random(), Math.random(), Math.random()), 3);
             w.spawnParticle(Particle.PORTAL, a.clone().add(Math.random(), Math.random(), Math.random()), 3);
-            //w.spawnParticle(Particle.SPELL_WITCH, a, 3, Math.random(), Math.random(), Math.random(), 0, null, false);
-            //w.spawnParticle(Particle.PORTAL, a, 3, Math.random(), Math.random(), Math.random(), 0, null, false);
         });
         
         for (Player p : Bukkit.getOnlinePlayers()) {
