@@ -73,6 +73,11 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             return;
         }
         
+        World w = getInitialBlock().getWorld();
+        
+        if (!w.isChunkLoaded(getInitialBlock().getBlockX() >> 4, getInitialBlock().getBlockZ() >> 4))
+            return;
+        
         Lectern l = (Lectern) getInitialBlock().getBlock().getState();
         ItemStack item = l.getInventory().getItem(0);
         
@@ -89,10 +94,9 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         if (target == null || this == target)
             return;
         
-        World w = getInitialBlock().getWorld();
         airBlocks.forEach(a -> {
-            w.spawnParticle(Particle.SPELL_WITCH, a.clone().add(Math.random(), Math.random(), Math.random()), 3);
-            w.spawnParticle(Particle.PORTAL, a.clone().add(Math.random(), Math.random(), Math.random()), 3);
+            w.spawnParticle(Particle.SPELL_WITCH, a, 3, Math.random(), Math.random(), Math.random(), 0, null, false);
+            w.spawnParticle(Particle.PORTAL, a, 3, Math.random(), Math.random(), Math.random(), 0, null, false);
         });
         
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -117,6 +121,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
     }
     
     public void setName(String name) {
+        manager.updatedName(this, this.name, name);
         this.name = name;
     }
     

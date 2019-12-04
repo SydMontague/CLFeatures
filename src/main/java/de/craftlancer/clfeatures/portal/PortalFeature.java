@@ -3,7 +3,9 @@ package de.craftlancer.clfeatures.portal;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -30,6 +32,7 @@ public class PortalFeature extends Feature {
     private static final String LECTERN_NAME = ChatColor.DARK_PURPLE + "Portal";
     private static final Material PORTAL_MATERIAL = Material.CHISELED_QUARTZ_BLOCK;
     
+    private Map<String, PortalFeatureInstance> lookupTable = new HashMap<>();
     private List<PortalFeatureInstance> instances = new ArrayList<>();
     
     private long inactivityTimeout;
@@ -51,6 +54,8 @@ public class PortalFeature extends Feature {
         
         instances = (List<PortalFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/portals.yml"))
                                                                    .getList("portals", new ArrayList<>());
+        
+        instances.forEach(a -> lookupTable.put(a.getName(), a));
     }
     
     @Override
@@ -170,15 +175,14 @@ public class PortalFeature extends Feature {
     
     @Override
     public void remove(FeatureInstance instance) {
-        if (instance instanceof PortalFeatureInstance)
+        if (instance instanceof PortalFeatureInstance) {
             instances.remove(instance);
+            lookupTable.remove(((PortalFeatureInstance) instance).getName(), instance);
+        }
     }
     
     public PortalFeatureInstance getPortal(String name) {
-        if (name == null || name.isEmpty())
-            return null;
-        
-        return instances.stream().filter(a -> name.equalsIgnoreCase(a.getName())).findFirst().orElseGet(() -> null);
+        return lookupTable.get(name);
     }
     
     @Override
@@ -213,6 +217,11 @@ public class PortalFeature extends Feature {
     
     public int getPortalCooldown() {
         return portalCooldown;
+    }
+
+    public void updatedName(PortalFeatureInstance portalFeatureInstance, String oldName, String newName) {
+        lookupTable.remove(oldName);
+        lookupTable.put(newName, portalFeatureInstance);
     }
     
 }
