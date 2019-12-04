@@ -14,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import de.craftlancer.clfeatures.portal.PortalFeature;
 import de.craftlancer.clfeatures.portal.PortalFeatureInstance;
+import net.md_5.bungee.api.ChatColor;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
@@ -79,12 +80,12 @@ public class CLFeatures extends JavaPlugin implements Listener {
             return;
         
         if (!feature.get().checkFeatureLimit(event.getPlayer())) {
-            event.getPlayer().sendMessage("You've reached your limit for this feature.");
+            event.getPlayer().sendMessage(ChatColor.DARK_RED + "You've reached your limit for this feature.");
             event.setCancelled(true);
         }
         
         if (!feature.get().checkEnvironment(event.getBlock())) {
-            event.getPlayer().sendMessage("This location isn't suited for this feature.");
+            event.getPlayer().sendMessage(ChatColor.DARK_RED + "This location isn't suited for this feature. Make sure you have enough space.");
             event.setCancelled(true);
         }
     }
