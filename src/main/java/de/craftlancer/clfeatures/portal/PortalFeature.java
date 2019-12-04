@@ -55,7 +55,7 @@ public class PortalFeature extends Feature {
         instances = (List<PortalFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/portals.yml"))
                                                                    .getList("portals", new ArrayList<>());
         
-        instances.forEach(a -> lookupTable.put(a.getName(), a));
+        instances.stream().filter(a -> !a.getName().isEmpty()).forEach(a -> lookupTable.put(a.getName().toLowerCase(), a));
     }
     
     @Override
@@ -177,12 +177,15 @@ public class PortalFeature extends Feature {
     public void remove(FeatureInstance instance) {
         if (instance instanceof PortalFeatureInstance) {
             instances.remove(instance);
-            lookupTable.remove(((PortalFeatureInstance) instance).getName(), instance);
+            lookupTable.remove(((PortalFeatureInstance) instance).getName().toLowerCase(), instance);
         }
     }
     
     public PortalFeatureInstance getPortal(String name) {
-        return lookupTable.get(name);
+        if(name == null || name.isEmpty())
+            return null;
+            
+        return lookupTable.get(name.toLowerCase());
     }
     
     @Override
@@ -220,8 +223,8 @@ public class PortalFeature extends Feature {
     }
 
     public void updatedName(PortalFeatureInstance portalFeatureInstance, String oldName, String newName) {
-        lookupTable.remove(oldName);
-        lookupTable.put(newName, portalFeatureInstance);
+        lookupTable.remove(oldName.toLowerCase());
+        lookupTable.put(newName.toLowerCase(), portalFeatureInstance);
     }
     
 }

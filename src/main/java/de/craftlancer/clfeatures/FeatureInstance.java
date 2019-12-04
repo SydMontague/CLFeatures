@@ -96,6 +96,7 @@ public abstract class FeatureInstance implements Listener {
         if (!event.getBlock().getLocation().equals(initialBlock))
             return;
         
+        
         destroy();
     }
 
