@@ -11,6 +11,7 @@ public class PortalFeatureSubCommandHandler extends CommandHandler {
         
         registerSubCommand("list", new PortalListCommand(getPlugin(), feature));
         registerSubCommand("name", new PortalNameCommand(getPlugin(), feature));
+        registerSubCommand("move", new PortalMoveCommand(getPlugin()));
         registerSubCommand("help", new PortalHelpCommand(getPlugin(), getCommands()));
     }
 }

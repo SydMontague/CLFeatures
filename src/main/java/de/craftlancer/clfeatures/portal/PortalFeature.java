@@ -40,6 +40,7 @@ public class PortalFeature extends Feature {
     private double renameMoney;
     private int portalCooldown;
     private List<ItemStack> renameItems;
+    private List<ItemStack> moveItems;
     
     @SuppressWarnings("unchecked")
     public PortalFeature(CLFeatures plugin, ConfigurationSection config) {
@@ -48,6 +49,7 @@ public class PortalFeature extends Feature {
         // local stuff
         renameMoney = config.getDouble("renameMoney", 0D);
         renameItems = (List<ItemStack>) config.getList("renameItems", new ArrayList<>());
+        moveItems = (List<ItemStack>) config.getList("moveItems", new ArrayList<>());
         inactivityTimeout = config.getLong("inactivityTimeout", 155520000L);
         booklessTicks = config.getLong("booklessTicks", 30L);
         portalCooldown = config.getInt("portalCooldown", 300);
@@ -133,6 +135,14 @@ public class PortalFeature extends Feature {
         boolean itemSuccess = player.getInventory().removeItem(renameItems.toArray(new ItemStack[0])).isEmpty();
         
         return moneySuccess && itemSuccess;
+    }
+    
+    public boolean checkMoveCost(Player player) {
+        return moveItems.stream().allMatch(a -> player.getInventory().containsAtLeast(a, a.getAmount()));
+    }
+    
+    public boolean deductMoveCost(Player player) {
+        return player.getInventory().removeItem(moveItems.toArray(new ItemStack[0])).isEmpty();
     }
     
     @Override

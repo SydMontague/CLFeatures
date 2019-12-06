@@ -9,39 +9,29 @@ import org.bukkit.plugin.Plugin;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.SubCommand;
 
-public class PortalNameCommand extends SubCommand {
-    private PortalFeature feature;
+public class PortalMoveCommand extends SubCommand {
     
-    public PortalNameCommand(Plugin plugin, PortalFeature feature) {
+    public PortalMoveCommand(Plugin plugin) {
         super("", plugin, false);
-        this.feature = feature;
     }
     
     @Override
     protected String execute(CommandSender sender, Command cmd, String label, String[] args) {
         if(!checkSender(sender))
             return "You can't use this command.";
-        
-        if(args.length < 2)
-            return "You must specify a name.";
-        
-        String name = args[1];
-        
-        if(feature.getPortal(name) != null)
-            return "A portal with that name already exists.";
-        
+
         Player p = (Player) sender;
-        p.setMetadata(PortalFeatureInstance.RENAME_METADATA, new FixedMetadataValue(getPlugin(), name));
-        
+        p.setMetadata(PortalFeatureInstance.MOVE_METADATA, new FixedMetadataValue(getPlugin(), ""));
+
         new LambdaRunnable(() ->  {
-            if(!p.hasMetadata(PortalFeatureInstance.RENAME_METADATA))
+            if(!p.hasMetadata(PortalFeatureInstance.MOVE_METADATA))
                 return;
             
-            p.removeMetadata(PortalFeatureInstance.RENAME_METADATA, getPlugin());
-            p.sendMessage("Portal rename timed out.");
+            p.removeMetadata(PortalFeatureInstance.MOVE_METADATA, getPlugin());
+            p.sendMessage("Portal move timed out.");
         }).runTaskLater(getPlugin(), 1200L);
         
-        return String.format("Please right click on the portal you want to name %s.", name);
+        return "Right click your portal you want to move.";
     }
     
     @Override

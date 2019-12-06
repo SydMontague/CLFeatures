@@ -30,7 +30,8 @@ import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.structure.BlockStructure;
 
 public class PortalFeatureInstance extends FeatureInstance implements ConfigurationSerializable {
-    private static final String RENAME_METADATA = "portalRename";
+    public static final String RENAME_METADATA = "portalRename";
+    public static final String MOVE_METADATA = "portalMove";
     
     // technical
     private PortalFeature manager;
@@ -101,7 +102,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.getPortalCooldown() != 0)
-                return;
+                continue;
             
             if (box.contains(p.getLocation().toVector())) {
                 p.teleport(target.getTargetLocation(), TeleportCause.PLUGIN);
@@ -123,6 +124,31 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
     public void setName(String name) {
         manager.updatedName(this, this.name, name);
         this.name = name;
+    }
+    
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onInteractMove(PlayerInteractEvent event) {
+        Player p = event.getPlayer();
+        
+        if(!event.hasBlock() || !p.hasMetadata(MOVE_METADATA))
+            return;
+
+        if (!getStructure().containsBlock(event.getClickedBlock()))
+            return;
+
+        if (!getOwnerId().equals(p.getUniqueId()))
+            return;
+        
+        if(getManager().checkMoveCost(p)) {
+            destroy();
+            manager.giveFeatureItem(p);
+            p.sendMessage("Portal successfully moved back to your inventory.");
+        }
+        else
+            p.sendMessage("You can't afford to move this portal.");
+        
+        p.removeMetadata(MOVE_METADATA, CLFeatures.getInstance());
+        p.removeMetadata(RENAME_METADATA, CLFeatures.getInstance());
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
