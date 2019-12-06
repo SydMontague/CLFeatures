@@ -140,6 +140,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             return;
         
         if(getManager().checkMoveCost(p)) {
+            getManager().deductMoveCost(p);
             destroy();
             manager.giveFeatureItem(p);
             p.sendMessage("Portal successfully moved back to your inventory.");

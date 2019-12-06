@@ -131,7 +131,7 @@ public class PortalFeature extends Feature {
     }
     
     public boolean deductRenameCosts(Player player) {
-        boolean moneySuccess = getPlugin().getEconomy().withdrawPlayer(player, renameMoney).transactionSuccess();
+        boolean moneySuccess = getPlugin().getEconomy() == null || getPlugin().getEconomy().withdrawPlayer(player, renameMoney).transactionSuccess();
         boolean itemSuccess = player.getInventory().removeItem(renameItems.toArray(new ItemStack[0])).isEmpty();
         
         return moneySuccess && itemSuccess;
