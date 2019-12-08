@@ -90,6 +90,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         
         if (!feature.get().checkEnvironment(event.getBlock())) {
             event.getPlayer().sendMessage(ChatColor.DARK_RED + "This location isn't suited for this feature. Make sure you have enough space.");
+            event.getPlayer().sendMessage(ChatColor.DARK_RED + "See " + ChatColor.GREEN + "https://craftlancer.de/wiki/index.php/Special_Structures");
             event.setCancelled(true);
         }
     }
