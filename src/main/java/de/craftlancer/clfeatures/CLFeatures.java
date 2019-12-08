@@ -14,6 +14,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import de.craftlancer.clfeatures.portal.PortalFeature;
 import de.craftlancer.clfeatures.portal.PortalFeatureInstance;
+import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeature;
+import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeatureInstance;
 import net.md_5.bungee.api.ChatColor;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -48,6 +50,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         ConfigurationSerialization.registerClass(PortalFeatureInstance.class);
+        ConfigurationSerialization.registerClass(StoneCrusherFeatureInstance.class);
         
         instance = this;
         setupEconomy();
@@ -56,6 +59,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         
         registerFeature("portal", new PortalFeature(this, getConfig().getConfigurationSection("portal")));
+        registerFeature("stonecrusher", new StoneCrusherFeature(this, getConfig().getConfigurationSection("stonecrusher")));
         
     }
     

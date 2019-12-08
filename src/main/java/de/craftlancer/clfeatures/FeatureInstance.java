@@ -129,7 +129,7 @@ public abstract class FeatureInstance implements Listener {
     private class DestroyPrompt extends ClickableBooleanPrompt {
         
         public DestroyPrompt() {
-            super("Do you really want to destroy this feature? It will be gone forever!");
+            super("Do you really want to destroy this feature? It will be gone forever! Check the move command of the feature otherwise.");
         }
         
         @Override

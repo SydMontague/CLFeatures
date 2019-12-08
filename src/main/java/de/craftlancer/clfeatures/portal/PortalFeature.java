@@ -72,7 +72,7 @@ public class PortalFeature extends Feature {
     
     @Override
     public boolean isFeatureItem(ItemStack item) {
-        if (item.getType() != Material.LECTERN)
+        if (item.getType() != LECTERN_MATERIAL)
             return false;
         
         ItemMeta meta = item.getItemMeta();
