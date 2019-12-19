@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -66,8 +65,6 @@ public class StoneCrusherFeature extends Feature {
         public CrusherResult(ItemStack result, double chance) {
             this.chance = chance;
             this.result = result;
-            
-            Bukkit.getLogger().info(result + " " + chance);
         }
         
         public double getChance() {
