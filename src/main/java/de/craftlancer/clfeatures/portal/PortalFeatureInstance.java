@@ -146,7 +146,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             p.sendMessage("Portal successfully moved back to your inventory.");
         }
         else
-            p.sendMessage("You can't afford to move this portal.");
+            p.sendMessage("You can't afford to move this portal. You need 3 Lesser Fragments.");
         
         p.removeMetadata(MOVE_METADATA, CLFeatures.getInstance());
         p.removeMetadata(RENAME_METADATA, CLFeatures.getInstance());
@@ -182,7 +182,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             p.sendMessage(String.format("Portal successfully renamed to %s.", newName));
         }
         else
-            p.sendMessage("You can't afford to rename this portal.");
+            p.sendMessage("You can't afford to rename this portal. You need a Lesser Fragment.");
         
         p.removeMetadata(RENAME_METADATA, CLFeatures.getInstance());
     }
