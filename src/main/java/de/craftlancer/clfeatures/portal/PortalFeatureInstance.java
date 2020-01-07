@@ -23,6 +23,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 
 import de.craftlancer.clfeatures.CLFeatures;
@@ -30,6 +32,7 @@ import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.structure.BlockStructure;
 
 public class PortalFeatureInstance extends FeatureInstance implements ConfigurationSerializable {
+    public static final String LOOP_METADATA = "portalLoop";
     public static final String RENAME_METADATA = "portalRename";
     public static final String MOVE_METADATA = "portalMove";
     
@@ -101,12 +104,30 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         });
         
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.getPortalCooldown() != 0)
+            if (p.getPortalCooldown() != 0 || p.hasMetadata(LOOP_METADATA))
                 continue;
             
             if (box.contains(p.getLocation().toVector())) {
                 p.teleport(target.getTargetLocation(), TeleportCause.PLUGIN);
                 p.setPortalCooldown(manager.getPortalCooldown());
+                p.setMetadata(LOOP_METADATA, new FixedMetadataValue(CLFeatures.getInstance(), target.getTargetLocation()));
+                
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (!p.hasMetadata(LOOP_METADATA)) {
+                            cancel();
+                            return;
+                        }
+                        
+                        Location loc = (Location) p.getMetadata(LOOP_METADATA).get(0).value();
+                        
+                        if (loc.distanceSquared(p.getLocation()) > 2) {
+                            p.removeMetadata(LOOP_METADATA, CLFeatures.getInstance());
+                            cancel();
+                        }
+                    }
+                }.runTaskTimer(CLFeatures.getInstance(), 1, 1);
             }
         }
     }
@@ -130,16 +151,16 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
     public void onInteractMove(PlayerInteractEvent event) {
         Player p = event.getPlayer();
         
-        if(!event.hasBlock() || !p.hasMetadata(MOVE_METADATA))
+        if (!event.hasBlock() || !p.hasMetadata(MOVE_METADATA))
             return;
-
+        
         if (!getStructure().containsBlock(event.getClickedBlock()))
             return;
-
+        
         if (!getOwnerId().equals(p.getUniqueId()))
             return;
         
-        if(getManager().checkMoveCost(p)) {
+        if (getManager().checkMoveCost(p)) {
             getManager().deductMoveCost(p);
             destroy();
             manager.giveFeatureItem(p);
