@@ -93,15 +93,15 @@ public class CLFeatures extends JavaPlugin implements Listener {
             return;
         
         if (!feature.get().checkFeatureLimit(event.getPlayer())) {
-            p.sendMessage(ChatColor.DARK_RED + "You've reached your limit for this feature.");
+            p.sendMessage(CC_PREFIX + ChatColor.DARK_RED + "You've reached your limit for this feature.");
             event.setCancelled(true);
         }
         
         Collection<Block> blocks = feature.get().checkEnvironment(event.getBlock());
         
         if (!blocks.isEmpty()) {
-            p.sendMessage(ChatColor.DARK_RED + "This location isn't suited for this feature. Make sure you have enough space.");
-            p.sendMessage(ChatColor.DARK_RED + "See " + ChatColor.GREEN + "https://craftlancer.de/wiki/index.php/Special_Structures");
+            p.sendMessage(CC_PREFIX + ChatColor.DARK_RED + "This location isn't suited for this feature. Make sure you have enough space.");
+            p.sendMessage(CC_PREFIX + ChatColor.DARK_RED + "See " + ChatColor.GREEN + "https://craftlancer.de/wiki/index.php/Special_Structures");
             event.setCancelled(true);
             
             blocks.forEach(a -> event.getPlayer().sendBlockChange(a.getLocation(), ERROR_BLOCK.createBlockData()));
