@@ -28,6 +28,7 @@ import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeature.CrusherResult;
 import de.craftlancer.core.structure.BlockStructure;
+import net.md_5.bungee.api.ChatColor;
 
 public class StoneCrusherFeatureInstance extends FeatureInstance implements ConfigurationSerializable {
     public static final String MOVE_METADATA = "crusherMove";
@@ -156,7 +157,7 @@ public class StoneCrusherFeatureInstance extends FeatureInstance implements Conf
         
         destroy();
         getManager().giveFeatureItem(p);
-        p.sendMessage("StoneCrusher successfully moved back to your inventory.");
+        p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "StoneCrusher successfully moved back to your inventory.");
         p.removeMetadata(MOVE_METADATA, CLFeatures.getInstance());
     }
 }

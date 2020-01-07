@@ -1,5 +1,6 @@
 package de.craftlancer.clfeatures;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,7 +41,7 @@ public abstract class Feature {
     
     public abstract boolean checkFeatureLimit(Player player);
     
-    public abstract boolean checkEnvironment(Block initialBlock);
+    public abstract Collection<Block> checkEnvironment(Block initialBlock);
     
     public abstract boolean createInstance(Player creator, Block initialBlock);
     

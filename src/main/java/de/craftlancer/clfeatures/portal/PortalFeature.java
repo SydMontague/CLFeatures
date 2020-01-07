@@ -3,6 +3,7 @@ package de.craftlancer.clfeatures.portal;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,7 @@ public class PortalFeature extends Feature {
     }
     
     @Override
-    public boolean checkEnvironment(Block initialBlock) {
+    public Collection<Block> checkEnvironment(Block initialBlock) {
         Lectern lectern = (Lectern) initialBlock.getBlockData();
         BlockFace facing = lectern.getFacing().getOppositeFace();
         
@@ -120,7 +121,7 @@ public class PortalFeature extends Feature {
         blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 3, facing.getModX() * -1));
         blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 3, facing.getModX() * -2));
         
-        return blocks.stream().allMatch(Block::isEmpty);
+        return blocks.stream().filter(a -> !a.isEmpty()).collect(Collectors.toList());
     }
     
     public boolean checkRenameCosts(Player player) {
@@ -180,6 +181,7 @@ public class PortalFeature extends Feature {
         blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 1, 3, facing.getModX() * -1).getLocation());
         blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 2, 3, facing.getModX() * -2).getLocation());
         
+        creator.sendMessage("[§4Craft§fCitizen]" + ChatColor.YELLOW + "Portal placed, use /portal name <name> to give your portal an address! Place a signed book with the portal address you want to go to in the lectern.");
         return instances.add(new PortalFeatureInstance(this, creator, blocks, initialBlock));
     }
     

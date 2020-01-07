@@ -1,6 +1,7 @@
 package de.craftlancer.clfeatures.portal;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import org.bukkit.util.BoundingBox;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.structure.BlockStructure;
+import net.md_5.bungee.api.ChatColor;
 
 public class PortalFeatureInstance extends FeatureInstance implements ConfigurationSerializable {
     public static final String LOOP_METADATA = "portalLoop";
@@ -164,10 +166,10 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             getManager().deductMoveCost(p);
             destroy();
             manager.giveFeatureItem(p);
-            p.sendMessage("Portal successfully moved back to your inventory.");
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Portal successfully moved back to your inventory.");
         }
         else
-            p.sendMessage("You can't afford to move this portal. You need 3 Lesser Fragments.");
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to move this portal. You need 3 Lesser Fragments.");
         
         p.removeMetadata(MOVE_METADATA, CLFeatures.getInstance());
         p.removeMetadata(RENAME_METADATA, CLFeatures.getInstance());
@@ -197,13 +199,32 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         if (isFirstName || getManager().checkRenameCosts(p)) {
             setName(newName);
             
-            if (!isFirstName)
+            if (!isFirstName) 
                 getManager().deductRenameCosts(p);
+            else {
+                // give first time books
+                ItemStack homeBook = new ItemStack(Material.WRITTEN_BOOK);
+                BookMeta homeMeta = (BookMeta) homeBook.getItemMeta();
+                homeMeta.addPage(newName);
+                homeMeta.setDisplayName(ChatColor.GREEN + "Portalbook back Home");
+                homeMeta.setLore(Arrays.asList(ChatColor.WHITE + "Place this book in any Portal to return to your portal, ",
+                                           ChatColor.RED + "take the book out of the lectern before you enter the portal!"));
+                homeBook.setItemMeta(homeMeta);
+                
+                ItemStack valgardBook = new ItemStack(Material.WRITTEN_BOOK);
+                BookMeta valgardMeta = (BookMeta) valgardBook.getItemMeta();
+                valgardMeta.addPage("Valgard");
+                valgardMeta.setDisplayName(ChatColor.GREEN + "Portalbook back Valgard");
+                valgardMeta.setLore(Arrays.asList(ChatColor.WHITE + "Place this book in any Portal to return to your portal, ",
+                                           ChatColor.RED + "take the book out of the lectern before you enter the portal!"));
+                valgardBook.setItemMeta(valgardMeta);
+                p.getInventory().addItem(valgardBook, homeBook).forEach((a,b) -> p.getWorld().dropItem(p.getLocation(), b));
+            }
             
-            p.sendMessage(String.format("Portal successfully renamed to %s.", newName));
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + String.format("Portal successfully renamed to %s.", newName));
         }
         else
-            p.sendMessage("You can't afford to rename this portal. You need a Lesser Fragment.");
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to rename this portal. You need a Lesser Fragment.");
         
         p.removeMetadata(RENAME_METADATA, CLFeatures.getInstance());
     }

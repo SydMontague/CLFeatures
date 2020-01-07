@@ -10,7 +10,7 @@ public class PortalFeatureSubCommandHandler extends CommandHandler {
         super(plugin);
         
         registerSubCommand("list", new PortalListCommand(getPlugin(), feature));
-        registerSubCommand("name", new PortalNameCommand(getPlugin(), feature));
+        registerSubCommand("name", new PortalNameCommand(getPlugin(), feature), "address");
         registerSubCommand("move", new PortalMoveCommand(getPlugin()));
         registerSubCommand("help", new PortalHelpCommand(getPlugin(), getCommands()));
     }

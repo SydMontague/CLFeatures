@@ -6,8 +6,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 
+import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.SubCommand;
+import net.md_5.bungee.api.ChatColor;
 
 public class PortalNameCommand extends SubCommand {
     private PortalFeature feature;
@@ -20,15 +22,15 @@ public class PortalNameCommand extends SubCommand {
     @Override
     protected String execute(CommandSender sender, Command cmd, String label, String[] args) {
         if(!checkSender(sender))
-            return "You can't use this command.";
+            return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't use this command.";
         
         if(args.length < 2)
-            return "You must specify a name.";
+            return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You must specify a name.";
         
         String name = args[1];
         
         if(feature.getPortal(name) != null)
-            return "A portal with that name already exists.";
+            return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "A portal with that name already exists.";
         
         Player p = (Player) sender;
         p.setMetadata(PortalFeatureInstance.RENAME_METADATA, new FixedMetadataValue(getPlugin(), name));
@@ -38,10 +40,10 @@ public class PortalNameCommand extends SubCommand {
                 return;
             
             p.removeMetadata(PortalFeatureInstance.RENAME_METADATA, getPlugin());
-            p.sendMessage("Portal rename timed out.");
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Portal rename timed out.");
         }).runTaskLater(getPlugin(), 1200L);
         
-        return String.format("Please right click on the portal you want to name %s.", name);
+        return CLFeatures.CC_PREFIX + ChatColor.YELLOW + String.format("Please right click on the portal you want to name %s.", name);
     }
     
     @Override

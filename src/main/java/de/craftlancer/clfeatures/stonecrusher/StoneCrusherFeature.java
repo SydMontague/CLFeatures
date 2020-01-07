@@ -3,9 +3,11 @@ package de.craftlancer.clfeatures.stonecrusher;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -112,7 +114,7 @@ public class StoneCrusherFeature extends Feature {
     }
     
     @Override
-    public boolean checkEnvironment(Block initialBlock) {
+    public Collection<Block> checkEnvironment(Block initialBlock) {
         Chest chest = (Chest) initialBlock.getBlockData();
         BlockFace facing = chest.getFacing().getOppositeFace();
 
@@ -126,7 +128,7 @@ public class StoneCrusherFeature extends Feature {
         blocks.add(initialBlock.getRelative(-facing.getModZ(), 1, facing.getModX()));
         blocks.add(initialBlock.getRelative(-facing.getModZ(), 2, facing.getModX()));
         
-        return blocks.stream().allMatch(a -> a.getType().isAir());
+        return blocks.stream().filter(a -> !a.isEmpty()).collect(Collectors.toList());
     }
     
     @Override

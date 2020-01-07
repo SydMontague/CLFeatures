@@ -1,10 +1,14 @@
 package de.craftlancer.clfeatures;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -16,6 +20,7 @@ import de.craftlancer.clfeatures.portal.PortalFeature;
 import de.craftlancer.clfeatures.portal.PortalFeatureInstance;
 import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeature;
 import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeatureInstance;
+import de.craftlancer.core.LambdaRunnable;
 import net.md_5.bungee.api.ChatColor;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -36,8 +41,11 @@ import net.milkbowl.vault.permission.Permission;
  */
 
 public class CLFeatures extends JavaPlugin implements Listener {
+    public static final String CC_PREFIX = "[§4Craft§fCitizen] ";
     
     private static CLFeatures instance;
+    private static final Material ERROR_BLOCK = Material.RED_CONCRETE;
+    private static final long ERROR_TIMEOUT = 100L; // 5s
     
     private Map<String, Feature> features = new HashMap<>();
     private Economy econ = null;
@@ -79,19 +87,25 @@ public class CLFeatures extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event) {
         Optional<Feature> feature = features.values().stream().filter(a -> a.isFeatureItem(event.getItemInHand())).findFirst();
+        Player p = event.getPlayer();
         
         if (!feature.isPresent())
             return;
         
         if (!feature.get().checkFeatureLimit(event.getPlayer())) {
-            event.getPlayer().sendMessage(ChatColor.DARK_RED + "You've reached your limit for this feature.");
+            p.sendMessage(ChatColor.DARK_RED + "You've reached your limit for this feature.");
             event.setCancelled(true);
         }
         
-        if (!feature.get().checkEnvironment(event.getBlock())) {
-            event.getPlayer().sendMessage(ChatColor.DARK_RED + "This location isn't suited for this feature. Make sure you have enough space.");
-            event.getPlayer().sendMessage(ChatColor.DARK_RED + "See " + ChatColor.GREEN + "https://craftlancer.de/wiki/index.php/Special_Structures");
+        Collection<Block> blocks = feature.get().checkEnvironment(event.getBlock());
+        
+        if (!blocks.isEmpty()) {
+            p.sendMessage(ChatColor.DARK_RED + "This location isn't suited for this feature. Make sure you have enough space.");
+            p.sendMessage(ChatColor.DARK_RED + "See " + ChatColor.GREEN + "https://craftlancer.de/wiki/index.php/Special_Structures");
             event.setCancelled(true);
+            
+            blocks.forEach(a -> event.getPlayer().sendBlockChange(a.getLocation(), ERROR_BLOCK.createBlockData()));
+            new LambdaRunnable(() -> blocks.forEach(a -> p.sendBlockChange(a.getLocation(), a.getBlockData()))).runTaskLater(this, ERROR_TIMEOUT);
         }
     }
     

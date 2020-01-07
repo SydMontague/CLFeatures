@@ -6,8 +6,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 
+import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.SubCommand;
+import net.md_5.bungee.api.ChatColor;
 
 public class StoneCrusherMoveCommand extends SubCommand {
     
@@ -18,7 +20,7 @@ public class StoneCrusherMoveCommand extends SubCommand {
     @Override
     protected String execute(CommandSender sender, Command cmd, String label, String[] args) {
         if(!checkSender(sender))
-            return "You can't use this command.";
+            return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't use this command.";
 
         Player p = (Player) sender;
         p.setMetadata(StoneCrusherFeatureInstance.MOVE_METADATA, new FixedMetadataValue(getPlugin(), ""));
@@ -28,10 +30,10 @@ public class StoneCrusherMoveCommand extends SubCommand {
                 return;
             
             p.removeMetadata(StoneCrusherFeatureInstance.MOVE_METADATA, getPlugin());
-            p.sendMessage("StoneCrusher move timed out.");
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "StoneCrusher move timed out.");
         }).runTaskLater(getPlugin(), 1200L);
         
-        return "Right click your StoneCrusher you want to move.";
+        return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Right click your StoneCrusher you want to move.";
     }
     
     @Override
