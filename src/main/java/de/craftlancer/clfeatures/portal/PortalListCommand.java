@@ -24,10 +24,10 @@ public class PortalListCommand extends SubCommand {
         if(!checkSender(sender))
             return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't use this command.";
         
-        sender.sendMessage(ChatColor.YELLOW + "Name | Location");
+        sender.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Name | Location");
         feature.getPortalsByPlayer((Player) sender).forEach(a -> {
             Location loc = a.getInitialBlock();
-            sender.sendMessage(ChatColor.YELLOW + String.format("%s | %d, %d, %d", a.getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+            sender.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + String.format("%s | %d, %d, %d", a.getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
         });
         
         return null;
