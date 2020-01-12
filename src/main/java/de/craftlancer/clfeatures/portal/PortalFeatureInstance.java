@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
@@ -21,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -114,18 +116,21 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
                 p.setPortalCooldown(manager.getPortalCooldown());
                 p.setMetadata(LOOP_METADATA, new FixedMetadataValue(CLFeatures.getInstance(), target.getTargetLocation()));
                 
+                UUID uuid = p.getUniqueId();
+                
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        if (!p.hasMetadata(LOOP_METADATA)) {
+                        Player player = Bukkit.getPlayer(uuid);
+                        if (player == null || !player.hasMetadata(LOOP_METADATA)) {
                             cancel();
                             return;
                         }
+
+                        Location loc = (Location) player.getMetadata(LOOP_METADATA).get(0).value();
                         
-                        Location loc = (Location) p.getMetadata(LOOP_METADATA).get(0).value();
-                        
-                        if (loc.distanceSquared(p.getLocation()) > 2) {
-                            p.removeMetadata(LOOP_METADATA, CLFeatures.getInstance());
+                        if (loc.distanceSquared(player.getLocation()) > 2) {
+                            player.removeMetadata(LOOP_METADATA, CLFeatures.getInstance());
                             cancel();
                         }
                     }
@@ -147,6 +152,10 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
     public void setName(String name) {
         manager.updatedName(this, this.name, name);
         this.name = name;
+    }
+    
+    public void onLogin(PlayerJoinEvent event) {
+        event.getPlayer().removeMetadata(LOOP_METADATA, CLFeatures.getInstance());
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
