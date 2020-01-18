@@ -24,6 +24,9 @@ public class PortalListCommand extends SubCommand {
         if(!checkSender(sender))
             return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't use this command.";
         
+        Player player = (Player) sender;
+        
+        sender.sendMessage(String.format("Current Limit: %d/%s", feature.getPortalsByPlayer(player).size(), feature.getLimit(player)));
         sender.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Name | Location");
         feature.getPortalsByPlayer((Player) sender).forEach(a -> {
             Location loc = a.getInitialBlock();

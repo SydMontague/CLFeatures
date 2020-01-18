@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Lectern;
@@ -45,7 +46,7 @@ public class PortalFeature extends Feature {
     
     @SuppressWarnings("unchecked")
     public PortalFeature(CLFeatures plugin, ConfigurationSection config) {
-        super(plugin, config);
+        super(plugin, config, new NamespacedKey(plugin, "portal.limit"));
         
         // local stuff
         renameMoney = config.getDouble("renameMoney", 0D);
@@ -241,4 +242,8 @@ public class PortalFeature extends Feature {
         lookupTable.put(newName.toLowerCase(), portalFeatureInstance);
     }
     
+    @Override
+    protected String getName() {
+        return "Portal";
+    }
 }

@@ -154,6 +154,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         this.name = name;
     }
     
+    @EventHandler
     public void onLogin(PlayerJoinEvent event) {
         event.getPlayer().removeMetadata(LOOP_METADATA, CLFeatures.getInstance());
     }

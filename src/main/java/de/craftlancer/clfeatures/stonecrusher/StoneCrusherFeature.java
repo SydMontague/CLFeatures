@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
@@ -44,7 +45,7 @@ public class StoneCrusherFeature extends Feature {
     
     @SuppressWarnings("unchecked")
     public StoneCrusherFeature(CLFeatures plugin, ConfigurationSection config) {
-        super(plugin, config);
+        super(plugin, config, new NamespacedKey(plugin, "stonecrusher.limit"));
         
         crushesPerTick = config.getInt("stonesPerTick", 1);
         
@@ -212,5 +213,10 @@ public class StoneCrusherFeature extends Feature {
     
     public List<CrusherResult> getLootTableGravel() {
         return Collections.unmodifiableList(lootTableGravel);
+    }
+    
+    @Override
+    protected String getName() {
+        return "Stonecrusher";
     }
 }

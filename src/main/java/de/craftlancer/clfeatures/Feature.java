@@ -5,30 +5,61 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nonnull;
+
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
+import de.craftlancer.core.CLCore;
 import de.craftlancer.core.command.CommandHandler;
 
 public abstract class Feature {
     
-    private CLFeatures plugin;
+    private final CLFeatures plugin;
     private int defaultLimit;
+    private int maxLimit;
     private Map<String, Integer> limitMap = new HashMap<>();
     
-    public Feature(CLFeatures plugin, ConfigurationSection config) {
+    private final NamespacedKey limitKey;
+    private final String limitToken;
+    
+    public Feature(CLFeatures plugin, ConfigurationSection config, NamespacedKey limitKey) {
         this.plugin = plugin;
+        this.limitKey = limitKey;
+        this.limitToken = config.getString("limitToken");
         
         defaultLimit = config.getInt("defaultLimit", -1);
+        maxLimit = config.getInt("maxLimit", -1);
         ConfigurationSection limitConfig = config.getConfigurationSection("limits");
         limitConfig.getKeys(false).forEach(a -> limitMap.put(a, limitConfig.getInt(a)));
     }
     
     public int getLimit(Player player) {
-        return limitMap.entrySet().stream().filter(a -> plugin.getPermissions().playerInGroup(player, a.getKey())).map(Entry::getValue).max(Integer::compare)
-                       .orElseGet(() -> defaultLimit);
+        int groupLimit = limitMap.entrySet().stream().filter(a -> plugin.getPermissions().playerInGroup(player, a.getKey())).map(Entry::getValue).max(Integer::compare)
+                .orElseGet(() -> defaultLimit);
+        int individualLimit = player.getPersistentDataContainer().getOrDefault(limitKey, PersistentDataType.INTEGER, 0).intValue();
+        
+        return groupLimit < 0 ? -1 : groupLimit + individualLimit;
+    }
+    
+    public void addFeatureLimit(Player player, int amount) {
+        int individualLimit = player.getPersistentDataContainer().getOrDefault(limitKey, PersistentDataType.INTEGER, 0).intValue();
+        player.getPersistentDataContainer().set(limitKey, PersistentDataType.INTEGER, individualLimit + amount);
+    }
+
+    public boolean isLimitToken(@Nonnull ItemStack item) {
+        if(!CLCore.getInstance().getItemRegistry().hasItem(limitToken) || item.getType().isAir())
+            return false;
+        
+        return item.isSimilar(CLCore.getInstance().getItemRegistry().getItem(limitToken));
+    }
+
+    public int getMaxLimit() {
+        return maxLimit;
     }
     
     public CLFeatures getPlugin() {
@@ -50,4 +81,7 @@ public abstract class Feature {
     public abstract CommandHandler getCommandHandler();
     
     public abstract void remove(FeatureInstance instance);
+
+    @Nonnull
+    protected abstract String getName();
 }
