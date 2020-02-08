@@ -90,7 +90,8 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         ItemStack item = l.getInventory().getItem(0);
         
         if (item != null && item.getType() == Material.WRITTEN_BOOK) {
-            currentTarget = ((BookMeta) item.getItemMeta()).getPage(1);
+            String[] lines = ((BookMeta) item.getItemMeta()).getPage(1).split("\n");
+            currentTarget = lines.length > 0 ? lines[0].trim() : null;
             ticksWithoutBook = 0;
         }
         
