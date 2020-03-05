@@ -86,6 +86,14 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         if (!w.isChunkLoaded(getInitialBlock().getBlockX() >> 4, getInitialBlock().getBlockZ() >> 4))
             return;
         
+        if(!(getInitialBlock().getBlock().getState() instanceof Lectern)) {
+            CLFeatures.getInstance().getLogger().warning(() -> String.format("Portal \"%s\" is missing it's Lectern, did it get removed somehow?", name));
+            CLFeatures.getInstance().getLogger().warning("Location: " + getInitialBlock() + " | " + getOwnerId());
+            CLFeatures.getInstance().getLogger().warning("Removing the portal to prevent further errors.");
+            destroy();
+            return;
+        }
+        
         Lectern l = (Lectern) getInitialBlock().getBlock().getState();
         ItemStack item = l.getInventory().getItem(0);
         
