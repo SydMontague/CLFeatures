@@ -223,21 +223,24 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             else {
                 // give first time books
                 ItemStack homeBook = new ItemStack(Material.WRITTEN_BOOK);
+                
                 BookMeta homeMeta = (BookMeta) homeBook.getItemMeta();
                 homeMeta.addPage(newName);
+                homeMeta.setAuthor("");
                 homeMeta.setTitle(ChatColor.GREEN + "Portalbook back Home");
                 homeMeta.setDisplayName(ChatColor.GREEN + "Portalbook back Home");
-                homeMeta.setLore(Arrays.asList(ChatColor.WHITE + "Place this book in any Portal to return to your portal, ",
-                                           ChatColor.RED + "take the book out of the lectern before you enter the portal!"));
+                homeMeta.setLore(Arrays.asList(ChatColor.WHITE + "Place in any Portal to return to your portal, ",
+                                           ChatColor.RED + "take it out of the lectern before you enter!"));
                 homeBook.setItemMeta(homeMeta);
                 
                 ItemStack valgardBook = new ItemStack(Material.WRITTEN_BOOK);
                 BookMeta valgardMeta = (BookMeta) valgardBook.getItemMeta();
-                valgardMeta.setTitle("Valgard");
                 valgardMeta.addPage("Valgard");
+                valgardMeta.setAuthor("");
+                valgardMeta.setTitle(ChatColor.GREEN + "Portalbook back Valgard");
                 valgardMeta.setDisplayName(ChatColor.GREEN + "Portalbook back Valgard");
-                valgardMeta.setLore(Arrays.asList(ChatColor.WHITE + "Place this book in any Portal to return to your portal, ",
-                                           ChatColor.RED + "take the book out of the lectern before you enter the portal!"));
+                valgardMeta.setLore(Arrays.asList(ChatColor.WHITE + "Place in any Portal to return to Valgard, ",
+                                           ChatColor.RED + "take it out of the lectern before you enter!"));
                 valgardBook.setItemMeta(valgardMeta);
                 p.getInventory().addItem(valgardBook, homeBook).forEach((a,b) -> p.getWorld().dropItem(p.getLocation(), b));
             }
