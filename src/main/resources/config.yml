@@ -1,0 +1,56 @@
+portal:
+  renameMoney: 0
+  defaultLimit: 0
+  maxLimit: 7
+  limitToken: portalLimitToken
+  limits:
+    Peasant: 1
+    Hireling: 1
+    Merchant: 2
+    Citizen: 2
+    Knight: 3
+    Noble: 4
+    Lord: 4
+    Aristocrate: 5
+    Admin: -1
+  renameItems:
+  - ==: org.bukkit.inventory.ItemStack
+    v: 1976
+    type: MUSIC_DISC_CHIRP
+    meta:
+      ==: ItemMeta
+      meta-type: UNSPECIFIC
+      display-name: §9Lesser Aether Fragment
+      lore:
+      - A Lesser Aetherial Fragment
+      - pulsating with magical energy.
+      - §8Combine 5 Lesser Fragments
+      - §8to gain a Common Fragment.
+      custom-model-data: 2
+  moveItems:
+  - ==: org.bukkit.inventory.ItemStack
+    v: 1976
+    type: MUSIC_DISC_CHIRP
+    amount: 3
+    meta:
+      ==: ItemMeta
+      meta-type: UNSPECIFIC
+      display-name: §9Lesser Aether Fragment
+      lore:
+      - A Lesser Aetherial Fragment
+      - pulsating with magical energy.
+      - §8Combine 5 Lesser Fragments
+      - §8to gain a Common Fragment.
+      custom-model-data: 2
+stonecrusher:
+  defaultLimit: -1
+  limits: 
+    Peasant: -1
+  stonesPerTick: 1
+  lootTableStone:
+    diamond:
+      chance: 0.999
+      item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 1976
+        type: GRAVEL

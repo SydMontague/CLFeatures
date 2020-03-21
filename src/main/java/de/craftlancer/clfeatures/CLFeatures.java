@@ -74,6 +74,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         ConfigurationSerialization.registerClass(PortalFeatureInstance.class);
         ConfigurationSerialization.registerClass(StoneCrusherFeatureInstance.class);
         
+        saveDefaultConfig();
         instance = this;
         setupEconomy();
         setupPermissions();
