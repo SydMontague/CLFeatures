@@ -32,6 +32,7 @@ import org.bukkit.util.BoundingBox;
 
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
+import de.craftlancer.clfeatures.portal.addressbook.AddressBookUtils;
 import de.craftlancer.core.structure.BlockStructure;
 import net.md_5.bungee.api.ChatColor;
 
@@ -48,7 +49,6 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
     private long lastUsage = 0;
     
     // runtime
-    private String currentTarget;
     private int ticksWithoutBook = 0;
     
     private List<Location> airBlocks;
@@ -65,13 +65,28 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
     
     private void calcInitialStuff() {
         airBlocks = getStructure().getBlocks().stream().filter(a -> a.getBlock().getType().isAir()).collect(Collectors.toList());
-        int minX = airBlocks.stream().map(a -> a.getBlockX()).min(Integer::compare).get();
-        int minY = airBlocks.stream().map(a -> a.getBlockY()).min(Integer::compare).get();
-        int minZ = airBlocks.stream().map(a -> a.getBlockZ()).min(Integer::compare).get();
-        int maxX = airBlocks.stream().map(a -> a.getBlockX()).max(Integer::compare).get();
-        int maxY = airBlocks.stream().map(a -> a.getBlockY()).max(Integer::compare).get();
-        int maxZ = airBlocks.stream().map(a -> a.getBlockZ()).max(Integer::compare).get();
-        box = new BoundingBox(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1);
+        int minX = airBlocks.stream().map(Location::getBlockX).min(Integer::compare).orElseGet(() -> 0);
+        int minY = airBlocks.stream().map(Location::getBlockY).min(Integer::compare).orElseGet(() -> 0);
+        int minZ = airBlocks.stream().map(Location::getBlockZ).min(Integer::compare).orElseGet(() -> 0);
+        int maxX = airBlocks.stream().map(Location::getBlockX).max(Integer::compare).orElseGet(() -> 0);
+        int maxY = airBlocks.stream().map(Location::getBlockY).max(Integer::compare).orElseGet(() -> 0);
+        int maxZ = airBlocks.stream().map(Location::getBlockZ).max(Integer::compare).orElseGet(() -> 0);
+        
+        if(minX == 0 && minY == 0 && minZ == 0 && maxX == 0 && maxY == 0 && maxZ == 0)
+            CLFeatures.getInstance().getLogger().warning("Invalid portal detected: " + this.getName() + " " + getTargetLocation());
+        
+        box = new BoundingBox(minX, minY, minZ, maxX + 1D, maxY + 1D, maxZ + 1D);
+    }
+    
+    private String getCurrentTarget(ItemStack item) {
+        if(item == null || item.getType() != Material.WRITTEN_BOOK)
+            return null;
+        
+        if(AddressBookUtils.isAddressBook(item))
+            return AddressBookUtils.getCurrentTarget(item);
+        
+        String[] lines = ((BookMeta) item.getItemMeta()).getPage(1).split("\n");
+        return lines.length > 0 ? lines[0].trim() : null;
     }
     
     @Override
@@ -97,11 +112,9 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         Lectern l = (Lectern) getInitialBlock().getBlock().getState();
         ItemStack item = l.getInventory().getItem(0);
         
-        if (item != null && item.getType() == Material.WRITTEN_BOOK) {
-            String[] lines = ((BookMeta) item.getItemMeta()).getPage(1).split("\n");
-            currentTarget = lines.length > 0 ? lines[0].trim() : null;
+        String currentTarget = getCurrentTarget(item);
+        if(currentTarget != null)
             ticksWithoutBook = 0;
-        }
         
         if (++ticksWithoutBook > getManager().getBooklessTicks())
             currentTarget = null;

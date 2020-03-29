@@ -25,6 +25,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
+import de.craftlancer.clfeatures.portal.addressbook.AddressBookCommandHandler;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 
@@ -55,6 +56,8 @@ public class PortalFeature extends Feature {
         inactivityTimeout = config.getLong("inactivityTimeout", 155520000L);
         booklessTicks = config.getLong("booklessTicks", 30L);
         portalCooldown = config.getInt("portalCooldown", 300);
+        
+        plugin.getCommand("pbook").setExecutor(new AddressBookCommandHandler(plugin));
         
         instances = (List<PortalFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/portals.yml"))
                                                                    .getList("portals", new ArrayList<>());

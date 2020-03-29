@@ -15,6 +15,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockFormEvent;
+import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -108,7 +111,25 @@ public abstract class FeatureInstance implements Listener {
         event.setCancelled(true);
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onGrow(BlockFormEvent event) {
+        if (structure.containsBlock(event.getBlock()))
+            event.setCancelled(true);
+    }
+    
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onFlow(BlockFromToEvent event) {
+        if (structure.containsBlock(event.getToBlock()))
+            event.setCancelled(true);
+    }
+    
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onFlow(BlockPhysicsEvent event) {
+        if (structure.containsBlock(event.getBlock()))
+            event.setCancelled(true);
+    }
+    
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event.getBlock().getLocation().equals(initialBlock))
             return;

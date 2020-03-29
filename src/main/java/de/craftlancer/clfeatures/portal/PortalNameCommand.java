@@ -31,6 +31,8 @@ public class PortalNameCommand extends SubCommand {
         
         if(feature.getPortal(name) != null)
             return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "A portal with that name already exists.";
+        if(name.length() > 20)
+            return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "The name is too long, 20 characters max.";
         
         Player p = (Player) sender;
         p.setMetadata(PortalFeatureInstance.RENAME_METADATA, new FixedMetadataValue(getPlugin(), name));

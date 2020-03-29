@@ -8,9 +8,18 @@ commands:
   portal:
     description: "Portal related commands"
     usage: /portal [list|name|move]
+  pbook:
+    description: "Portal Book related commands"
+    usage: /pbook [add|select|remove]
   stonecrusher:
     description: "Stonecrusher related commands"
     usage: /stonecrusher [move]
 permissions:
   clfeature.portal.ignoreLimit:
     default: op
+  clfeature.portal.book.add:
+    default: true
+  clfeature.portal.book.remove:
+    default: true
+  clfeature.portal.book.select:
+    default: true
