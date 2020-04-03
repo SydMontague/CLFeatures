@@ -49,6 +49,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
     private long lastUsage = 0;
     
     // runtime
+    private String currentTarget;
     private int ticksWithoutBook = 0;
     
     private List<Location> airBlocks;
@@ -72,17 +73,17 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         int maxY = airBlocks.stream().map(Location::getBlockY).max(Integer::compare).orElseGet(() -> 0);
         int maxZ = airBlocks.stream().map(Location::getBlockZ).max(Integer::compare).orElseGet(() -> 0);
         
-        if(minX == 0 && minY == 0 && minZ == 0 && maxX == 0 && maxY == 0 && maxZ == 0)
-            CLFeatures.getInstance().getLogger().warning("Invalid portal detected: " + this.getName() + " " + getTargetLocation());
+        if (minX == 0 && minY == 0 && minZ == 0 && maxX == 0 && maxY == 0 && maxZ == 0)
+            CLFeatures.getInstance().getLogger().warning("Invalid portal detected: " + this.getName() + " " + getInitialBlock());
         
         box = new BoundingBox(minX, minY, minZ, maxX + 1D, maxY + 1D, maxZ + 1D);
     }
     
     private String getCurrentTarget(ItemStack item) {
-        if(item == null || item.getType() != Material.WRITTEN_BOOK)
+        if (item == null || item.getType() != Material.WRITTEN_BOOK)
             return null;
         
-        if(AddressBookUtils.isAddressBook(item))
+        if (AddressBookUtils.isAddressBook(item))
             return AddressBookUtils.getCurrentTarget(item);
         
         String[] lines = ((BookMeta) item.getItemMeta()).getPage(1).split("\n");
@@ -101,7 +102,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         if (!w.isChunkLoaded(getInitialBlock().getBlockX() >> 4, getInitialBlock().getBlockZ() >> 4))
             return;
         
-        if(!(getInitialBlock().getBlock().getState() instanceof Lectern)) {
+        if (!(getInitialBlock().getBlock().getState() instanceof Lectern)) {
             CLFeatures.getInstance().getLogger().warning(() -> String.format("Portal \"%s\" is missing it's Lectern, did it get removed somehow?", name));
             CLFeatures.getInstance().getLogger().warning("Location: " + getInitialBlock() + " | " + getOwnerId());
             CLFeatures.getInstance().getLogger().warning("Removing the portal to prevent further errors.");
@@ -112,9 +113,10 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         Lectern l = (Lectern) getInitialBlock().getBlock().getState();
         ItemStack item = l.getInventory().getItem(0);
         
-        String currentTarget = getCurrentTarget(item);
-        if(currentTarget != null)
+        if(item != null && item.getType() == Material.WRITTEN_BOOK) {
+            currentTarget = getCurrentTarget(item);
             ticksWithoutBook = 0;
+        }
         
         if (++ticksWithoutBook > getManager().getBooklessTicks())
             currentTarget = null;
@@ -148,7 +150,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
                             cancel();
                             return;
                         }
-
+                        
                         Location loc = (Location) player.getMetadata(LOOP_METADATA).get(0).value();
                         
                         if (loc.distanceSquared(player.getLocation()) > 2) {
@@ -231,7 +233,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         if (isFirstName || getManager().checkRenameCosts(p)) {
             setName(newName);
             
-            if (!isFirstName) 
+            if (!isFirstName)
                 getManager().deductRenameCosts(p);
             else {
                 // give first time books
@@ -243,7 +245,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
                 homeMeta.setTitle(ChatColor.GREEN + "Portalbook back Home");
                 homeMeta.setDisplayName(ChatColor.GREEN + "Portalbook back Home");
                 homeMeta.setLore(Arrays.asList(ChatColor.WHITE + "Place in any Portal to return to your portal, ",
-                                           ChatColor.RED + "take it out of the lectern before you enter!"));
+                                               ChatColor.RED + "take it out of the lectern before you enter!"));
                 homeBook.setItemMeta(homeMeta);
                 
                 ItemStack valgardBook = new ItemStack(Material.WRITTEN_BOOK);
@@ -253,9 +255,9 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
                 valgardMeta.setTitle(ChatColor.GREEN + "Portalbook back Valgard");
                 valgardMeta.setDisplayName(ChatColor.GREEN + "Portalbook back Valgard");
                 valgardMeta.setLore(Arrays.asList(ChatColor.WHITE + "Place in any Portal to return to Valgard, ",
-                                           ChatColor.RED + "take it out of the lectern before you enter!"));
+                                                  ChatColor.RED + "take it out of the lectern before you enter!"));
                 valgardBook.setItemMeta(valgardMeta);
-                p.getInventory().addItem(valgardBook, homeBook).forEach((a,b) -> p.getWorld().dropItem(p.getLocation(), b));
+                p.getInventory().addItem(valgardBook, homeBook).forEach((a, b) -> p.getWorld().dropItem(p.getLocation(), b));
             }
             
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + String.format("Portal successfully renamed to %s.", newName));
