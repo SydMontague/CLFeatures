@@ -48,21 +48,23 @@ public class AddressBookUtils {
         return addresses;
     }
     
+    // TODO Headings bold
+    // TODO mark currently selected portal with color
     static ItemStack writeBook(ItemStack item, String currentTarget, List<String> addresses) {
         List<BaseComponent[]> pages = new ArrayList<>();
         
         List<BaseComponent> page1 = new ArrayList<>();
-        page1.add(new TextComponent("Current Target:\n"));
-        page1.add(new TextComponent(currentTarget + "\n"));
+        page1.add(new TextComponent("§lCurrent Target:§r\n"));
+        page1.add(new TextComponent(ChatColor.DARK_GREEN.asBungee() + currentTarget + "\n"));
         page1.add(new TextComponent("\n"));
-        page1.add(new TextComponent("Click to select:\n"));
+        page1.add(new TextComponent("§lClick to select:§r\n"));
         
         Iterator<String> itr = addresses.iterator();
         
         for (int i = 0; i < 10 && itr.hasNext(); i++) {
             String name = itr.next();
             BaseComponent comp = new TextComponent(name + "\n");
-            comp.setColor(ChatColor.GRAY.asBungee());
+            comp.setColor(currentTarget.equalsIgnoreCase(name) ? ChatColor.DARK_GREEN.asBungee() : ChatColor.GRAY.asBungee());
             comp.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/pbook select " + name));
             page1.add(comp);
         }
@@ -75,7 +77,7 @@ public class AddressBookUtils {
             for (int i = 0; i < 14 && itr.hasNext(); i++) {
                 String name = itr.next();
                 BaseComponent comp = new TextComponent(name + "\n");
-                comp.setColor(ChatColor.GRAY.asBungee());
+                comp.setColor(currentTarget.equalsIgnoreCase(name) ? ChatColor.DARK_GREEN.asBungee() : ChatColor.GRAY.asBungee());
                 comp.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/pbook select " + name));
                 page.add(comp);
             }
