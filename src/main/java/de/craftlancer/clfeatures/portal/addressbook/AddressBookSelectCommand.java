@@ -17,7 +17,7 @@ public class AddressBookSelectCommand extends SubCommand {
     @Override
     protected String execute(CommandSender sender, Command cmd, String label, String[] args) {
         if (!checkSender(sender))
-            return "You can't use this command.";
+            return "§f[§4Craft§fCitizen] §eYou can't use this command.";
         
         Player player = (Player) sender;
         
@@ -28,17 +28,17 @@ public class AddressBookSelectCommand extends SubCommand {
             item = player.getInventory().getItemInMainHand();
         
         if (!AddressBookUtils.isAddressBook(item))
-            return "You must hold an address book in your hand. Use /kit book to get one.";
+            return "§f[§4Craft§fCitizen] §eYou must hold an address book in your hand. Use /kit book to get one.";
         if (args.length < 2)
-            return "You must specify a name to select.";
+            return "§f[§4Craft§fCitizen] §eYou must specify a name to select.";
         
         String name = args[1];
         
         if (name.length() > 20)
-            return "The given name is too long.";
+            return "§f[§4Craft§fCitizen] §eThe given name is too long.";
         
         AddressBookUtils.writeBook(item, name, AddressBookUtils.getAddresses(item));
-        return "Address selected.";
+        return "§f[§4Craft§fCitizen] §eAddress selected.";
     }
     
     @Override

@@ -17,7 +17,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
 
 public class AddressBookUtils {
-    private static final String ADDRESSBOOK_NAME = ChatColor.DARK_PURPLE + "Address Book";
+    public AddressBookUtils() {
+    }
+    
+    private static final int ADDRESSBOOK_MODEL_DATA = 1;
     
     public static boolean isAddressBook(ItemStack item) {
         if (item.getType() != Material.WRITTEN_BOOK)
@@ -25,7 +28,7 @@ public class AddressBookUtils {
         
         BookMeta meta = (BookMeta) item.getItemMeta();
         
-        return meta.hasDisplayName() && meta.getDisplayName().equals(ADDRESSBOOK_NAME);
+        return meta.hasCustomModelData() && meta.getCustomModelData() == ADDRESSBOOK_MODEL_DATA;
     }
     
     public static String getCurrentTarget(ItemStack item) {
@@ -48,9 +51,10 @@ public class AddressBookUtils {
         return addresses;
     }
     
-    // TODO Headings bold
-    // TODO mark currently selected portal with color
-    static ItemStack writeBook(ItemStack item, String currentTarget, List<String> addresses) {
+    public static ItemStack writeBook(ItemStack item, String currentTarget, List<String> addresses) {
+        if(item == null || item.getType() != Material.WRITTEN_BOOK)
+            throw new IllegalArgumentException("Given Itemstack must be WRITTEN_BOOK");
+        
         List<BaseComponent[]> pages = new ArrayList<>();
         
         List<BaseComponent> page1 = new ArrayList<>();
@@ -86,6 +90,7 @@ public class AddressBookUtils {
         }
         
         BookMeta meta = (BookMeta) item.getItemMeta();
+        meta.setCustomModelData(ADDRESSBOOK_MODEL_DATA);
         meta.spigot().setPages(pages);
         item.setItemMeta(meta);
         

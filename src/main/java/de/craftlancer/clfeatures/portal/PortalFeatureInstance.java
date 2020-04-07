@@ -1,6 +1,7 @@
 package de.craftlancer.clfeatures.portal;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -87,7 +88,12 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         if (AddressBookUtils.isAddressBook(item))
             return AddressBookUtils.getCurrentTarget(item);
         
-        String[] lines = ((BookMeta) item.getItemMeta()).getPage(1).split("\n");
+        BookMeta meta = ((BookMeta) item.getItemMeta());
+        
+        if(meta.getPageCount() == 0)
+            return null;
+        
+        String[] lines = meta.getPage(1).split("\n");
         return lines.length > 0 ? lines[0].trim() : null;
     }
     
@@ -114,7 +120,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         Lectern l = (Lectern) getInitialBlock().getBlock().getState();
         ItemStack item = l.getInventory().getItem(0);
         
-        if(item != null && item.getType() == Material.WRITTEN_BOOK) {
+        if (item != null && item.getType() == Material.WRITTEN_BOOK) {
             currentTarget = getCurrentTarget(item);
             ticksWithoutBook = 0;
         }
@@ -140,7 +146,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
                 PortalTeleportEvent event = new PortalTeleportEvent(p, this, target);
                 Bukkit.getPluginManager().callEvent(event);
                 
-                if(event.isCancelled())
+                if (event.isCancelled())
                     continue;
                 
                 p.teleport(target.getTargetLocation(), TeleportCause.PLUGIN);
@@ -244,27 +250,23 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
                 getManager().deductRenameCosts(p);
             else {
                 // give first time books
-                ItemStack homeBook = new ItemStack(Material.WRITTEN_BOOK);
+                List<String> addressList = new ArrayList<>();
+                addressList.add(newName);
+                addressList.addAll(manager.getDefaultPortals());
                 
+                ItemStack homeBook = AddressBookUtils.writeBook(new ItemStack(Material.WRITTEN_BOOK), manager.getDefaultPortal(), addressList);
                 BookMeta homeMeta = (BookMeta) homeBook.getItemMeta();
-                homeMeta.addPage(newName);
-                homeMeta.setAuthor("");
-                homeMeta.setTitle(ChatColor.GREEN + "Portalbook back Home");
-                homeMeta.setDisplayName(ChatColor.GREEN + "Portalbook back Home");
-                homeMeta.setLore(Arrays.asList(ChatColor.WHITE + "Place in any Portal to return to your portal, ",
-                                               ChatColor.RED + "take it out of the lectern before you enter!"));
+                homeMeta.setDisplayName(ChatColor.GREEN + p.getName() + "'s Portal Book");
+                homeMeta.setTitle("Address Book");
+                homeMeta.setAuthor("Server");
+                homeMeta.setLore(Arrays.asList(ChatColor.DARK_GREEN + "This book contains your portal names.",
+                                               ChatColor.DARK_GREEN + "Use it to select your destination in a Portal Lectern.",
+                                               ChatColor.DARK_GREEN + "Type " + ChatColor.GREEN + "/pbook [add|remove|select] <name>"));
                 homeBook.setItemMeta(homeMeta);
                 
-                ItemStack valgardBook = new ItemStack(Material.WRITTEN_BOOK);
-                BookMeta valgardMeta = (BookMeta) valgardBook.getItemMeta();
-                valgardMeta.addPage("Valgard");
-                valgardMeta.setAuthor("");
-                valgardMeta.setTitle(ChatColor.GREEN + "Portalbook back Valgard");
-                valgardMeta.setDisplayName(ChatColor.GREEN + "Portalbook back Valgard");
-                valgardMeta.setLore(Arrays.asList(ChatColor.WHITE + "Place in any Portal to return to Valgard, ",
-                                                  ChatColor.RED + "take it out of the lectern before you enter!"));
-                valgardBook.setItemMeta(valgardMeta);
-                p.getInventory().addItem(valgardBook, homeBook).forEach((a, b) -> p.getWorld().dropItem(p.getLocation(), b));
+                
+                
+                p.getInventory().addItem(homeBook).forEach((a, b) -> p.getWorld().dropItem(p.getLocation(), b));
             }
             
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + String.format("Portal successfully renamed to %s.", newName));

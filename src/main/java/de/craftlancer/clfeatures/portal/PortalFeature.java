@@ -45,6 +45,9 @@ public class PortalFeature extends Feature {
     private List<ItemStack> renameItems;
     private List<ItemStack> moveItems;
     
+    private List<String> defaultPortals;
+    private String defaultPortal;
+    
     @SuppressWarnings("unchecked")
     public PortalFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "portal.limit"));
@@ -56,6 +59,8 @@ public class PortalFeature extends Feature {
         inactivityTimeout = config.getLong("inactivityTimeout", 155520000L);
         booklessTicks = config.getLong("booklessTicks", 30L);
         portalCooldown = config.getInt("portalCooldown", 300);
+        defaultPortals = config.getStringList("defaultPortals");
+        defaultPortal = config.getString("defaultPortal", "valgard");
         
         plugin.getCommand("pbook").setExecutor(new AddressBookCommandHandler(plugin));
         
@@ -185,7 +190,8 @@ public class PortalFeature extends Feature {
         blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 1, 3, facing.getModX() * -1).getLocation());
         blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 2, 3, facing.getModX() * -2).getLocation());
         
-        creator.sendMessage("[§4Craft§fCitizen]" + ChatColor.YELLOW + "Portal placed, use /portal name <name> to give your portal an address! Place a signed book with the portal address you want to go to in the lectern.");
+        creator.sendMessage("[§4Craft§fCitizen]" + ChatColor.YELLOW + "Portal placed, use " + ChatColor.GREEN + "/portal name <name>" + ChatColor.YELLOW
+                + " to give your portal an address!");
         return instances.add(new PortalFeatureInstance(this, creator, blocks, initialBlock));
     }
     
@@ -193,15 +199,15 @@ public class PortalFeature extends Feature {
     public void remove(FeatureInstance instance) {
         if (instance instanceof PortalFeatureInstance) {
             instances.remove(instance);
-            if(((PortalFeatureInstance) instance).getName() != null)
+            if (((PortalFeatureInstance) instance).getName() != null)
                 lookupTable.remove(((PortalFeatureInstance) instance).getName().toLowerCase(), instance);
         }
     }
     
     public PortalFeatureInstance getPortal(String name) {
-        if(name == null || name.isEmpty())
+        if (name == null || name.isEmpty())
             return null;
-            
+        
         return lookupTable.get(name.toLowerCase());
     }
     
@@ -238,9 +244,9 @@ public class PortalFeature extends Feature {
     public int getPortalCooldown() {
         return portalCooldown;
     }
-
+    
     public void updatedName(PortalFeatureInstance portalFeatureInstance, String oldName, String newName) {
-        if(oldName != null)
+        if (oldName != null)
             lookupTable.remove(oldName.toLowerCase());
         lookupTable.put(newName.toLowerCase(), portalFeatureInstance);
     }
@@ -248,5 +254,13 @@ public class PortalFeature extends Feature {
     @Override
     protected String getName() {
         return "Portal";
+    }
+    
+    public List<String> getDefaultPortals() {
+        return defaultPortals;
+    }
+    
+    public String getDefaultPortal() {
+        return defaultPortal;
     }
 }

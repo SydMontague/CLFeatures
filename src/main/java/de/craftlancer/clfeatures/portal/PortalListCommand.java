@@ -31,13 +31,14 @@ public class PortalListCommand extends SubCommand {
         
         Player player = (Player) sender;
         
-        sender.sendMessage(String.format("Current Limit: %d/%s", feature.getPortalsByPlayer(player).size(), feature.getLimit(player)));
-        sender.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Name | Location");
+        sender.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + String.format("Your current portal limit: §2%d/%s", feature.getPortalsByPlayer(player).size(), feature.getLimit(player)));
+        sender.sendMessage(ChatColor.YELLOW + "      Name | Location");
         feature.getPortalsByPlayer((Player) sender).forEach(a -> {
             Location loc = a.getInitialBlock();
             
-            BaseComponent component = new TextComponent(CLFeatures.CC_PREFIX + ChatColor.YELLOW + String.format("%s | %d, %d, %d ", a.getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+            BaseComponent component = new TextComponent(ChatColor.YELLOW + String.format("      %s | %d, %d, %d   ", a.getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
             BaseComponent pbookAdd = new TextComponent("[Add]");
+            pbookAdd.setColor(ChatColor.DARK_GREEN);
             pbookAdd.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pbook add " + a.getName()));
             pbookAdd.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click while holding an Address Book to add.").color(ChatColor.DARK_GRAY).create()));
             
