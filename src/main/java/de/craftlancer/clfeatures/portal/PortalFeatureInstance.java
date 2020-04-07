@@ -33,6 +33,7 @@ import org.bukkit.util.BoundingBox;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookUtils;
+import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
 import de.craftlancer.core.structure.BlockStructure;
 import net.md_5.bungee.api.ChatColor;
 
@@ -136,6 +137,12 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
                 continue;
             
             if (box.contains(p.getLocation().toVector())) {
+                PortalTeleportEvent event = new PortalTeleportEvent(p, this, target);
+                Bukkit.getPluginManager().callEvent(event);
+                
+                if(event.isCancelled())
+                    continue;
+                
                 p.teleport(target.getTargetLocation(), TeleportCause.PLUGIN);
                 p.setPortalCooldown(manager.getPortalCooldown());
                 p.setMetadata(LOOP_METADATA, new FixedMetadataValue(CLFeatures.getInstance(), target.getTargetLocation()));
