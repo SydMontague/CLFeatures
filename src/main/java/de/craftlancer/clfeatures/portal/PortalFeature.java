@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -26,6 +28,7 @@ import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookCommandHandler;
+import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 
@@ -68,6 +71,16 @@ public class PortalFeature extends Feature {
                                                                    .getList("portals", new ArrayList<>());
         
         instances.stream().filter(a -> a.getName() != null && !a.getName().isEmpty()).forEach(a -> lookupTable.put(a.getName().toLowerCase(), a));
+        
+        new LambdaRunnable(() -> 
+            Bukkit.getOnlinePlayers().forEach(a -> {
+                if(a.hasMetadata(PortalFeatureInstance.LOOP_METADATA)) {
+                    Location loc = (Location) a.getMetadata(PortalFeatureInstance.LOOP_METADATA).get(0).value();
+                    if (loc.distanceSquared(a.getLocation()) > 2)
+                        a.removeMetadata(PortalFeatureInstance.LOOP_METADATA, CLFeatures.getInstance());
+                }
+            })
+        ).runTaskTimer(CLFeatures.getInstance(), 5, 5);
     }
     
     @Override

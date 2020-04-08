@@ -17,7 +17,7 @@ import de.craftlancer.core.command.SubCommand;
 
 public class AddressBookGetCommand extends SubCommand {
     public AddressBookGetCommand(Plugin plugin) {
-        super("clfeatures.portal.book.get", plugin, true);
+        super("clfeature.portal.book.get", plugin, true);
     }
     
     @Override

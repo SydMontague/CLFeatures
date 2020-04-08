@@ -12,7 +12,7 @@ import de.craftlancer.core.command.SubCommand;
 
 public class AddressBookAddCommand extends SubCommand {
     public AddressBookAddCommand(Plugin plugin) {
-        super("clfeatures.portal.book.add", plugin, false);
+        super("clfeature.portal.book.add", plugin, false);
     }
     
     @Override

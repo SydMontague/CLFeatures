@@ -12,7 +12,7 @@ import de.craftlancer.core.command.SubCommand;
 
 public class AddressBookRemoveCommand extends SubCommand {
     public AddressBookRemoveCommand(Plugin plugin) {
-        super("clfeatures.portal.book.remove", plugin, false);
+        super("clfeature.portal.book.remove", plugin, false);
     }
     
     @Override

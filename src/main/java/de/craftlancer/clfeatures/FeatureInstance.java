@@ -124,12 +124,6 @@ public abstract class FeatureInstance implements Listener {
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    public void onFlow(BlockPhysicsEvent event) {
-        if (structure.containsBlock(event.getBlock()))
-            event.setCancelled(true);
-    }
-    
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event.getBlock().getLocation().equals(initialBlock))
             return;

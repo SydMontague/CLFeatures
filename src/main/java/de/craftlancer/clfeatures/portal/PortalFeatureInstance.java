@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
@@ -28,7 +27,6 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 
 import de.craftlancer.clfeatures.CLFeatures;
@@ -90,7 +88,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         
         BookMeta meta = ((BookMeta) item.getItemMeta());
         
-        if(meta.getPageCount() == 0)
+        if (meta.getPageCount() == 0)
             return null;
         
         String[] lines = meta.getPage(1).split("\n");
@@ -139,39 +137,16 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         });
         
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.getPortalCooldown() != 0 || p.hasMetadata(LOOP_METADATA))
+            if (p.getPortalCooldown() != 0 || p.hasMetadata(LOOP_METADATA) || !box.contains(p.getLocation().toVector()))
                 continue;
             
-            if (box.contains(p.getLocation().toVector())) {
-                PortalTeleportEvent event = new PortalTeleportEvent(p, this, target);
-                Bukkit.getPluginManager().callEvent(event);
-                
-                if (event.isCancelled())
-                    continue;
-                
+            PortalTeleportEvent event = new PortalTeleportEvent(p, this, target);
+            Bukkit.getPluginManager().callEvent(event);
+            
+            if (!event.isCancelled()) {
                 p.teleport(target.getTargetLocation(), TeleportCause.PLUGIN);
                 p.setPortalCooldown(manager.getPortalCooldown());
                 p.setMetadata(LOOP_METADATA, new FixedMetadataValue(CLFeatures.getInstance(), target.getTargetLocation()));
-                
-                UUID uuid = p.getUniqueId();
-                
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        Player player = Bukkit.getPlayer(uuid);
-                        if (player == null || !player.hasMetadata(LOOP_METADATA)) {
-                            cancel();
-                            return;
-                        }
-                        
-                        Location loc = (Location) player.getMetadata(LOOP_METADATA).get(0).value();
-                        
-                        if (loc.distanceSquared(player.getLocation()) > 2) {
-                            player.removeMetadata(LOOP_METADATA, CLFeatures.getInstance());
-                            cancel();
-                        }
-                    }
-                }.runTaskTimer(CLFeatures.getInstance(), 1, 1);
             }
         }
     }
@@ -263,8 +238,6 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
                                                ChatColor.DARK_GREEN + "Use it to select your destination in a Portal Lectern.",
                                                ChatColor.DARK_GREEN + "Type " + ChatColor.GREEN + "/pbook [add|remove|select] <name>"));
                 homeBook.setItemMeta(homeMeta);
-                
-                
                 
                 p.getInventory().addItem(homeBook).forEach((a, b) -> p.getWorld().dropItem(p.getLocation(), b));
             }

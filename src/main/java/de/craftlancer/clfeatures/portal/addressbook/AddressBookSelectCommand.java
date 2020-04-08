@@ -11,7 +11,7 @@ import de.craftlancer.core.command.SubCommand;
 
 public class AddressBookSelectCommand extends SubCommand {
     public AddressBookSelectCommand(Plugin plugin) {
-        super("clfeatures.portal.book.select", plugin, false);
+        super("clfeature.portal.book.select", plugin, false);
     }
     
     @Override
