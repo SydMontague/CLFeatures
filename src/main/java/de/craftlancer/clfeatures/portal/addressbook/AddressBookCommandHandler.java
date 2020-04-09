@@ -11,6 +11,7 @@ public class AddressBookCommandHandler extends CommandHandler {
         registerSubCommand("add", new AddressBookAddCommand(getPlugin()));
         registerSubCommand("select", new AddressBookSelectCommand(getPlugin()));
         registerSubCommand("remove", new AddressBookRemoveCommand(getPlugin()));
+        registerSubCommand("removeall", new AddressBookRemoveAllCommand(getPlugin()));
         registerSubCommand("get", new AddressBookGetCommand(getPlugin()));
     }
 }
