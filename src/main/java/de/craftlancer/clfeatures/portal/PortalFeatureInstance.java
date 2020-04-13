@@ -163,7 +163,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
     }
     
     public String getName() {
-        return name;
+        return name == null ? "<no name>" : name;
     }
     
     public void setName(String name) {
@@ -189,8 +189,9 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         if (!getOwnerId().equals(p.getUniqueId()))
             return;
         
-        if (getManager().checkMoveCost(p)) {
-            getManager().deductMoveCost(p);
+        if (getName() == null || getManager().checkMoveCost(p)) {
+            if(getName() == null)
+                getManager().deductMoveCost(p);
             destroy();
             manager.giveFeatureItem(p);
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Portal successfully moved back to your inventory.");

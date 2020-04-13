@@ -76,6 +76,10 @@ public abstract class FeatureInstance implements Listener {
         return initialBlock.clone();
     }
     
+    public void setOwnerId(UUID ownerId) {
+        this.ownerId = ownerId;
+    }
+    
     public UUID getOwnerId() {
         return ownerId;
     }
