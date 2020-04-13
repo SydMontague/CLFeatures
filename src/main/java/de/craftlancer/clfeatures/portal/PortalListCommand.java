@@ -1,5 +1,6 @@
 package de.craftlancer.clfeatures.portal;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -28,12 +29,15 @@ public class PortalListCommand extends SubCommand {
     protected String execute(CommandSender sender, Command cmd, String label, String[] args) {
         if(!checkSender(sender))
             return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't use this command.";
+
+        Player player = args.length >= 2 && sender.hasPermission("clfeature.portal.list.others") ? Bukkit.getPlayer(args[1]) : (Player) sender;
         
-        Player player = (Player) sender;
+        if(player == null)
+            return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You must specify a player.";
         
         sender.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + String.format("Your current portal limit: §2%d/%s", feature.getPortalsByPlayer(player).size(), feature.getLimit(player)));
         sender.sendMessage(ChatColor.YELLOW + "      Name | Location");
-        feature.getPortalsByPlayer((Player) sender).forEach(a -> {
+        feature.getPortalsByPlayer(player).forEach(a -> {
             Location loc = a.getInitialBlock();
             
             BaseComponent component = new TextComponent(ChatColor.YELLOW + String.format("      %s | %d, %d, %d   ", a.getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));

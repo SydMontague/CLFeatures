@@ -25,3 +25,5 @@ permissions:
     default: true
   clfeature.portal.book.get:
     default: true
+  clfeature.portal.list.others:
+    default: op

@@ -36,6 +36,7 @@ import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
 import de.craftlancer.core.structure.BlockStructure;
 import net.md_5.bungee.api.ChatColor;
 
+// TODO transfer portal ownership
 public class PortalFeatureInstance extends FeatureInstance implements ConfigurationSerializable {
     public static final String LOOP_METADATA = "portalLoop";
     public static final String RENAME_METADATA = "portalRename";
@@ -115,6 +116,13 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             return;
         }
         
+        if (++ticksWithoutBook > getManager().getBooklessTicks())
+            currentTarget = null;
+        
+        // don't tick portals with a player more than 32 blocks away
+        if(Bukkit.getOnlinePlayers().stream().anyMatch(a -> a.getWorld().equals(w) && a.getLocation().distanceSquared(getInitialBlock()) > 1024))
+            return; 
+        
         Lectern l = (Lectern) getInitialBlock().getBlock().getState();
         ItemStack item = l.getInventory().getItem(0);
         
@@ -122,9 +130,6 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             currentTarget = getCurrentTarget(item);
             ticksWithoutBook = 0;
         }
-        
-        if (++ticksWithoutBook > getManager().getBooklessTicks())
-            currentTarget = null;
         
         PortalFeatureInstance target = getManager().getPortal(currentTarget);
         

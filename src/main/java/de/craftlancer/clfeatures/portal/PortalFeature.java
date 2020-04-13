@@ -15,6 +15,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Lectern;
@@ -237,7 +238,7 @@ public class PortalFeature extends Feature {
         }
     }
     
-    public List<PortalFeatureInstance> getPortalsByPlayer(Player p) {
+    public List<PortalFeatureInstance> getPortalsByPlayer(OfflinePlayer p) {
         return instances.stream().filter(a -> a.isOwner(p)).collect(Collectors.toList());
     }
     
