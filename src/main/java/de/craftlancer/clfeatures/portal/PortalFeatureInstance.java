@@ -120,7 +120,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             currentTarget = null;
         
         // don't tick portals with a player more than 32 blocks away
-        if(Bukkit.getOnlinePlayers().stream().anyMatch(a -> a.getWorld().equals(w) && a.getLocation().distanceSquared(getInitialBlock()) > 1024))
+        if(Bukkit.getOnlinePlayers().stream().noneMatch(a -> a.getWorld().equals(w) && a.getLocation().distanceSquared(getInitialBlock()) < 1024))
             return; 
         
         Lectern l = (Lectern) getInitialBlock().getBlock().getState();
