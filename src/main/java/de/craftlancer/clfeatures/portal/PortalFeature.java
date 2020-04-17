@@ -77,7 +77,7 @@ public class PortalFeature extends Feature {
             Bukkit.getOnlinePlayers().forEach(a -> {
                 if(a.hasMetadata(PortalFeatureInstance.LOOP_METADATA)) {
                     Location loc = (Location) a.getMetadata(PortalFeatureInstance.LOOP_METADATA).get(0).value();
-                    if (loc.distanceSquared(a.getLocation()) > 2)
+                    if (!loc.getWorld().equals(a.getWorld()) || loc.distanceSquared(a.getLocation()) > 2)
                         a.removeMetadata(PortalFeatureInstance.LOOP_METADATA, CLFeatures.getInstance());
                 }
             })

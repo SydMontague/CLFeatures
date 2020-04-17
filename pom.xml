@@ -36,6 +36,12 @@
       <artifactId>VaultAPI</artifactId>
       <version>1.7</version>
     </dependency>
+
+    <dependency>
+      <groupId>me.sizzlemcgrizzle</groupId>
+      <artifactId>blueprints</artifactId>
+      <version>1.5.5</version>
+    </dependency>
   </dependencies>
 
   <build>

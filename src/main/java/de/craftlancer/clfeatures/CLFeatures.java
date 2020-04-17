@@ -32,6 +32,8 @@ import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.conversation.ClickableBooleanPrompt;
 import de.craftlancer.core.conversation.FormattedConversable;
+//import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
+//import me.sizzlemcgrizzle.blueprints.api.BlueprintPrePasteEvent;
 import net.md_5.bungee.api.ChatColor;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -103,6 +105,29 @@ public class CLFeatures extends JavaPlugin implements Listener {
     public Feature getFeature(@Nonnull String string) {
         return features.get(string);
     }
+/*
+    @EventHandler
+    public void onBluePrintPrePaste(BlueprintPrePasteEvent event) {
+        Optional<Feature> feature = features.values().stream().filter(a -> a.getName().equals(event.getType())).findFirst();
+        
+        if(!feature.isPresent())
+            return;
+
+        if (!feature.get().checkFeatureLimit(event.getPlayer())) {
+            event.getPlayer().sendMessage(CC_PREFIX + ChatColor.DARK_RED + "You've reached your limit for this feature.");
+            event.setCancelled(true);
+        }
+    }
+    
+    @EventHandler
+    public void onBluePrintPaste(BlueprintPostPasteEvent event) {
+        Optional<Feature> feature = features.values().stream().filter(a -> a.getName().equals(event.getType())).findFirst();
+
+        if(!feature.isPresent())
+            return;
+        
+        // TODO create instance
+    }*/
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event) {
@@ -127,6 +152,16 @@ public class CLFeatures extends JavaPlugin implements Listener {
             blocks.forEach(a -> event.getPlayer().sendBlockChange(a.getLocation(), ERROR_BLOCK.createBlockData()));
             new LambdaRunnable(() -> blocks.forEach(a -> p.sendBlockChange(a.getLocation(), a.getBlockData()))).runTaskLater(this, ERROR_TIMEOUT);
         }
+    }
+    
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onBlockPlaceFinal(BlockPlaceEvent event) {
+        Optional<Feature> feature = features.values().stream().filter(a -> a.isFeatureItem(event.getItemInHand())).findFirst();
+        
+        if (!feature.isPresent())
+            return;
+        
+        feature.get().createInstance(event.getPlayer(), event.getBlock());
     }
     
     @EventHandler(ignoreCancelled = false, priority = EventPriority.NORMAL)
@@ -180,17 +215,6 @@ public class CLFeatures extends JavaPlugin implements Listener {
             
             return Prompt.END_OF_CONVERSATION;
         }
-        
-    }
-    
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onBlockPlaceFinal(BlockPlaceEvent event) {
-        Optional<Feature> feature = features.values().stream().filter(a -> a.isFeatureItem(event.getItemInHand())).findFirst();
-        
-        if (!feature.isPresent())
-            return;
-        
-        feature.get().createInstance(event.getPlayer(), event.getBlock());
     }
     
     private boolean setupEconomy() {
