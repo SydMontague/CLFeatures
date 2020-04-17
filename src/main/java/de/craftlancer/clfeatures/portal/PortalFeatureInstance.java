@@ -190,7 +190,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             return;
         
         if (getName() == null || getManager().checkMoveCost(p)) {
-            if(getName() == null)
+            if(name != null)
                 getManager().deductMoveCost(p);
             destroy();
             manager.giveFeatureItem(p);
