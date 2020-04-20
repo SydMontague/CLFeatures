@@ -186,24 +186,32 @@ public class PortalFeature extends Feature {
         firstPortalBlock.getRelative(facing.getModZ() * 1, 3, facing.getModX() * -1).setType(PORTAL_MATERIAL); // Quarz
         firstPortalBlock.getRelative(facing.getModZ() * 2, 3, facing.getModX() * -2).setType(PORTAL_MATERIAL); // Quarz
         
-        BlockStructure blocks = new BlockStructure(initialBlock.getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 1, -1, facing.getModX() * -1).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 2, -1, facing.getModX() * -2).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 0, 0, facing.getModX() * -0).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 1, 0, facing.getModX() * -1).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 2, 0, facing.getModX() * -2).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 3, 0, facing.getModX() * -3).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 0, 1, facing.getModX() * -0).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 1, 1, facing.getModX() * -1).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 2, 1, facing.getModX() * -2).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 3, 1, facing.getModX() * -3).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 0, 2, facing.getModX() * -0).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 1, 2, facing.getModX() * -1).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 2, 2, facing.getModX() * -2).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 3, 2, facing.getModX() * -3).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 1, 3, facing.getModX() * -1).getLocation());
-        blocks.addBlock(firstPortalBlock.getRelative(facing.getModZ() * 2, 3, facing.getModX() * -2).getLocation());
+        List<Location> blocks = new ArrayList<>();
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, -1, facing.getModX() * -1).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, -1, facing.getModX() * -2).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 0, 0, facing.getModX() * -0).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 0, facing.getModX() * -1).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 0, facing.getModX() * -2).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 3, 0, facing.getModX() * -3).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 0, 1, facing.getModX() * -0).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 1, facing.getModX() * -1).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 1, facing.getModX() * -2).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 3, 1, facing.getModX() * -3).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 0, 2, facing.getModX() * -0).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 2, facing.getModX() * -1).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 2, facing.getModX() * -2).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 3, 2, facing.getModX() * -3).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 3, facing.getModX() * -1).getLocation());
+        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 3, facing.getModX() * -2).getLocation());
         
+        return createInstance(creator, initialBlock, blocks);
+    }
+
+    @Override
+    public boolean createInstance(Player creator, Block initialBlock, List<Location> blocksPasted) {
+        blocksPasted.stream().map(Location::getBlock).filter(a -> a.getType() == Material.BARRIER).forEach(a -> a.setType(Material.AIR));
+        BlockStructure blocks = new BlockStructure(blocksPasted);
+
         creator.sendMessage("[§4Craft§fCitizen]" + ChatColor.YELLOW + "Portal placed, use " + ChatColor.GREEN + "/portal name <name>" + ChatColor.YELLOW
                 + " to give your portal an address!");
         return instances.add(new PortalFeatureInstance(this, creator, blocks, initialBlock));

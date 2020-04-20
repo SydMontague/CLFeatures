@@ -32,26 +32,11 @@ import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.conversation.ClickableBooleanPrompt;
 import de.craftlancer.core.conversation.FormattedConversable;
-//import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
-//import me.sizzlemcgrizzle.blueprints.api.BlueprintPrePasteEvent;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPrePasteEvent;
 import net.md_5.bungee.api.ChatColor;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
-
-// TODO make /portal command available
-
-/*
- * feature
- *   feature list
- *   feature buy
- *   feature portal
- *      feature portal list
- *      feature portal name
- *      
- * 
- * 
- * 
- */
 
 public class CLFeatures extends JavaPlugin implements Listener {
     public static final String CC_PREFIX = "§f[§4Craft§fCitizen] ";
@@ -105,10 +90,10 @@ public class CLFeatures extends JavaPlugin implements Listener {
     public Feature getFeature(@Nonnull String string) {
         return features.get(string);
     }
-/*
+    
     @EventHandler
     public void onBluePrintPrePaste(BlueprintPrePasteEvent event) {
-        Optional<Feature> feature = features.values().stream().filter(a -> a.getName().equals(event.getType())).findFirst();
+        Optional<Feature> feature = features.values().stream().filter(a -> a.getName().equalsIgnoreCase(event.getType())).findFirst();
         
         if(!feature.isPresent())
             return;
@@ -121,13 +106,13 @@ public class CLFeatures extends JavaPlugin implements Listener {
     
     @EventHandler
     public void onBluePrintPaste(BlueprintPostPasteEvent event) {
-        Optional<Feature> feature = features.values().stream().filter(a -> a.getName().equals(event.getType())).findFirst();
+        Optional<Feature> feature = features.values().stream().filter(a -> a.getName().equalsIgnoreCase(event.getType())).findFirst();
 
         if(!feature.isPresent())
             return;
         
-        // TODO create instance
-    }*/
+        feature.get().createInstance(event.getPlayer(), event.getFeatureLocation().getBlock(), event.getBlocksPasted());
+    }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event) {

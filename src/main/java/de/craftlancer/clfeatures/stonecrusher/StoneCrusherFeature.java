@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -140,8 +141,6 @@ public class StoneCrusherFeature extends Feature {
         BlockData slabData = Material.QUARTZ_SLAB.createBlockData(a -> ((Slab) a).setType(Type.TOP));
         BlockData pistonData = Material.PISTON.createBlockData(a -> ((Piston) a).setFacing(BlockFace.DOWN));
         
-        //new BlockData
-        
         initialBlock.getRelative(facing.getModZ(), 0, -facing.getModX()).setBlockData(Material.CHEST.createBlockData(a -> {
             ((Chest) a).setType(Chest.Type.RIGHT);
             ((Chest) a).setFacing(facing.getOppositeFace());
@@ -173,6 +172,11 @@ public class StoneCrusherFeature extends Feature {
         blocks.addBlock(initialBlock.getRelative(-facing.getModZ(), 2, facing.getModX()));
         
         return instances.add(new StoneCrusherFeatureInstance(this, creator.getUniqueId(), blocks, initialBlock.getLocation()));
+    }
+    
+    @Override
+    public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks) {
+        throw new UnsupportedOperationException("Creating StoneCrusher with block list is not supported.");
     }
     
     @Override

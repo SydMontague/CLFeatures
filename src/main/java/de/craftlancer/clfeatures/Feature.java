@@ -2,11 +2,13 @@ package de.craftlancer.clfeatures;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -75,6 +77,8 @@ public abstract class Feature {
     public abstract Collection<Block> checkEnvironment(Block initialBlock);
     
     public abstract boolean createInstance(Player creator, Block initialBlock);
+
+    public abstract boolean createInstance(Player creator, Block initialBlock, List<Location> blocks);
     
     public abstract void save();
     

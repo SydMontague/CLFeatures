@@ -156,6 +156,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         }
     }
     
+    // TODO adjust target location to allow variable sizes
     private Location getTargetLocation() {
         BlockFace facing = ((Directional) getInitialBlock().getBlock().getBlockData()).getFacing().getOppositeFace();
         return getInitialBlock().clone().add(0.5 + 1.5 * facing.getModZ(), 0, 0.5 - 1.5 * facing.getModX()).add(facing.getDirection())
