@@ -55,6 +55,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
     
     private List<Location> airBlocks;
     private BoundingBox box;
+    private Location targetLocation;
     
     public PortalFeatureInstance(PortalFeature manager, Player owner, BlockStructure blocks, Block initialBlock) {
         super(owner.getUniqueId(), blocks, initialBlock.getLocation());
@@ -78,6 +79,8 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             CLFeatures.getInstance().getLogger().warning("Invalid portal detected: " + this.getName() + " " + getInitialBlock());
         
         box = new BoundingBox(minX, minY, minZ, maxX + 1D, maxY + 1D, maxZ + 1D);
+        BlockFace facing = ((Directional) getInitialBlock().getBlock().getBlockData()).getFacing().getOppositeFace();
+        targetLocation = new Location(getInitialBlock().getWorld(), box.getCenterX(), box.getMinY(), box.getCenterZ()).setDirection(facing.getOppositeFace().getDirection());
     }
     
     private String getCurrentTarget(ItemStack item) {
@@ -156,11 +159,8 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         }
     }
     
-    // TODO adjust target location to allow variable sizes
     private Location getTargetLocation() {
-        BlockFace facing = ((Directional) getInitialBlock().getBlock().getBlockData()).getFacing().getOppositeFace();
-        return getInitialBlock().clone().add(0.5 + 1.5 * facing.getModZ(), 0, 0.5 - 1.5 * facing.getModX()).add(facing.getDirection())
-                                .setDirection(facing.getOppositeFace().getDirection());
+        return targetLocation;
     }
     
     public String getName() {

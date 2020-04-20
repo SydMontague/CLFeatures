@@ -50,6 +50,9 @@ public class StoneCrusherFeature extends Feature {
         
         crushesPerTick = config.getInt("stonesPerTick", 1);
         
+        // TODO support itemregistry
+        // TODO support more crushed items (Netherrack)
+        // TODO support ingame config
         ConfigurationSection stoneConfig = config.getConfigurationSection("lootTableStone");
         ConfigurationSection cobbleConfig = config.getConfigurationSection("lootTableCobble");
         ConfigurationSection gravelConfig = config.getConfigurationSection("lootTableGravel");
@@ -160,23 +163,23 @@ public class StoneCrusherFeature extends Feature {
         //initialBlock.getRelative(-facing.getModZ(), 1, -facing.getModX()); // air 
         initialBlock.getRelative(-facing.getModZ(), 2, facing.getModX()).setBlockData(pistonData);
         
-        BlockStructure blocks = new BlockStructure();
-        blocks.addBlock(initialBlock.getRelative(facing.getModZ(), 0, -facing.getModX()));
-        blocks.addBlock(initialBlock.getRelative(facing.getModZ(), 1, -facing.getModX()));
-        blocks.addBlock(initialBlock.getRelative(facing.getModZ(), 2, -facing.getModX()));
-        blocks.addBlock(initialBlock);
-        blocks.addBlock(initialBlock.getRelative(0, 1, 0));
-        blocks.addBlock(initialBlock.getRelative(0, 2, 0));
-        blocks.addBlock(initialBlock.getRelative(-facing.getModZ(), 0, facing.getModX()));
-        blocks.addBlock(initialBlock.getRelative(-facing.getModZ(), 1, facing.getModX()));
-        blocks.addBlock(initialBlock.getRelative(-facing.getModZ(), 2, facing.getModX()));
+        List<Location> blocks = new ArrayList<>();
+        blocks.add(initialBlock.getRelative(facing.getModZ(), 0, -facing.getModX()).getLocation());
+        blocks.add(initialBlock.getRelative(facing.getModZ(), 1, -facing.getModX()).getLocation());
+        blocks.add(initialBlock.getRelative(facing.getModZ(), 2, -facing.getModX()).getLocation());
+        blocks.add(initialBlock.getLocation());
+        blocks.add(initialBlock.getRelative(0, 1, 0).getLocation());
+        blocks.add(initialBlock.getRelative(0, 2, 0).getLocation());
+        blocks.add(initialBlock.getRelative(-facing.getModZ(), 0, facing.getModX()).getLocation());
+        blocks.add(initialBlock.getRelative(-facing.getModZ(), 1, facing.getModX()).getLocation());
+        blocks.add(initialBlock.getRelative(-facing.getModZ(), 2, facing.getModX()).getLocation());
         
-        return instances.add(new StoneCrusherFeatureInstance(this, creator.getUniqueId(), blocks, initialBlock.getLocation()));
+        return createInstance(creator, initialBlock, blocks);
     }
     
     @Override
     public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks) {
-        throw new UnsupportedOperationException("Creating StoneCrusher with block list is not supported.");
+        return instances.add(new StoneCrusherFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation()));
     }
     
     @Override
