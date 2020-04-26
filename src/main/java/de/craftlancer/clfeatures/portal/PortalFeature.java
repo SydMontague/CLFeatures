@@ -24,12 +24,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookCommandHandler;
 import de.craftlancer.core.LambdaRunnable;
+import de.craftlancer.core.NMSUtils;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 
@@ -78,10 +80,10 @@ public class PortalFeature extends Feature {
                 if(a.hasMetadata(PortalFeatureInstance.LOOP_METADATA)) {
                     Location loc = (Location) a.getMetadata(PortalFeatureInstance.LOOP_METADATA).get(0).value();
                     if (!loc.getWorld().equals(a.getWorld()) || loc.distanceSquared(a.getLocation()) > 2)
-                        a.removeMetadata(PortalFeatureInstance.LOOP_METADATA, CLFeatures.getInstance());
+                        a.removeMetadata(PortalFeatureInstance.LOOP_METADATA, plugin);
                 }
             })
-        ).runTaskTimer(CLFeatures.getInstance(), 5, 5);
+        ).runTaskTimer(plugin, 5, 5);
     }
     
     @Override
@@ -238,12 +240,20 @@ public class PortalFeature extends Feature {
         File f = new File(getPlugin().getDataFolder(), "data/portals.yml");
         YamlConfiguration config = new YamlConfiguration();
         config.set("portals", instances);
-        try {
-            config.save(f);
-        }
-        catch (IOException e) {
-            getPlugin().getLogger().log(Level.SEVERE, "Error while saving Portals: ", e);
-        }
+        
+        BukkitRunnable saveTask = new LambdaRunnable(() -> {
+            try {
+                config.save(f);
+            }
+            catch (IOException e) {
+                getPlugin().getLogger().log(Level.SEVERE, "Error while saving Portals: ", e);
+            }
+        });
+
+        if (NMSUtils.isRunning())
+            saveTask.runTaskAsynchronously(getPlugin());
+        else
+            saveTask.run();
     }
     
     public List<PortalFeatureInstance> getPortalsByPlayer(OfflinePlayer p) {

@@ -33,7 +33,7 @@ public class AddressBookGetCommand extends SubCommand {
             
         ItemStack item = AddressBookUtils.writeBook(new ItemStack(Material.WRITTEN_BOOK),
                                                     "Valgard",
-                                                    ((PortalFeature) CLFeatures.getInstance().getFeature("portal")).getDefaultPortals());
+                                                    ((PortalFeature) ((CLFeatures) getPlugin()).getFeature("portal")).getDefaultPortals());
         BookMeta meta = (BookMeta) item.getItemMeta();
         meta.setAuthor("Server");
         meta.setTitle("Address Book");

@@ -25,10 +25,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
+import de.craftlancer.core.LambdaRunnable;
+import de.craftlancer.core.NMSUtils;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 
@@ -187,12 +190,20 @@ public class StoneCrusherFeature extends Feature {
         File f = new File(getPlugin().getDataFolder(), "data/stonecrusher.yml");
         YamlConfiguration config = new YamlConfiguration();
         config.set("stonecrusher", instances);
-        try {
-            config.save(f);
-        }
-        catch (IOException e) {
-            getPlugin().getLogger().log(Level.SEVERE, "Error while saving Portals: ", e);
-        }
+        
+        BukkitRunnable saveTask = new LambdaRunnable(() -> {
+            try {
+                config.save(f);
+            }
+            catch (IOException e) {
+                getPlugin().getLogger().log(Level.SEVERE, "Error while saving Stonecrusher: ", e);
+            }
+        });
+
+        if (NMSUtils.isRunning())
+            saveTask.runTaskAsynchronously(getPlugin());
+        else
+            saveTask.run();
     }
     
     @Override

@@ -1,5 +1,6 @@
 package de.craftlancer.clfeatures;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -7,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.conversations.Prompt;
@@ -28,7 +30,7 @@ import de.craftlancer.core.conversation.ClickableBooleanPrompt;
 import de.craftlancer.core.conversation.FormattedConversable;
 import de.craftlancer.core.structure.BlockStructure;
 
-public abstract class FeatureInstance implements Listener {
+public abstract class FeatureInstance implements Listener, ConfigurationSerializable {
     private BukkitTask task;
     
     private UUID ownerId;
@@ -56,8 +58,23 @@ public abstract class FeatureInstance implements Listener {
         task = new LambdaRunnable(this::tick).runTaskTimer(CLFeatures.getInstance(), 10L, 10L);
     }
     
+    @Override
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        
+        map.put("owner", ownerId.toString());
+        map.put("structure", structure);
+        map.put("lecternLoc", getInitialBlock()); // legacy name
+
+        return map;
+    }
+    
     public boolean isOwner(OfflinePlayer player) {
-        return player.getUniqueId().equals(ownerId);
+        return isOwner(player.getUniqueId());
+    }
+    
+    public boolean isOwner(UUID uuid) {
+        return ownerId.equals(uuid);
     }
     
     protected abstract void tick();

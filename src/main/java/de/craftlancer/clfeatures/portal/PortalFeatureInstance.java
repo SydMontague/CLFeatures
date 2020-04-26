@@ -3,7 +3,6 @@ package de.craftlancer.clfeatures.portal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,7 +16,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Lectern;
 import org.bukkit.block.data.Directional;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -37,7 +35,7 @@ import de.craftlancer.core.structure.BlockStructure;
 import net.md_5.bungee.api.ChatColor;
 
 // TODO transfer portal ownership
-public class PortalFeatureInstance extends FeatureInstance implements ConfigurationSerializable {
+public class PortalFeatureInstance extends FeatureInstance {
     public static final String LOOP_METADATA = "portalLoop";
     public static final String RENAME_METADATA = "portalRename";
     public static final String MOVE_METADATA = "portalMove";
@@ -76,7 +74,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         int maxZ = airBlocks.stream().map(Location::getBlockZ).max(Integer::compare).orElseGet(() -> 0);
         
         if (minX == 0 && minY == 0 && minZ == 0 && maxX == 0 && maxY == 0 && maxZ == 0)
-            CLFeatures.getInstance().getLogger().warning("Invalid portal detected: " + this.getName() + " " + getInitialBlock());
+            getManager().getPlugin().getLogger().warning("Invalid portal detected: " + this.getName() + " " + getInitialBlock());
         
         box = new BoundingBox(minX, minY, minZ, maxX + 1D, maxY + 1D, maxZ + 1D);
         BlockFace facing = ((Directional) getInitialBlock().getBlock().getBlockData()).getFacing().getOppositeFace();
@@ -112,9 +110,9 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             return;
         
         if (!(getInitialBlock().getBlock().getState() instanceof Lectern)) {
-            CLFeatures.getInstance().getLogger().warning(() -> String.format("Portal \"%s\" is missing it's Lectern, did it get removed somehow?", name));
-            CLFeatures.getInstance().getLogger().warning("Location: " + getInitialBlock() + " | " + getOwnerId());
-            CLFeatures.getInstance().getLogger().warning("Removing the portal to prevent further errors.");
+            getManager().getPlugin().getLogger().warning(() -> String.format("Portal \"%s\" is missing it's Lectern, did it get removed somehow?", name));
+            getManager().getPlugin().getLogger().warning("Location: " + getInitialBlock() + " | " + getOwnerId());
+            getManager().getPlugin().getLogger().warning("Removing the portal to prevent further errors.");
             destroy();
             return;
         }
@@ -154,7 +152,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
             if (!event.isCancelled()) {
                 p.teleport(target.getTargetLocation(), TeleportCause.PLUGIN);
                 p.setPortalCooldown(manager.getPortalCooldown());
-                p.setMetadata(LOOP_METADATA, new FixedMetadataValue(CLFeatures.getInstance(), target.getTargetLocation()));
+                p.setMetadata(LOOP_METADATA, new FixedMetadataValue(getManager().getPlugin(), target.getTargetLocation()));
             }
         }
     }
@@ -174,7 +172,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
     
     @EventHandler
     public void onLogin(PlayerJoinEvent event) {
-        event.getPlayer().removeMetadata(LOOP_METADATA, CLFeatures.getInstance());
+        event.getPlayer().removeMetadata(LOOP_METADATA, getManager().getPlugin());
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -200,8 +198,8 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         else
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to move this portal. You need 3 Lesser Fragments.");
         
-        p.removeMetadata(MOVE_METADATA, CLFeatures.getInstance());
-        p.removeMetadata(RENAME_METADATA, CLFeatures.getInstance());
+        p.removeMetadata(MOVE_METADATA, getManager().getPlugin());
+        p.removeMetadata(RENAME_METADATA, getManager().getPlugin());
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -254,7 +252,7 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
         else
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to rename this portal. You need a Lesser Fragment.");
         
-        p.removeMetadata(RENAME_METADATA, CLFeatures.getInstance());
+        p.removeMetadata(RENAME_METADATA, getManager().getPlugin());
     }
     
     @Override
@@ -275,12 +273,9 @@ public class PortalFeatureInstance extends FeatureInstance implements Configurat
     
     @Override
     public Map<String, Object> serialize() {
-        HashMap<String, Object> map = new HashMap<>();
+        Map<String, Object> map = super.serialize();
         
-        map.put("owner", getOwnerId().toString());
         map.put("name", name);
-        map.put("lecternLoc", getInitialBlock());
-        map.put("structure", getStructure());
         map.put("lastUsed", lastUsage);
         
         return map;

@@ -1,6 +1,5 @@
 package de.craftlancer.clfeatures.stonecrusher;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -15,7 +14,6 @@ import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.data.Directional;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -30,7 +28,7 @@ import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeature.CrusherResult;
 import de.craftlancer.core.structure.BlockStructure;
 import net.md_5.bungee.api.ChatColor;
 
-public class StoneCrusherFeatureInstance extends FeatureInstance implements ConfigurationSerializable {
+public class StoneCrusherFeatureInstance extends FeatureInstance {
     public static final String MOVE_METADATA = "crusherMove";
     
     private StoneCrusherFeature manager;
@@ -131,17 +129,6 @@ public class StoneCrusherFeatureInstance extends FeatureInstance implements Conf
         return manager;
     }
     
-    @Override
-    public Map<String, Object> serialize() {
-        HashMap<String, Object> map = new HashMap<>();
-        
-        map.put("owner", getOwnerId().toString());
-        map.put("lecternLoc", getInitialBlock());
-        map.put("structure", getStructure());
-        
-        return map;
-    }
-    
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInteractMove(PlayerInteractEvent event) {
         Player p = event.getPlayer();
@@ -158,6 +145,6 @@ public class StoneCrusherFeatureInstance extends FeatureInstance implements Conf
         destroy();
         getManager().giveFeatureItem(p);
         p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "StoneCrusher successfully moved back to your inventory.");
-        p.removeMetadata(MOVE_METADATA, CLFeatures.getInstance());
+        p.removeMetadata(MOVE_METADATA, getManager().getPlugin());
     }
 }

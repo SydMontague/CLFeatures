@@ -1,0 +1,175 @@
+package de.craftlancer.clfeatures.trophychest;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.Feature;
+import de.craftlancer.clfeatures.FeatureInstance;
+import de.craftlancer.core.CLCore;
+import de.craftlancer.core.LambdaRunnable;
+import de.craftlancer.core.NMSUtils;
+import de.craftlancer.core.command.CommandHandler;
+import de.craftlancer.core.structure.BlockStructure;
+
+public class TrophyChestFeature extends Feature {
+    
+    private String featureItem;
+    
+    private List<TrophyChestFeatureInstance> instances = new ArrayList<>();
+    private Map<UUID, TrophyChestFeatureInstance> playerLookupTable = new HashMap<>();
+    
+    private Map<ItemStack, Integer> trophies = new HashMap<>();
+    // TODO trophy collections for extra points
+    // TODO trophy move
+    
+    @SuppressWarnings("unchecked")
+    public TrophyChestFeature(CLFeatures plugin, ConfigurationSection config) {
+        super(plugin, config, new NamespacedKey(plugin, "trophyChest.limit"));
+        
+        instances = (List<TrophyChestFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/trophy.yml"))
+                                                                        .getList("trophies", new ArrayList<>());
+        playerLookupTable = instances.stream().collect(Collectors.toMap(TrophyChestFeatureInstance::getOwnerId, a -> a));
+        
+        featureItem = config.getString("featureItem");
+        
+        trophies = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "trophyItems.yml")).getMapList("trophyItems").stream()
+                                    .collect(Collectors.toMap(a -> (ItemStack) a.get("item"), a -> (Integer) a.get("value")));
+    }
+    
+    @Override
+    public void giveFeatureItem(Player player) {
+        ItemStack item = CLCore.getInstance().getItemRegistry().getItem(featureItem);
+        
+        if (item != null)
+            player.getInventory().addItem(item).forEach((a, b) -> player.getWorld().dropItem(player.getLocation(), b));
+    }
+    
+    @Override
+    public boolean isFeatureItem(ItemStack item) {
+        ItemStack fItem = CLCore.getInstance().getItemRegistry().getItem(featureItem);
+        return item != null && fItem != null && fItem.isSimilar(item);
+    }
+    
+    @Override
+    public boolean checkFeatureLimit(Player player) {
+        return instances.stream().filter(a -> a.isOwner(player)).count() < 1;
+    }
+    
+    @Override
+    public Collection<Block> checkEnvironment(Block initialBlock) {
+        return Collections.emptyList();
+    }
+    
+    @Override
+    public boolean createInstance(Player creator, Block initialBlock) {
+        return createInstance(creator, initialBlock, Arrays.asList(initialBlock.getLocation()));
+    }
+    
+    @Override
+    public boolean createInstance(Player creator, Block initialBlock, List<Location> blocks) {
+        TrophyChestFeatureInstance instance = new TrophyChestFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks),
+                initialBlock.getLocation());
+        
+        if (instances.add(instance)) {
+            playerLookupTable.put(creator.getUniqueId(), instance);
+            return true;
+        }
+        return false;
+    }
+    
+    @Override
+    public void save() {
+        File f = new File(getPlugin().getDataFolder(), "data/trophy.yml");
+        YamlConfiguration config = new YamlConfiguration();
+        config.set("trophies", instances);
+        
+        File trophyFile = new File(getPlugin().getDataFolder(), "trophyItems.yml");
+        YamlConfiguration config2 = new YamlConfiguration();
+        
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        trophies.forEach((a, b) -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("item", a);
+            map.put("value", b);
+            mapList.add(map);
+        });
+        config2.set("trophyItems", mapList);
+        
+        BukkitRunnable saveTask = new LambdaRunnable(() -> {
+            try {
+                config.save(f);
+                config2.save(trophyFile);
+            }
+            catch (IOException e) {
+                getPlugin().getLogger().log(Level.SEVERE, "Error while saving Trophies: ", e);
+            }
+        });
+
+        if (NMSUtils.isRunning())
+            saveTask.runTaskAsynchronously(getPlugin());
+        else
+            saveTask.run();
+    }
+    
+    @Override
+    public CommandHandler getCommandHandler() {
+        return new TrophyCommandHandler(getPlugin(), this);
+    }
+    
+    @Override
+    public void remove(FeatureInstance instance) {
+        if (instance instanceof TrophyChestFeatureInstance) {
+            instances.remove(instance);
+            playerLookupTable.remove(instance.getOwnerId());
+        }
+    }
+    
+    @Override
+    protected String getName() {
+        return "TrophyChest";
+    }
+    
+    public int getItemValue(ItemStack a) {
+        ItemStack e = a.clone();
+        e.setAmount(1);
+        
+        return trophies.getOrDefault(e, 0) * a.getAmount();
+    }
+    
+    public boolean addTrophyItem(ItemStack item, int value) {
+        return trophies.put(item, value) != null;
+    }
+    
+    public Map<ItemStack, Integer> getTrophyItems() {
+        return Collections.unmodifiableMap(trophies);
+    }
+    
+    public boolean removeTrophyByHash(int hash) {
+        return trophies.entrySet().removeIf(a -> a.getKey().hashCode() == hash);
+    }
+
+    public double getScore(OfflinePlayer player) {
+        return playerLookupTable.containsKey(player.getUniqueId()) ? playerLookupTable.get(player.getUniqueId()).getScore() : 0;
+    }
+}

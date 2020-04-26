@@ -32,12 +32,13 @@ public abstract class Feature {
     public Feature(CLFeatures plugin, ConfigurationSection config, NamespacedKey limitKey) {
         this.plugin = plugin;
         this.limitKey = limitKey;
-        this.limitToken = config.getString("limitToken");
+        this.limitToken = config.getString("limitToken", "");
         
         defaultLimit = config.getInt("defaultLimit", -1);
         maxLimit = config.getInt("maxLimit", -1);
         ConfigurationSection limitConfig = config.getConfigurationSection("limits");
-        limitConfig.getKeys(false).forEach(a -> limitMap.put(a, limitConfig.getInt(a)));
+        if(limitConfig != null)
+            limitConfig.getKeys(false).forEach(a -> limitMap.put(a, limitConfig.getInt(a)));
     }
     
     public int getLimit(Player player) {

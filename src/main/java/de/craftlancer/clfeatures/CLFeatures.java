@@ -29,6 +29,8 @@ import de.craftlancer.clfeatures.portal.PortalFeature;
 import de.craftlancer.clfeatures.portal.PortalFeatureInstance;
 import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeature;
 import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeatureInstance;
+import de.craftlancer.clfeatures.trophychest.TrophyChestFeature;
+import de.craftlancer.clfeatures.trophychest.TrophyChestFeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.conversation.ClickableBooleanPrompt;
 import de.craftlancer.core.conversation.FormattedConversable;
@@ -60,6 +62,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
     public void onEnable() {
         ConfigurationSerialization.registerClass(PortalFeatureInstance.class);
         ConfigurationSerialization.registerClass(StoneCrusherFeatureInstance.class);
+        ConfigurationSerialization.registerClass(TrophyChestFeatureInstance.class);
         
         saveDefaultConfig();
         instance = this;
@@ -70,11 +73,14 @@ public class CLFeatures extends JavaPlugin implements Listener {
         
         registerFeature("portal", new PortalFeature(this, getConfig().getConfigurationSection("portal")));
         registerFeature("stonecrusher", new StoneCrusherFeature(this, getConfig().getConfigurationSection("stonecrusher")));
+        registerFeature("trophyChest", new TrophyChestFeature(this, getConfig().getConfigurationSection("trophyChest")));
         
+        new LambdaRunnable(() -> features.forEach((a, b) -> b.save())).runTaskTimer(this, 18000L, 18000L);
     }
     
     @Override
     public void onDisable() {
+        getServer().getScheduler().cancelTasks(this);
         features.forEach((a, b) -> b.save());
     }
     
