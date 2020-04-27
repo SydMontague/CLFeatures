@@ -1,6 +1,5 @@
 package de.craftlancer.clfeatures.trophychest;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -18,9 +17,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.NMSUtils;
 import de.craftlancer.core.structure.BlockStructure;
 import net.md_5.bungee.api.ChatColor;
 
@@ -28,8 +25,7 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
     
     public static final String MOVE_METADATA = "trophyChest.move";
     private TrophyChestFeature manager;
-    private double score = 0;
-    private int nextCheck = -1;
+    private int score = 0;
     
     public TrophyChestFeatureInstance(TrophyChestFeature manager, UUID ownerId, BlockStructure blocks, Location location) {
         super(ownerId, blocks, location);
@@ -52,16 +48,16 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
     }
     
     @Override
-    protected Feature getManager() {
+    protected TrophyChestFeature getManager() {
         if (manager == null)
-            manager = (TrophyChestFeature) CLFeatures.getInstance().getFeature("TrophyChest");
+            manager = (TrophyChestFeature) CLFeatures.getInstance().getFeature("trophyChest");
         
         return manager;
     }
     
     @Override
     public Map<String, Object> serialize() {
-        HashMap<String, Object> map = new HashMap<>();
+        Map<String, Object> map = super.serialize();
         
         map.put("score", score);
         
@@ -76,11 +72,7 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
     }
     
     private void recalculateScore(Inventory inventory) {
-        if(NMSUtils.getServerTick() < nextCheck)
-            return;
-        
-        this.score = StreamSupport.stream(inventory.spliterator(), false).collect(Collectors.summingInt(a -> manager.getItemValue(a)));
-        this.nextCheck = NMSUtils.getServerTick() + 6000; // only every 30s
+        this.score = StreamSupport.stream(inventory.spliterator(), false).collect(Collectors.summingInt(a -> getManager().getItemValue(a)));
     }
     
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -95,8 +87,9 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
             return;
         
         recalculateScore(event.getInventory());
+        event.getPlayer().sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "New trophy score is: " + this.score);
     }
-
+    
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInteractMove(PlayerInteractEvent event) {
         Player p = event.getPlayer();
@@ -110,7 +103,6 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
         if (!getOwnerId().equals(p.getUniqueId()))
             return;
         
-        getInitialBlock().getBlock().breakNaturally();
         destroy();
         getManager().giveFeatureItem(p);
         p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "TrophyChest successfully moved back to your inventory.");

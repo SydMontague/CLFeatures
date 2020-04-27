@@ -41,17 +41,16 @@ public class TrophyChestFeature extends Feature {
     
     private Map<ItemStack, Integer> trophies = new HashMap<>();
     // TODO trophy collections for extra points
-    // TODO trophy move
     
     @SuppressWarnings("unchecked")
     public TrophyChestFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "trophyChest.limit"));
         
+        featureItem = config.getString("featureItem");
+        
         instances = (List<TrophyChestFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/trophy.yml"))
                                                                         .getList("trophies", new ArrayList<>());
         playerLookupTable = instances.stream().collect(Collectors.toMap(TrophyChestFeatureInstance::getOwnerId, a -> a));
-        
-        featureItem = config.getString("featureItem");
         
         trophies = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "trophyItems.yml")).getMapList("trophyItems").stream()
                                     .collect(Collectors.toMap(a -> (ItemStack) a.get("item"), a -> (Integer) a.get("value")));
@@ -125,7 +124,7 @@ public class TrophyChestFeature extends Feature {
                 getPlugin().getLogger().log(Level.SEVERE, "Error while saving Trophies: ", e);
             }
         });
-
+        
         if (NMSUtils.isRunning())
             saveTask.runTaskAsynchronously(getPlugin());
         else
@@ -151,6 +150,9 @@ public class TrophyChestFeature extends Feature {
     }
     
     public int getItemValue(ItemStack a) {
+        if(a == null || a.getType().isAir())
+            return 0;
+        
         ItemStack e = a.clone();
         e.setAmount(1);
         
@@ -168,8 +170,12 @@ public class TrophyChestFeature extends Feature {
     public boolean removeTrophyByHash(int hash) {
         return trophies.entrySet().removeIf(a -> a.getKey().hashCode() == hash);
     }
-
+    
     public double getScore(OfflinePlayer player) {
-        return playerLookupTable.containsKey(player.getUniqueId()) ? playerLookupTable.get(player.getUniqueId()).getScore() : 0;
+        return getScore(player.getUniqueId());
+    }
+
+    public double getScore(UUID uuid) {
+        return playerLookupTable.containsKey(uuid) ? playerLookupTable.get(uuid).getScore() : 0;
     }
 }

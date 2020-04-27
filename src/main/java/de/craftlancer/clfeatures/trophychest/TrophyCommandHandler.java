@@ -11,6 +11,7 @@ public class TrophyCommandHandler extends CommandHandler {
         registerSubCommand("list", new TrophyItemListCommand(plugin, feature));
         registerSubCommand("add", new TrophyItemAddCommand(plugin, feature));
         registerSubCommand("remove", new TrophyItemRemoveCommand(plugin, feature));
+        registerSubCommand("move", new TrophyChestMoveCommand(plugin));
     }
     
 }
