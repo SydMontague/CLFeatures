@@ -105,24 +105,24 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         return structure;
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onPistonExtend(BlockPistonExtendEvent event) {
         if (event.getBlocks().stream().anyMatch(structure::containsBlock))
             event.setCancelled(true);
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onPistonRetract(BlockPistonRetractEvent event) {
         if (event.getBlocks().stream().anyMatch(structure::containsBlock))
             event.setCancelled(true);
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onExplosion(EntityExplodeEvent event) {
         event.blockList().removeIf(structure::containsBlock);
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onInitialDestroy(BlockBreakEvent event) {
         if (!event.getBlock().getLocation().equals(initialBlock))
             return;
@@ -131,19 +131,19 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         event.setCancelled(true);
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onGrow(BlockFormEvent event) {
         if (structure.containsBlock(event.getBlock()))
             event.setCancelled(true);
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onFlow(BlockFromToEvent event) {
         if (structure.containsBlock(event.getToBlock()))
             event.setCancelled(true);
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event.getBlock().getLocation().equals(initialBlock))
             return;
