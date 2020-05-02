@@ -31,7 +31,6 @@ import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookCommandHandler;
 import de.craftlancer.core.LambdaRunnable;
-import de.craftlancer.core.NMSUtils;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 
@@ -250,7 +249,7 @@ public class PortalFeature extends Feature {
             }
         });
 
-        if (NMSUtils.isRunning())
+        if (getPlugin().isEnabled())
             saveTask.runTaskAsynchronously(getPlugin());
         else
             saveTask.run();
