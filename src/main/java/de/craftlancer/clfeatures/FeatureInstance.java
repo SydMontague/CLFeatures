@@ -122,7 +122,7 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         event.blockList().removeIf(structure::containsBlock);
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onInitialDestroy(BlockBreakEvent event) {
         if (!event.getBlock().getLocation().equals(initialBlock))
             return;
