@@ -6,13 +6,18 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.World;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.BlockInventoryHolder;
+import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
@@ -44,7 +49,12 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
     
     @Override
     protected void tick() {
-        // we don't tick this
+        World w = getInitialBlock().getWorld();
+        
+        if (!w.isChunkLoaded(getInitialBlock().getBlockX() >> 4, getInitialBlock().getBlockZ() >> 4))
+            return;
+        
+        w.spawnParticle(Particle.PORTAL, getInitialBlock().clone().add(0, 1, 0), 5);
     }
     
     @Override
@@ -65,10 +75,15 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
     }
     
     private boolean isInventory(InventoryHolder holder) {
-        if (!(holder instanceof BlockInventoryHolder))
-            return false;
+        Inventory i = holder.getInventory();
         
-        return ((BlockInventoryHolder) holder).getBlock().getLocation().equals(getInitialBlock());
+        if (holder instanceof DoubleChest)
+            return ((DoubleChestInventory) i).getLeftSide().getLocation().equals(getInitialBlock())
+                    || ((DoubleChestInventory) i).getRightSide().getLocation().equals(getInitialBlock());
+        else if (holder instanceof BlockInventoryHolder)
+            return ((BlockInventoryHolder) holder).getBlock().getLocation().equals(getInitialBlock());
+        else
+            return false;
     }
     
     private void recalculateScore(Inventory inventory) {
@@ -107,5 +122,16 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
         getManager().giveFeatureItem(p);
         p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "TrophyChest successfully moved back to your inventory.");
         p.removeMetadata(MOVE_METADATA, getManager().getPlugin());
+    }
+    
+    // override destroy listener
+    @Override
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onInitialDestroy(BlockBreakEvent event) {
+        if (!event.getBlock().getLocation().equals(getInitialBlock()))
+            return;
+        
+        event.getPlayer().sendMessage("§4The Trophychest cannot be destroyed! §eUse §2/trophychest move §e instead!");
+        event.setCancelled(true);
     }
 }

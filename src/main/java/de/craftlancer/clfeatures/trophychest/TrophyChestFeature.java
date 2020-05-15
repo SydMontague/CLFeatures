@@ -65,8 +65,9 @@ public class TrophyChestFeature extends Feature {
     
     @Override
     public boolean isFeatureItem(ItemStack item) {
-        ItemStack fItem = CLCore.getInstance().getItemRegistry().getItem(featureItem);
-        return item != null && fItem != null && fItem.isSimilar(item);
+        return false;
+        //ItemStack fItem = CLCore.getInstance().getItemRegistry().getItem(featureItem);
+        //return item != null && fItem != null && fItem.isSimilar(item);
     }
     
     @Override

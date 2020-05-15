@@ -101,6 +101,8 @@ public class PortalFeatureInstance extends FeatureInstance {
     protected void tick() {
         if (Instant.now().getEpochSecond() - lastUsage > getManager().getInactivityTimeout()) {
             destroy();
+            getManager().getPlugin().getLogger().info(() -> String.format("Portal \"%s\" timed out and got removed.", name));
+            getManager().getPlugin().getLogger().info("Location: " + getInitialBlock() + " | " + getOwnerId());
             return;
         }
         
