@@ -86,16 +86,6 @@ public class StoneCrusherFeature extends Feature {
     }
     
     @Override
-    public void giveFeatureItem(Player player) {
-        ItemStack item = new ItemStack(CRUSHER_MATERIAL);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(CRUSHER_NAME);
-        item.setItemMeta(meta);
-        
-        player.getInventory().addItem(item);
-    }
-    
-    @Override
     public boolean isFeatureItem(ItemStack item) {
         if (item.getType() != CRUSHER_MATERIAL)
             return false;

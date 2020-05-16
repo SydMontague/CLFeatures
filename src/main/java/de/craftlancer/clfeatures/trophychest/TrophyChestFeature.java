@@ -26,15 +26,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.CLCore;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 
 public class TrophyChestFeature extends Feature {
-    
-    private String featureItem;
-    
     private List<TrophyChestFeatureInstance> instances = new ArrayList<>();
     private Map<UUID, TrophyChestFeatureInstance> playerLookupTable = new HashMap<>();
     
@@ -45,22 +41,12 @@ public class TrophyChestFeature extends Feature {
     public TrophyChestFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "trophyChest.limit"));
         
-        featureItem = config.getString("featureItem");
-        
         instances = (List<TrophyChestFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/trophy.yml"))
                                                                         .getList("trophies", new ArrayList<>());
         playerLookupTable = instances.stream().collect(Collectors.toMap(TrophyChestFeatureInstance::getOwnerId, a -> a));
         
         trophies = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "trophyItems.yml")).getMapList("trophyItems").stream()
                                     .collect(Collectors.toMap(a -> (ItemStack) a.get("item"), a -> (Integer) a.get("value")));
-    }
-    
-    @Override
-    public void giveFeatureItem(Player player) {
-        ItemStack item = CLCore.getInstance().getItemRegistry().getItem(featureItem);
-        
-        if (item != null)
-            player.getInventory().addItem(item).forEach((a, b) -> player.getWorld().dropItem(player.getLocation(), b));
     }
     
     @Override

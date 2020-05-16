@@ -27,12 +27,16 @@ public abstract class Feature {
     private Map<String, Integer> limitMap = new HashMap<>();
     
     private final NamespacedKey limitKey;
+    private String featureItem;
     private final String limitToken;
     
     public Feature(CLFeatures plugin, ConfigurationSection config, NamespacedKey limitKey) {
         this.plugin = plugin;
         this.limitKey = limitKey;
         this.limitToken = config.getString("limitToken", "");
+        
+
+        featureItem = config.getString("featureItem");
         
         defaultLimit = config.getInt("defaultLimit", -1);
         maxLimit = config.getInt("maxLimit", -1);
@@ -65,11 +69,20 @@ public abstract class Feature {
         return maxLimit;
     }
     
+    public String getFeatureItem() {
+        return featureItem;
+    }
+    
     public CLFeatures getPlugin() {
         return plugin;
     }
     
-    public abstract void giveFeatureItem(Player player);
+    public void giveFeatureItem(Player player) {
+        ItemStack item = CLCore.getInstance().getItemRegistry().getItem(getFeatureItem());
+        
+        if (item != null)
+            player.getInventory().addItem(item).forEach((a, b) -> player.getWorld().dropItem(player.getLocation(), b));
+    }
     
     public abstract boolean isFeatureItem(ItemStack item);
     

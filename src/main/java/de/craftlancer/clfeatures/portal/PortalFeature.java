@@ -86,16 +86,6 @@ public class PortalFeature extends Feature {
     }
     
     @Override
-    public void giveFeatureItem(Player player) {
-        ItemStack item = new ItemStack(LECTERN_MATERIAL);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(LECTERN_NAME);
-        item.setItemMeta(meta);
-        
-        player.getInventory().addItem(item);
-    }
-    
-    @Override
     public boolean isFeatureItem(ItemStack item) {
         if (item.getType() != LECTERN_MATERIAL)
             return false;
