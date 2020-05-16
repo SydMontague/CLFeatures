@@ -54,7 +54,7 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
         if (!w.isChunkLoaded(getInitialBlock().getBlockX() >> 4, getInitialBlock().getBlockZ() >> 4))
             return;
         
-        w.spawnParticle(Particle.PORTAL, getInitialBlock().clone().add(0, 1, 0), 5);
+        w.spawnParticle(Particle.ENCHANTMENT_TABLE, getInitialBlock().clone().add(0.5, 1.5, 0.5), 10);
     }
     
     @Override
@@ -79,7 +79,6 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
             Inventory i = holder.getInventory();
             return ((DoubleChestInventory) i).getLeftSide().getLocation().equals(getInitialBlock())
                     || ((DoubleChestInventory) i).getRightSide().getLocation().equals(getInitialBlock());
-            
         }
         else if (holder instanceof BlockInventoryHolder)
             return ((BlockInventoryHolder) holder).getBlock().getLocation().equals(getInitialBlock());
@@ -103,7 +102,7 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
             return;
         
         recalculateScore(event.getInventory());
-        event.getPlayer().sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "New trophy score is: " + this.score);
+        event.getPlayer().sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "New trophy score is: " + this.score / 100);
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
