@@ -75,11 +75,12 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
     }
     
     private boolean isInventory(InventoryHolder holder) {
-        Inventory i = holder.getInventory();
-        
-        if (holder instanceof DoubleChest)
+        if (holder instanceof DoubleChest) {
+            Inventory i = holder.getInventory();
             return ((DoubleChestInventory) i).getLeftSide().getLocation().equals(getInitialBlock())
                     || ((DoubleChestInventory) i).getRightSide().getLocation().equals(getInitialBlock());
+            
+        }
         else if (holder instanceof BlockInventoryHolder)
             return ((BlockInventoryHolder) holder).getBlock().getLocation().equals(getInitialBlock());
         else
