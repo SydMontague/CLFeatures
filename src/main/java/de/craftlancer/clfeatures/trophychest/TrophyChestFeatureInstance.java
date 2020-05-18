@@ -131,7 +131,7 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
         if (!event.getBlock().getLocation().equals(getInitialBlock()))
             return;
         
-        event.getPlayer().sendMessage("§4The Trophychest cannot be destroyed! §eUse §2/trophychest move §e instead!");
+        event.getPlayer().sendMessage("§f[§4Craft§fCitizen]§4The Trophychest cannot be destroyed! §eUse §2/trophychest move §e instead!");
         event.setCancelled(true);
     }
 }
