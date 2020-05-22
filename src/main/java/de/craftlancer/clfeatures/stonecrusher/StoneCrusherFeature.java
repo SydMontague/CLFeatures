@@ -67,7 +67,7 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
                                                                    .getList("stonecrusher", new ArrayList<>());
     }
     
-    class CrusherResult {
+    public class CrusherResult {
         private final ItemStack result;
         private final double chance;
         
