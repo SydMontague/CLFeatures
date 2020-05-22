@@ -34,7 +34,7 @@ import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 
-public class PortalFeature extends Feature {
+public class PortalFeature extends Feature<PortalFeatureInstance> {
     
     private static final Material LECTERN_MATERIAL = Material.LECTERN;
     private static final String LECTERN_NAME = ChatColor.DARK_PURPLE + "Portal";
@@ -283,5 +283,10 @@ public class PortalFeature extends Feature {
     
     public String getDefaultPortal() {
         return defaultPortal;
+    }
+
+    @Override
+    public List<PortalFeatureInstance> getFeatures() {
+        return this.instances;
     }
 }

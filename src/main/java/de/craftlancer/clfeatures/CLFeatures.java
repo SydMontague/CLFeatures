@@ -47,7 +47,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
     private static final Material ERROR_BLOCK = Material.RED_CONCRETE;
     private static final long ERROR_TIMEOUT = 100L; // 5s
     
-    private Map<String, Feature> features = new HashMap<>();
+    private Map<String, Feature<?>> features = new HashMap<>();
     private Economy econ = null;
     private Permission perms = null;
     
@@ -93,13 +93,13 @@ public class CLFeatures extends JavaPlugin implements Listener {
     }
     
     @Nullable
-    public Feature getFeature(@Nonnull String string) {
+    public Feature<?> getFeature(@Nonnull String string) {
         return features.get(string);
     }
     
     @EventHandler
     public void onBluePrintPrePaste(BlueprintPrePasteEvent event) {
-        Optional<Feature> feature = features.values().stream().filter(a -> a.getName().equalsIgnoreCase(event.getType())).findFirst();
+        Optional<Feature<?>> feature = features.values().stream().filter(a -> a.getName().equalsIgnoreCase(event.getType())).findFirst();
         
         if(!feature.isPresent())
             return;
@@ -112,7 +112,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
     
     @EventHandler
     public void onBluePrintPaste(BlueprintPostPasteEvent event) {
-        Optional<Feature> feature = features.values().stream().filter(a -> a.getName().equalsIgnoreCase(event.getType())).findFirst();
+        Optional<Feature<?>> feature = features.values().stream().filter(a -> a.getName().equalsIgnoreCase(event.getType())).findFirst();
 
         if(!feature.isPresent())
             return;
@@ -122,7 +122,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event) {
-        Optional<Feature> feature = features.values().stream().filter(a -> a.isFeatureItem(event.getItemInHand())).findFirst();
+        Optional<Feature<?>> feature = features.values().stream().filter(a -> a.isFeatureItem(event.getItemInHand())).findFirst();
         Player p = event.getPlayer();
         
         if (!feature.isPresent())
@@ -145,9 +145,13 @@ public class CLFeatures extends JavaPlugin implements Listener {
         }
     }
     
+    /**
+     * @deprecated use blueprints instead
+     */
+    @Deprecated
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockPlaceFinal(BlockPlaceEvent event) {
-        Optional<Feature> feature = features.values().stream().filter(a -> a.isFeatureItem(event.getItemInHand())).findFirst();
+        Optional<Feature<?>> feature = features.values().stream().filter(a -> a.isFeatureItem(event.getItemInHand())).findFirst();
         
         if (!feature.isPresent())
             return;
@@ -163,7 +167,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         ItemStack item = event.getItem().clone();
         item.setAmount(1);
         Player player = event.getPlayer();
-        for (Feature feature : features.values()) {
+        for (Feature<?> feature : features.values()) {
             if (feature.isLimitToken(item)) {
                 Conversation convo = conversation.buildConversation(new FormattedConversable(player));
                 convo.getContext().setSessionData("player", player);
@@ -190,7 +194,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
             
             Player player = (Player) context.getSessionData("player");
             ItemStack item = (ItemStack) context.getSessionData("item");
-            Feature feature = (Feature) context.getSessionData("feature");
+            Feature<?> feature = (Feature<?>) context.getSessionData("feature");
             
             if (!feature.isLimitToken(item))
                 context.getForWhom().sendRawMessage(CC_PREFIX + "The token has changed?");
@@ -226,7 +230,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         return perms != null;
     }
     
-    private void registerFeature(String name, Feature feature) {
+    private void registerFeature(String name, Feature<?> feature) {
         features.put(name, feature);
         getCommand(name).setExecutor(feature.getCommandHandler());
     }

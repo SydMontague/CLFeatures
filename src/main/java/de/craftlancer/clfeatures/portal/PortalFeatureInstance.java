@@ -107,6 +107,9 @@ public class PortalFeatureInstance extends FeatureInstance {
         }
         
         World w = getInitialBlock().getWorld();
+
+        if (++ticksWithoutBook > getManager().getBooklessTicks())
+            currentTarget = null;
         
         if (!w.isChunkLoaded(getInitialBlock().getBlockX() >> 4, getInitialBlock().getBlockZ() >> 4))
             return;
@@ -118,9 +121,6 @@ public class PortalFeatureInstance extends FeatureInstance {
             destroy();
             return;
         }
-        
-        if (++ticksWithoutBook > getManager().getBooklessTicks())
-            currentTarget = null;
         
         // don't tick portals with a player more than 32 blocks away
         if(Bukkit.getOnlinePlayers().stream().noneMatch(a -> a.getWorld().equals(w) && a.getLocation().distanceSquared(getInitialBlock()) < 1024))

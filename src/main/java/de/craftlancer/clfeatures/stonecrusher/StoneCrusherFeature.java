@@ -34,7 +34,7 @@ import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 
-public class StoneCrusherFeature extends Feature {
+public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
     private static final Material CRUSHER_MATERIAL = Material.CHEST;
     private static final String CRUSHER_NAME = ChatColor.DARK_PURPLE + "StoneCrusher";
 
@@ -225,5 +225,10 @@ public class StoneCrusherFeature extends Feature {
     @Override
     protected String getName() {
         return "Stonecrusher";
+    }
+    
+    @Override
+    public List<StoneCrusherFeatureInstance> getFeatures() {
+        return instances;
     }
 }

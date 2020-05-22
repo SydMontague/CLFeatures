@@ -17,12 +17,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockFormEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockPistonExtendEvent;
-import org.bukkit.event.block.BlockPistonRetractEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import de.craftlancer.core.LambdaRunnable;
@@ -79,7 +73,7 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
     
     protected abstract void tick();
     
-    protected abstract Feature getManager();
+    protected abstract Feature<?> getManager();
     
     protected void destroy() {
         HandlerList.unregisterAll(this);
@@ -105,23 +99,6 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         return structure;
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-    public void onPistonExtend(BlockPistonExtendEvent event) {
-        if (event.getBlocks().stream().anyMatch(structure::containsBlock))
-            event.setCancelled(true);
-    }
-    
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-    public void onPistonRetract(BlockPistonRetractEvent event) {
-        if (event.getBlocks().stream().anyMatch(structure::containsBlock))
-            event.setCancelled(true);
-    }
-    
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-    public void onExplosion(EntityExplodeEvent event) {
-        event.blockList().removeIf(structure::containsBlock);
-    }
-    
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onInitialDestroy(BlockBreakEvent event) {
         if (!event.getBlock().getLocation().equals(initialBlock))
@@ -129,36 +106,6 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         
         conversation.buildConversation(new FormattedConversable(event.getPlayer())).begin();
         event.setCancelled(true);
-    }
-    
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-    public void onGrow(BlockFormEvent event) {
-        if (structure.containsBlock(event.getBlock()))
-            event.setCancelled(true);
-    }
-    
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-    public void onFlow(BlockFromToEvent event) {
-        if (structure.containsBlock(event.getToBlock()))
-            event.setCancelled(true);
-    }
-    
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-    public void onBlockPlace(BlockPlaceEvent event) {
-        if (event.getBlock().getLocation().equals(initialBlock))
-            return;
-        
-        if (structure.containsBlock(event.getBlock()))
-            event.setCancelled(true);
-    }
-    
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (event.getBlock().getLocation().equals(initialBlock))
-            return;
-        
-        if (structure.containsBlock(event.getBlock()))
-            event.setCancelled(true);
     }
     
     private class DestroyPrompt extends ClickableBooleanPrompt {

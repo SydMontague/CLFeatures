@@ -30,7 +30,7 @@ import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 
-public class TrophyChestFeature extends Feature {
+public class TrophyChestFeature extends Feature<TrophyChestFeatureInstance> {
     private List<TrophyChestFeatureInstance> instances = new ArrayList<>();
     private Map<UUID, TrophyChestFeatureInstance> playerLookupTable = new HashMap<>();
     
@@ -163,5 +163,10 @@ public class TrophyChestFeature extends Feature {
 
     public double getScore(UUID uuid) {
         return playerLookupTable.containsKey(uuid) ? playerLookupTable.get(uuid).getScore() : 0;
+    }
+    
+    @Override
+    public List<TrophyChestFeatureInstance> getFeatures() {
+        return instances;
     }
 }
