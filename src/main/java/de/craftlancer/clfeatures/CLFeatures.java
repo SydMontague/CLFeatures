@@ -1,13 +1,21 @@
 package de.craftlancer.clfeatures;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import de.craftlancer.clfeatures.portal.PortalFeature;
+import de.craftlancer.clfeatures.portal.PortalFeatureInstance;
+import de.craftlancer.clfeatures.replicator.ReplicatorFeature;
+import de.craftlancer.clfeatures.replicator.ReplicatorFeatureInstance;
+import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeature;
+import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeatureInstance;
+import de.craftlancer.clfeatures.trophychest.TrophyChestFeature;
+import de.craftlancer.clfeatures.trophychest.TrophyChestFeatureInstance;
+import de.craftlancer.core.LambdaRunnable;
+import de.craftlancer.core.conversation.ClickableBooleanPrompt;
+import de.craftlancer.core.conversation.FormattedConversable;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPrePasteEvent;
+import net.md_5.bungee.api.ChatColor;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -25,20 +33,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import de.craftlancer.clfeatures.portal.PortalFeature;
-import de.craftlancer.clfeatures.portal.PortalFeatureInstance;
-import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeature;
-import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeatureInstance;
-import de.craftlancer.clfeatures.trophychest.TrophyChestFeature;
-import de.craftlancer.clfeatures.trophychest.TrophyChestFeatureInstance;
-import de.craftlancer.core.LambdaRunnable;
-import de.craftlancer.core.conversation.ClickableBooleanPrompt;
-import de.craftlancer.core.conversation.FormattedConversable;
-import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
-import me.sizzlemcgrizzle.blueprints.api.BlueprintPrePasteEvent;
-import net.md_5.bungee.api.ChatColor;
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class CLFeatures extends JavaPlugin implements Listener {
     public static final String CC_PREFIX = "§f[§4Craft§fCitizen] ";
@@ -52,7 +52,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
     private Permission perms = null;
     
     private ConversationFactory conversation = new ConversationFactory(this).withLocalEcho(false).withModality(false).withTimeout(30)
-                                                                            .withFirstPrompt(new UseLimitTokenPrompt());
+            .withFirstPrompt(new UseLimitTokenPrompt());
     
     public static CLFeatures getInstance() {
         return instance;
@@ -63,6 +63,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         ConfigurationSerialization.registerClass(PortalFeatureInstance.class);
         ConfigurationSerialization.registerClass(StoneCrusherFeatureInstance.class);
         ConfigurationSerialization.registerClass(TrophyChestFeatureInstance.class);
+        ConfigurationSerialization.registerClass(ReplicatorFeatureInstance.class);
         
         saveDefaultConfig();
         instance = this;
@@ -74,6 +75,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         registerFeature("portal", new PortalFeature(this, getConfig().getConfigurationSection("portal")));
         registerFeature("stonecrusher", new StoneCrusherFeature(this, getConfig().getConfigurationSection("stonecrusher")));
         registerFeature("trophyChest", new TrophyChestFeature(this, getConfig().getConfigurationSection("trophyChest")));
+        registerFeature("replicator", new ReplicatorFeature(this, getConfig().getConfigurationSection("replicator")));
         
         new LambdaRunnable(() -> features.forEach((a, b) -> b.save())).runTaskTimer(this, 18000L, 18000L);
     }
@@ -101,9 +103,9 @@ public class CLFeatures extends JavaPlugin implements Listener {
     public void onBluePrintPrePaste(BlueprintPrePasteEvent event) {
         Optional<Feature> feature = features.values().stream().filter(a -> a.getName().equalsIgnoreCase(event.getType())).findFirst();
         
-        if(!feature.isPresent())
+        if (!feature.isPresent())
             return;
-
+        
         if (!feature.get().checkFeatureLimit(event.getPlayer())) {
             event.getPlayer().sendMessage(CC_PREFIX + ChatColor.DARK_RED + "You've reached your limit for this feature.");
             event.setCancelled(true);
@@ -113,8 +115,8 @@ public class CLFeatures extends JavaPlugin implements Listener {
     @EventHandler
     public void onBluePrintPaste(BlueprintPostPasteEvent event) {
         Optional<Feature> feature = features.values().stream().filter(a -> a.getName().equalsIgnoreCase(event.getType())).findFirst();
-
-        if(!feature.isPresent())
+        
+        if (!feature.isPresent())
             return;
         
         feature.get().createInstance(event.getPlayer(), event.getFeatureLocation().getBlock(), event.getBlocksPasted());
