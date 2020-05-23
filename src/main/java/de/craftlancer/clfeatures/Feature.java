@@ -133,12 +133,12 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return getFeatures().stream().filter(a -> a.getStructure().containsBoundingBox(bb))
                 .anyMatch(a -> a.getStructure().containsAnyBlock(blockList));
     }
-    
+
     private void handleExplosion(List<Block> blockList) {
         BoundingBox bb = Utils.calculateBoundingBoxBlock(blockList);
-        
+
         Set<Location> locs = getFeatures().stream().map(T::getStructure).filter(a -> a.containsBoundingBox(bb)).flatMap(a -> a.getBlocks().stream())
-                .collect(Collectors.toSet());
+                                          .collect(Collectors.toSet());
         
         blockList.removeIf(a -> locs.contains(a.getLocation()));
     }
@@ -154,9 +154,9 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         if (handlePiston(event.getBlocks()))
             event.setCancelled(true);
     }
-    
+
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-    public void onExplosion(EntityExplodeEvent event) {
+    public void onExplosion(BlockExplodeEvent event) {
         handleExplosion(event.blockList());
     }
     
