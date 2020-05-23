@@ -17,6 +17,9 @@ commands:
   trophyChest:
     description: "TrophyChest related commands"
     usage: /trophyChest [move]
+  replicator:
+    description: "Replicator related commands"
+    usage: /replicator [move|list]
 permissions:
   clfeature.portal.ignoreLimit:
     default: op
