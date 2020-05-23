@@ -19,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
@@ -128,32 +129,42 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     
     public abstract List<T> getFeatures();
     
+    private boolean handlePiston(List<Block> blockList) {
+        BoundingBox bb = Utils.calculateBoundingBoxBlock(blockList);
+        
+        return getFeatures().stream().filter(a -> a.getStructure().containsBoundingBox(bb))
+                .anyMatch(a -> a.getStructure().containsAnyBlock(blockList));
+    }
+
+    private void handleExplosion(List<Block> blockList) {
+        BoundingBox bb = Utils.calculateBoundingBoxBlock(blockList);
+
+        Set<Location> locs = getFeatures().stream().map(T::getStructure).filter(a -> a.containsBoundingBox(bb)).flatMap(a -> a.getBlocks().stream())
+                                          .collect(Collectors.toSet());
+        
+        blockList.removeIf(a -> locs.contains(a.getLocation()));
+    }
+    
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onPistonExtend(BlockPistonExtendEvent event) {
-        BoundingBox bb = Utils.calculateBoundingBoxBlock(event.getBlocks());
-        
-        if (getFeatures().stream().filter(a -> a.getStructure().containsBoundingBox(bb))
-                         .anyMatch(a -> a.getStructure().containsAnyBlock(event.getBlocks())))
+        if(handlePiston(event.getBlocks()))
             event.setCancelled(true);
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onPistonRetract(BlockPistonRetractEvent event) {
-        BoundingBox bb = Utils.calculateBoundingBoxBlock(event.getBlocks());
-        
-        if (getFeatures().stream().filter(a -> a.getStructure().containsBoundingBox(bb))
-                         .anyMatch(a -> a.getStructure().containsAnyBlock(event.getBlocks())))
+        if(handlePiston(event.getBlocks()))
             event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onExplosion(BlockExplodeEvent event) {
+        handleExplosion(event.blockList());
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onExplosion(EntityExplodeEvent event) {
-        BoundingBox bb = Utils.calculateBoundingBoxBlock(event.blockList());
-        
-        Set<Location> locs = getFeatures().stream().map(T::getStructure).filter(a -> a.containsBoundingBox(bb)).flatMap(a -> a.getBlocks().stream())
-                                          .collect(Collectors.toSet());
-        
-        event.blockList().removeIf(a -> locs.contains(a.getLocation()));
+        handleExplosion(event.blockList());
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
