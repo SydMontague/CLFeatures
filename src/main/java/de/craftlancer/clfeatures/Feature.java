@@ -19,6 +19,7 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.BoundingBox;
@@ -191,6 +192,12 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         if (getFeatures().stream().anyMatch(a -> event.getBlock().getLocation().equals(a.getInitialBlock())))
             return;
         
+        if (getFeatures().stream().anyMatch(a -> a.getStructure().containsBlock(event.getBlock())))
+            event.setCancelled(true);
+    }
+    
+    @EventHandler(ignoreCancelled = true)
+    public void onBucketEmpty(PlayerBucketEmptyEvent event) {
         if (getFeatures().stream().anyMatch(a -> a.getStructure().containsBlock(event.getBlock())))
             event.setCancelled(true);
     }

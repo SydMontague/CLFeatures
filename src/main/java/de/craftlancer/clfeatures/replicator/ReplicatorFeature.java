@@ -11,7 +11,14 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityPortalEvent;
+import org.bukkit.event.entity.ItemDespawnEvent;
+import org.bukkit.event.entity.ItemMergeEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -24,6 +31,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     private List<ReplicatorFeatureInstance> instances;
@@ -107,7 +115,9 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     @Override
     public void remove(FeatureInstance instance) {
         if (instance instanceof ReplicatorFeatureInstance) {
-            ((ReplicatorFeatureInstance) instance).removeSpawnedItem();
+            ReplicatorDisplayItem displayItem = ((ReplicatorFeatureInstance) instance).getDisplayItem();
+            if (displayItem != null)
+                displayItem.remove();
             instances.remove(instance);
         }
     }
@@ -130,10 +140,50 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     }
     
     public List<ReplicatorFeatureInstance> getReplicatorsByUUID(UUID uuid) {
-        List<ReplicatorFeatureInstance> list = instances;
-        
-        list.removeIf(feature -> !feature.isOwner(uuid));
-        
-        return list;
+        return instances.stream().filter(a -> a.isOwner(uuid)).collect(Collectors.toList());
     }
+    
+    /*
+     * DUPE PREVENTION
+     */
+    @EventHandler(ignoreCancelled = true)
+    public void onItemPickup(EntityPickupItemEvent event) {
+        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getItem())))
+            event.setCancelled(true);
+    }
+    
+    @EventHandler
+    public void onInventoryPickup(InventoryPickupItemEvent event) {
+        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getItem())))
+            event.setCancelled(true);
+    }
+    
+    @EventHandler
+    public void onItemDespawn(ItemDespawnEvent event) {
+        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getEntity())))
+            event.setCancelled(true);
+    }
+    
+    @EventHandler
+    public void onItemPortalUse(EntityPortalEvent event) {
+        if (!(event.getEntity() instanceof Item))
+            return;
+        
+        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getEntity())))
+            event.setCancelled(true);
+    }
+    
+    @EventHandler
+    public void onItemMerge(ItemMergeEvent event) {
+        if (getInstanceItems().stream().anyMatch(item -> event.getEntity().equals(item) || event.getTarget().equals(item)))
+            event.setCancelled(true);
+    }
+    
+    private List<Item> getInstanceItems() {
+        List<Item> itemList = new ArrayList<>();
+        instances.stream().filter(instances -> instances.getDisplayItem() != null && instances.getDisplayItem().getItem() != null).forEach(instance -> itemList.add(instance.getDisplayItem().getItem()));
+        return itemList;
+    }
+    
+    
 }

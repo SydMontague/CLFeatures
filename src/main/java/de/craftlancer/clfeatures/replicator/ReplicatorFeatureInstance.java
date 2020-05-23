@@ -15,19 +15,15 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.block.data.type.DaylightDetector;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.ItemDespawnEvent;
-import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,12 +42,16 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     private Inventory input;
     private Inventory output;
     
-    private int tickId = 0;
+    private ReplicatorDisplayItem displayItem;
     
-    private Item spawnedItem;
+    private int tickId = 0;
     
     private Map<Material, Integer> recipe = new HashMap<>();
     private ItemStack product = null;
+    
+    public static boolean isChunkLoadedAtLocation(Location location) {
+        return (location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4));
+    }
     
     public ReplicatorFeatureInstance(ReplicatorFeature manager, UUID ownerId, BlockStructure blocks, Location origin) {
         super(ownerId, blocks, origin);
@@ -60,7 +60,10 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         
         outputChest = origin;
         inputChest = origin.clone().add(0, 2, 0);
+        
+        blocks.getBlocks().stream().filter(location -> location.getBlock().getType() == Material.BARRIER).forEach(location -> location.getBlock().setType(Material.AIR));
         daylightCensor = blocks.getBlocks().stream().filter(block -> block.getBlock().getType() == Material.DAYLIGHT_DETECTOR).findFirst().get();
+        
     }
     
     public ReplicatorFeatureInstance(Map<String, Object> map) {
@@ -68,9 +71,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         
         outputChest = getInitialBlock();
         inputChest = getInitialBlock().clone().add(0, 2, 0);
-        daylightCensor = getStructure().getBlocks().stream().filter(block -> block.getBlock().getType() == Material.DAYLIGHT_DETECTOR).findFirst().get();
-        
-        recipe.clear();
+        daylightCensor = (Location) map.get("daylightDetector");
         
         if (map.containsKey("recipe") && map.containsKey("product")) {
             List<ItemStack> list = (List<ItemStack>) map.get("recipe");
@@ -83,7 +84,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             
             product = (ItemStack) map.get("product");
             
-            spawnProduct();
+            displayItem = new ReplicatorDisplayItem(this);
         }
     }
     
@@ -99,10 +100,11 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             });
             
             map.put("recipe", list);
-            map.put("product", getSingleProduct());
+            map.put("product", product);
+            map.put("daylightDetector", daylightCensor);
         }
         
-        removeSpawnedItem();
+        displayItem.remove();
         
         return map;
     }
@@ -111,14 +113,12 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     protected void tick() {
         tickId += 10;
         
-        World w = getInitialBlock().getWorld();
-        
-        if (spawnedItem != null) {
-            if (!spawnedItem.isValid())
-                spawnProduct();
-            spawnedItem.setPickupDelay(Integer.MAX_VALUE);
-            if (spawnedItem.getItemStack().getType() != product.getType())
-                spawnedItem.setItemStack(getSingleProduct());
+        if (displayItem != null && displayItem.getItem() != null) {
+            if (!displayItem.getItem().isValid() && isChunkLoadedAtLocation(daylightCensor))
+                displayItem.spawn();
+            else
+                displayItem.teleport();
+            displayItem.getItem().setPickupDelay(Integer.MAX_VALUE);
         }
         
         if (recipe == null || recipe.isEmpty() || product == null)
@@ -129,8 +129,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             output = ((Chest) getOutputChest().getBlock().getState()).getInventory();
         }
         
-        if (!w.isChunkLoaded(inputChest.getBlockX() >> 4, inputChest.getBlockZ() >> 4)
-                || !w.isChunkLoaded(outputChest.getBlockX() >> 4, outputChest.getBlockZ() >> 4))
+        if (!isChunkLoadedAtLocation(inputChest) || !isChunkLoadedAtLocation(outputChest))
             return;
         
         DaylightDetector detector = (DaylightDetector) daylightCensor.getBlock().getBlockData();
@@ -158,6 +157,8 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     }
     
     private void doParticles() {
+        if (!isChunkLoadedAtLocation(daylightCensor))
+            return;
         Location centerSensor = daylightCensor.clone();
         Particle.DustOptions particle = new Particle.DustOptions(Color.WHITE, 1F);
         centerSensor.setX(centerSensor.getX() + 0.5);
@@ -230,9 +231,11 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         
         Player player = (Player) event.getWhoClicked();
         List<Material> blockedProducts = ((ReplicatorFeature) CLFeatures.getInstance().getFeature("replicator")).getBlockedProducts();
+        
         if (blockedProducts.contains(inventory.getResult().getType())) {
             player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "This item is too powerful for the replicator and cannot be crafted.");
             player.getWorld().playSound(player.getLocation(), Sound.ITEM_SHIELD_BLOCK, 0.5F, 1F);
+            
             event.setCancelled(true);
             player.closeInventory();
             return;
@@ -256,29 +259,10 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_SCAFFOLDING_PLACE, 0.5F, 1F);
         player.sendMessage(CLFeatures.CC_PREFIX + "§eYou have set the replicator to craft §6" + product.getType().name() + "§e.");
         
-        spawnProduct();
-    }
-    
-    private void spawnProduct() {
-        World world = daylightCensor.getWorld();
-        Location location = daylightCensor.clone();
-        location.setX(location.getX() + 0.5);
-        location.setZ(location.getZ() + 0.5);
-        
-        location.setY(location.getY() + 0.6);
-        
-        if (spawnedItem != null)
-            spawnedItem.remove();
-        
-        spawnedItem = world.dropItem(location, getSingleProduct());
-        spawnedItem.setItemStack(getSingleProduct());
-        spawnedItem.setVelocity(new Vector().zero());
-    }
-    
-    private ItemStack getSingleProduct() {
-        ItemStack i = product.clone();
-        i.setAmount(1);
-        return i;
+        if (displayItem != null)
+            displayItem.remove();
+        displayItem = new ReplicatorDisplayItem(this);
+        displayItem.spawn();
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -300,16 +284,8 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         p.removeMetadata(MOVE_METADATA, getManager().getPlugin());
     }
     
-    @EventHandler
-    public void onItemDespawn(ItemDespawnEvent event) {
-        if (event.getEntity().equals(spawnedItem))
-            event.setCancelled(true);
-    }
-    
-    @EventHandler
-    public void onItemMerge(ItemMergeEvent event) {
-        if (event.getEntity().equals(spawnedItem) || event.getTarget().equals(spawnedItem))
-            event.setCancelled(true);
+    public ItemStack getProduct() {
+        return product;
     }
     
     public Location getInputChest() {
@@ -320,14 +296,11 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         return outputChest;
     }
     
-    public Item getSpawnedItem() {
-        return spawnedItem;
+    public Location getDaylightCensor() {
+        return daylightCensor;
     }
     
-    public void removeSpawnedItem() {
-        if (spawnedItem == null)
-            return;
-        spawnedItem.teleport(new Location(daylightCensor.getWorld(), 0, 2, 0));
-        spawnedItem.remove();
+    public ReplicatorDisplayItem getDisplayItem() {
+        return displayItem;
     }
 }
