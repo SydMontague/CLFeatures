@@ -139,6 +139,9 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
  
+### Build.xml ###
+build.xml
+
 ### OSX ###
 # General
 .DS_Store
@@ -167,4 +170,8 @@ Network Trash Folder
 Temporary Items
 .apdisk
  
+<<<<<<< HEAD
 # End of https://www.gitignore.io/api/osx,java,eclipse,intellij,maven
+=======
+# End of https://www.gitignore.io/api/osx,java,eclipse,intellij,maven
+>>>>>>> d559d48... Added Replicator

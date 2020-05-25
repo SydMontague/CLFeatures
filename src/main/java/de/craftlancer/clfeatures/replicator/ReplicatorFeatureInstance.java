@@ -38,7 +38,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     
     private Location inputChest;
     private Location outputChest;
-    private Location daylightCensor;
+    private Location daylightSensor;
     private Inventory input;
     private Inventory output;
     
@@ -62,7 +62,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         inputChest = origin.clone().add(0, 2, 0);
         
         blocks.getBlocks().stream().filter(location -> location.getBlock().getType() == Material.BARRIER).forEach(location -> location.getBlock().setType(Material.AIR));
-        daylightCensor = blocks.getBlocks().stream().filter(block -> block.getBlock().getType() == Material.DAYLIGHT_DETECTOR).findFirst().get();
+        daylightSensor = blocks.getBlocks().stream().filter(block -> block.getBlock().getType() == Material.DAYLIGHT_DETECTOR).findFirst().get();
         
     }
     
@@ -71,7 +71,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         
         outputChest = getInitialBlock();
         inputChest = getInitialBlock().clone().add(0, 2, 0);
-        daylightCensor = (Location) map.get("daylightDetector");
+        daylightSensor = (Location) map.get("daylightDetector");
         
         if (map.containsKey("recipe") && map.containsKey("product")) {
             List<ItemStack> list = (List<ItemStack>) map.get("recipe");
@@ -89,6 +89,13 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     }
     
     @Override
+    protected void destroy() {
+        if (displayItem != null)
+            displayItem.remove();
+        super.destroy();
+    }
+    
+    @Override
     public Map<String, Object> serialize() {
         Map<String, Object> map = super.serialize();
         
@@ -101,7 +108,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             
             map.put("recipe", list);
             map.put("product", product);
-            map.put("daylightDetector", daylightCensor);
+            map.put("daylightDetector", daylightSensor);
         }
         
         displayItem.remove();
@@ -114,7 +121,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         tickId += 10;
         
         if (displayItem != null && displayItem.getItem() != null) {
-            if (!displayItem.getItem().isValid() && isChunkLoadedAtLocation(daylightCensor))
+            if (!displayItem.getItem().isValid() && isChunkLoadedAtLocation(daylightSensor))
                 displayItem.spawn();
             else
                 displayItem.teleport();
@@ -132,13 +139,13 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         if (!isChunkLoadedAtLocation(inputChest) || !isChunkLoadedAtLocation(outputChest))
             return;
         
-        DaylightDetector detector = (DaylightDetector) daylightCensor.getBlock().getBlockData();
+        DaylightDetector detector = (DaylightDetector) daylightSensor.getBlock().getBlockData();
         //Does the input chest contain all necessary materials?
         for (Map.Entry<Material, Integer> entry : recipe.entrySet()) {
             if (!input.contains(entry.getKey(), entry.getValue())) {
                 if (!detector.isInverted()) {
                     detector.setInverted(true);
-                    daylightCensor.getBlock().setBlockData(detector);
+                    daylightSensor.getBlock().setBlockData(detector);
                 }
                 return;
             }
@@ -149,21 +156,21 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             removeFromInput();
             addToOutput();
         }
-        daylightCensor.getWorld().playSound(daylightCensor, Sound.BLOCK_BEACON_AMBIENT, 0.2F, 1F);
+        daylightSensor.getWorld().playSound(daylightSensor, Sound.BLOCK_BEACON_AMBIENT, 0.2F, 1F);
         doParticles();
         
         detector.setInverted(false);
-        daylightCensor.getBlock().setBlockData(detector);
+        daylightSensor.getBlock().setBlockData(detector);
     }
     
     private void doParticles() {
-        if (!isChunkLoadedAtLocation(daylightCensor))
+        if (!isChunkLoadedAtLocation(daylightSensor))
             return;
-        Location centerSensor = daylightCensor.clone();
+        Location centerSensor = daylightSensor.clone();
         Particle.DustOptions particle = new Particle.DustOptions(Color.WHITE, 1F);
         centerSensor.setX(centerSensor.getX() + 0.5);
         centerSensor.setZ(centerSensor.getZ() + 0.5);
-        for (double i = daylightCensor.getY(); i < daylightCensor.getY() + 1; i += 0.05) {
+        for (double i = daylightSensor.getY(); i < daylightSensor.getY() + 1; i += 0.05) {
             centerSensor.setY(i);
             
             centerSensor.getWorld().spawnParticle(Particle.REDSTONE, centerSensor, 1, particle);
@@ -213,20 +220,20 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         Block block = event.getClickedBlock();
         Player player = event.getPlayer();
         
-        if (!block.getLocation().equals(daylightCensor))
+        if (!block.getLocation().equals(daylightSensor))
             return;
         
         event.setCancelled(true);
         
         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_SCAFFOLDING_BREAK, 0.5F, 1F);
-        player.openWorkbench(daylightCensor, true);
+        player.openWorkbench(daylightSensor, true);
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onRecipeSet(CraftItemEvent event) {
         CraftingInventory inventory = event.getInventory();
         
-        if (inventory.getLocation() == null || !inventory.getLocation().equals(daylightCensor))
+        if (inventory.getLocation() == null || !inventory.getLocation().equals(daylightSensor))
             return;
         
         Player player = (Player) event.getWhoClicked();
@@ -296,8 +303,8 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         return outputChest;
     }
     
-    public Location getDaylightCensor() {
-        return daylightCensor;
+    public Location getDaylightSensor() {
+        return daylightSensor;
     }
     
     public ReplicatorDisplayItem getDisplayItem() {

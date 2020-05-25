@@ -20,6 +20,7 @@ import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
@@ -115,9 +116,6 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     @Override
     public void remove(FeatureInstance instance) {
         if (instance instanceof ReplicatorFeatureInstance) {
-            ReplicatorDisplayItem displayItem = ((ReplicatorFeatureInstance) instance).getDisplayItem();
-            if (displayItem != null)
-                displayItem.remove();
             instances.remove(instance);
         }
     }
@@ -148,19 +146,19 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
      */
     @EventHandler(ignoreCancelled = true)
     public void onItemPickup(EntityPickupItemEvent event) {
-        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getItem())))
+        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getItem().getItemStack().getItemMeta())))
             event.setCancelled(true);
     }
     
     @EventHandler
     public void onInventoryPickup(InventoryPickupItemEvent event) {
-        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getItem())))
+        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getItem().getItemStack().getItemMeta())))
             event.setCancelled(true);
     }
     
     @EventHandler
     public void onItemDespawn(ItemDespawnEvent event) {
-        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getEntity())))
+        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getEntity().getItemStack().getItemMeta())))
             event.setCancelled(true);
     }
     
@@ -169,19 +167,23 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
         if (!(event.getEntity() instanceof Item))
             return;
         
-        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getEntity())))
+        if (getInstanceItems().stream().anyMatch(item -> item.equals(((Item) event.getEntity()).getItemStack().getItemMeta())))
             event.setCancelled(true);
     }
     
     @EventHandler
     public void onItemMerge(ItemMergeEvent event) {
-        if (getInstanceItems().stream().anyMatch(item -> event.getEntity().equals(item) || event.getTarget().equals(item)))
+        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getEntity().getItemStack().getItemMeta())
+                || item.equals(event.getTarget().getItemStack().getItemMeta())))
             event.setCancelled(true);
     }
     
-    private List<Item> getInstanceItems() {
-        List<Item> itemList = new ArrayList<>();
-        instances.stream().filter(instances -> instances.getDisplayItem() != null && instances.getDisplayItem().getItem() != null).forEach(instance -> itemList.add(instance.getDisplayItem().getItem()));
+    private List<ItemMeta> getInstanceItems() {
+        List<ItemMeta> itemList = new ArrayList<>();
+        instances.stream().filter(instances -> instances.getDisplayItem() != null
+                && instances.getDisplayItem().getItem() != null
+                && instances.getDisplayItem().getItem().getItemStack().getItemMeta() != null)
+                .forEach(instance -> itemList.add(instance.getDisplayItem().getItem().getItemStack().getItemMeta()));
         return itemList;
     }
     

@@ -26,7 +26,7 @@ public class ReplicatorDisplayItem {
     public ReplicatorDisplayItem(ReplicatorFeatureInstance instance) {
         this.instance = instance;
         
-        this.daylightDetectorLocation = instance.getDaylightCensor().clone();
+        this.daylightDetectorLocation = instance.getDaylightSensor().clone();
         this.world = instance.getInitialBlock().getWorld();
         
         this.product = instance.getProduct();
@@ -68,6 +68,7 @@ public class ReplicatorDisplayItem {
         i.setAmount(1);
         ItemMeta meta = i.getItemMeta();
         meta.setDisplayName(ChatColor.DARK_GRAY + "ReplicatorDisplayItem");
+        i.setItemMeta(meta);
         return i;
     }
     
