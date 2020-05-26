@@ -14,37 +14,37 @@ portal:
     Aristocrate: 5
     Admin: -1
   renameItems:
-  - ==: org.bukkit.inventory.ItemStack
-    v: 1976
-    type: MUSIC_DISC_CHIRP
-    meta:
-      ==: ItemMeta
-      meta-type: UNSPECIFIC
-      display-name: §9Lesser Aether Fragment
-      lore:
-      - A Lesser Aetherial Fragment
-      - pulsating with magical energy.
-      - §8Combine 5 Lesser Fragments
-      - §8to gain a Common Fragment.
-      custom-model-data: 2
+    - ==: org.bukkit.inventory.ItemStack
+      v: 1976
+      type: MUSIC_DISC_CHIRP
+      meta:
+        ==: ItemMeta
+        meta-type: UNSPECIFIC
+        display-name: §9Lesser Aether Fragment
+        lore:
+          - A Lesser Aetherial Fragment
+          - pulsating with magical energy.
+          - §8Combine 5 Lesser Fragments
+          - §8to gain a Common Fragment.
+        custom-model-data: 2
   moveItems:
-  - ==: org.bukkit.inventory.ItemStack
-    v: 1976
-    type: MUSIC_DISC_CHIRP
-    amount: 3
-    meta:
-      ==: ItemMeta
-      meta-type: UNSPECIFIC
-      display-name: §9Lesser Aether Fragment
-      lore:
-      - A Lesser Aetherial Fragment
-      - pulsating with magical energy.
-      - §8Combine 5 Lesser Fragments
-      - §8to gain a Common Fragment.
-      custom-model-data: 2
+    - ==: org.bukkit.inventory.ItemStack
+      v: 1976
+      type: MUSIC_DISC_CHIRP
+      amount: 3
+      meta:
+        ==: ItemMeta
+        meta-type: UNSPECIFIC
+        display-name: §9Lesser Aether Fragment
+        lore:
+          - A Lesser Aetherial Fragment
+          - pulsating with magical energy.
+          - §8Combine 5 Lesser Fragments
+          - §8to gain a Common Fragment.
+        custom-model-data: 2
 stonecrusher:
   defaultLimit: -1
-  limits: 
+  limits:
     Peasant: -1
   stonesPerTick: 1
   lootTableStone:
@@ -54,3 +54,26 @@ stonecrusher:
         ==: org.bukkit.inventory.ItemStack
         v: 1976
         type: GRAVEL
+  lootTableCobble:
+    diamond:
+      chance: 0.999
+      item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 1976
+        type: GRAVEL
+  lootTableGravel:
+    diamond:
+      chance: 0.999
+      item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 1976
+        type: GRAVEL
+trophyChest:
+  featureItem: something
+replicator:
+  featureItem: replicator
+  defaultLimit: -1
+  limits:
+    Peasant: -1
+  excludedProducts:
+    - ELYTRA

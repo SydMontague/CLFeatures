@@ -1,15 +1,8 @@
 package de.craftlancer.clfeatures;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-
+import de.craftlancer.core.CLCore;
+import de.craftlancer.core.Utils;
+import de.craftlancer.core.command.CommandHandler;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -26,13 +19,19 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.BoundingBox;
 
-import de.craftlancer.core.CLCore;
-import de.craftlancer.core.Utils;
-import de.craftlancer.core.command.CommandHandler;
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class Feature<T extends FeatureInstance> implements Listener {
     
@@ -63,7 +62,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     
     public int getLimit(Player player) {
         int groupLimit = limitMap.entrySet().stream().filter(a -> plugin.getPermissions().playerInGroup(player, a.getKey())).map(Entry::getValue)
-                                 .max(Integer::compare).orElseGet(() -> defaultLimit);
+                .max(Integer::compare).orElseGet(() -> defaultLimit);
         int individualLimit = player.getPersistentDataContainer().getOrDefault(limitKey, PersistentDataType.INTEGER, 0).intValue();
         
         return groupLimit < 0 ? -1 : groupLimit + individualLimit;
@@ -135,35 +134,35 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return getFeatures().stream().filter(a -> a.getStructure().containsBoundingBox(bb))
                 .anyMatch(a -> a.getStructure().containsAnyBlock(blockList));
     }
-
+    
     private void handleExplosion(List<Block> blockList) {
         BoundingBox bb = Utils.calculateBoundingBoxBlock(blockList);
-
+        
         Set<Location> locs = getFeatures().stream().map(T::getStructure).filter(a -> a.containsBoundingBox(bb)).flatMap(a -> a.getBlocks().stream())
-                                          .collect(Collectors.toSet());
+                .collect(Collectors.toSet());
         
         blockList.removeIf(a -> locs.contains(a.getLocation()));
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onPistonExtend(BlockPistonExtendEvent event) {
-        if(handlePiston(event.getBlocks()))
+        if (handlePiston(event.getBlocks()))
             event.setCancelled(true);
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onPistonRetract(BlockPistonRetractEvent event) {
-        if(handlePiston(event.getBlocks()))
+        if (handlePiston(event.getBlocks()))
             event.setCancelled(true);
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-    public void onExplosion(BlockExplodeEvent event) {
-        handleExplosion(event.blockList());
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onExplosion(EntityExplodeEvent event) {
+        handleExplosion(event.blockList());
+    }
+    
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onExplosion(BlockExplodeEvent event) {
         handleExplosion(event.blockList());
     }
     
@@ -193,6 +192,12 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         if (getFeatures().stream().anyMatch(a -> event.getBlock().getLocation().equals(a.getInitialBlock())))
             return;
         
+        if (getFeatures().stream().anyMatch(a -> a.getStructure().containsBlock(event.getBlock())))
+            event.setCancelled(true);
+    }
+    
+    @EventHandler(ignoreCancelled = true)
+    public void onBucketEmpty(PlayerBucketEmptyEvent event) {
         if (getFeatures().stream().anyMatch(a -> a.getStructure().containsBlock(event.getBlock())))
             event.setCancelled(true);
     }
