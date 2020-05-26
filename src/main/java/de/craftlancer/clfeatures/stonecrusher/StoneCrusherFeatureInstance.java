@@ -73,7 +73,7 @@ public class StoneCrusherFeatureInstance extends FeatureInstance {
         for (CrusherResult a : lootTable) {
             sum += a.getChance();
             if (chance < sum) {
-                if (!output.addItem(a.getResult()).isEmpty()) {
+                if (!output.addItem(a.getResult().clone()).isEmpty()) {
                     World world = getInitialBlock().getWorld();
                     world.dropItem(getOutputChest(), a.getResult());
                     world.playSound(getInitialBlock(), Sound.ENTITY_ITEM_BREAK, SoundCategory.BLOCKS, 1, 1);

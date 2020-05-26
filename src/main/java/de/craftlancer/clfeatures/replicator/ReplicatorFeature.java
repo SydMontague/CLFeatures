@@ -6,12 +6,14 @@ import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
+
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Item;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -20,7 +22,6 @@ import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -39,6 +41,7 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     
     private List<Material> blockedProducts;
     
+    @SuppressWarnings("unchecked")
     public ReplicatorFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "replicator.limit"));
         
@@ -47,19 +50,18 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
         stringList.forEach(string -> blockedProducts.add(Material.getMaterial(string)));
         
         instances = (List<ReplicatorFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/replicator.yml"))
-                .getList("replicator", new ArrayList<>());
+                                                                       .getList("replicator", new ArrayList<>());
     }
     
     public List<Material> getBlockedProducts() {
         return blockedProducts;
     }
     
-    //Unused with blueprints
+    // Unused with blueprints
     @Override
     public boolean isFeatureItem(ItemStack item) {
         return false;
     }
-    
     
     @Override
     public boolean checkFeatureLimit(Player player) {
@@ -76,13 +78,13 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
         return current < limit;
     }
     
-    //Unused with blueprints
+    // Unused with blueprints
     @Override
     public Collection<Block> checkEnvironment(Block initialBlock) {
-        return null;
+        return Collections.emptyList();
     }
     
-    //Unused with blueprints
+    // Unused with blueprints
     @Override
     public boolean createInstance(Player creator, Block initialBlock) {
         return false;
@@ -97,7 +99,8 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
         BukkitRunnable saveTask = new LambdaRunnable(() -> {
             try {
                 config.save(f);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 getPlugin().getLogger().log(Level.SEVERE, "Error while saving Replicator: ", e);
             }
         });
@@ -127,13 +130,13 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     }
     
     @Override
-    public List getFeatures() {
+    public List<ReplicatorFeatureInstance> getFeatures() {
         instances.removeIf(Objects::isNull);
         return instances;
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialLocation, List blocks) {
+    public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks) {
         return instances.add(new ReplicatorFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation()));
     }
     
@@ -146,46 +149,36 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
      */
     @EventHandler(ignoreCancelled = true)
     public void onItemPickup(EntityPickupItemEvent event) {
-        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getItem().getItemStack().getItemMeta())))
+        if (event.getItem().hasMetadata(ReplicatorDisplayItem.DISPLAY_ITEM_METADATA))
             event.setCancelled(true);
     }
     
     @EventHandler
     public void onInventoryPickup(InventoryPickupItemEvent event) {
-        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getItem().getItemStack().getItemMeta())))
+        if (event.getItem().hasMetadata(ReplicatorDisplayItem.DISPLAY_ITEM_METADATA))
             event.setCancelled(true);
     }
     
     @EventHandler
     public void onItemDespawn(ItemDespawnEvent event) {
-        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getEntity().getItemStack().getItemMeta())))
+        if (event.getEntity().hasMetadata(ReplicatorDisplayItem.DISPLAY_ITEM_METADATA))
             event.setCancelled(true);
     }
     
     @EventHandler
     public void onItemPortalUse(EntityPortalEvent event) {
-        if (!(event.getEntity() instanceof Item))
+        if (event.getEntityType() != EntityType.DROPPED_ITEM)
             return;
         
-        if (getInstanceItems().stream().anyMatch(item -> item.equals(((Item) event.getEntity()).getItemStack().getItemMeta())))
+        if (event.getEntity().hasMetadata(ReplicatorDisplayItem.DISPLAY_ITEM_METADATA))
             event.setCancelled(true);
     }
     
     @EventHandler
     public void onItemMerge(ItemMergeEvent event) {
-        if (getInstanceItems().stream().anyMatch(item -> item.equals(event.getEntity().getItemStack().getItemMeta())
-                || item.equals(event.getTarget().getItemStack().getItemMeta())))
+        if (event.getEntity().hasMetadata(ReplicatorDisplayItem.DISPLAY_ITEM_METADATA)
+                || event.getTarget().hasMetadata(ReplicatorDisplayItem.DISPLAY_ITEM_METADATA))
             event.setCancelled(true);
     }
-    
-    private List<ItemMeta> getInstanceItems() {
-        List<ItemMeta> itemList = new ArrayList<>();
-        instances.stream().filter(instances -> instances.getDisplayItem() != null
-                && instances.getDisplayItem().getItem() != null
-                && instances.getDisplayItem().getItem().getItemStack().getItemMeta() != null)
-                .forEach(instance -> itemList.add(instance.getDisplayItem().getItem().getItemStack().getItemMeta()));
-        return itemList;
-    }
-    
     
 }

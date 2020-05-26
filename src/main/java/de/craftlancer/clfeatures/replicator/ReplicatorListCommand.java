@@ -1,9 +1,5 @@
 package de.craftlancer.clfeatures.replicator;
 
-import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
-import de.craftlancer.core.command.SubCommand;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -11,13 +7,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.core.command.SubCommand;
+import net.md_5.bungee.api.ChatColor;
+
 public class ReplicatorListCommand extends SubCommand {
-    ReplicatorFeature feature;
+    private ReplicatorFeature feature;
     
-    public ReplicatorListCommand(Plugin plugin, Feature feature) {
+    public ReplicatorListCommand(Plugin plugin, ReplicatorFeature feature) {
         super("", plugin, false);
-        
-        this.feature = (ReplicatorFeature) feature;
+        this.feature = feature;
     }
     
     @Override

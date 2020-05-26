@@ -1,10 +1,12 @@
 package de.craftlancer.clfeatures.replicator;
 
-import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
-import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.structure.BlockStructure;
-import net.md_5.bungee.api.ChatColor;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,15 +23,18 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.Feature;
+import de.craftlancer.clfeatures.FeatureInstance;
+import de.craftlancer.core.Utils;
+import de.craftlancer.core.structure.BlockStructure;
+import net.md_5.bungee.api.ChatColor;
 
 public class ReplicatorFeatureInstance extends FeatureInstance {
     public static final String MOVE_METADATA = "replicatorMove";
@@ -46,12 +51,8 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     
     private int tickId = 0;
     
-    private Map<Material, Integer> recipe = new HashMap<>();
+    private Map<Material, Integer> recipe = new EnumMap<>(Material.class);
     private ItemStack product = null;
-    
-    public static boolean isChunkLoadedAtLocation(Location location) {
-        return (location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4));
-    }
     
     public ReplicatorFeatureInstance(ReplicatorFeature manager, UUID ownerId, BlockStructure blocks, Location origin) {
         super(ownerId, blocks, origin);
@@ -62,8 +63,8 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         inputChest = origin.clone().add(0, 2, 0);
         
         blocks.getBlocks().stream().filter(location -> location.getBlock().getType() == Material.BARRIER).forEach(location -> location.getBlock().setType(Material.AIR));
-        daylightSensor = blocks.getBlocks().stream().filter(block -> block.getBlock().getType() == Material.DAYLIGHT_DETECTOR).findFirst().get();
-        
+        daylightSensor = blocks.getBlocks().stream().filter(block -> block.getBlock().getType() == Material.DAYLIGHT_DETECTOR).findFirst().orElse(null);
+        this.displayItem = new ReplicatorDisplayItem(this);
     }
     
     public ReplicatorFeatureInstance(Map<String, Object> map) {
@@ -74,6 +75,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         daylightSensor = (Location) map.get("daylightDetector");
         
         if (map.containsKey("recipe") && map.containsKey("product")) {
+            @SuppressWarnings("unchecked")
             List<ItemStack> list = (List<ItemStack>) map.get("recipe");
             list.forEach(item -> {
                 if (recipe.containsKey(item.getType()))
@@ -83,15 +85,13 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             });
             
             product = (ItemStack) map.get("product");
-            
-            displayItem = new ReplicatorDisplayItem(this);
         }
+        displayItem = new ReplicatorDisplayItem(this);
     }
     
     @Override
     protected void destroy() {
-        if (displayItem != null)
-            displayItem.remove();
+        displayItem.remove();
         super.destroy();
     }
     
@@ -120,14 +120,6 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     protected void tick() {
         tickId += 10;
         
-        if (displayItem != null && displayItem.getItem() != null) {
-            if (!displayItem.getItem().isValid() && isChunkLoadedAtLocation(daylightSensor))
-                displayItem.spawn();
-            else
-                displayItem.teleport();
-            displayItem.getItem().setPickupDelay(Integer.MAX_VALUE);
-        }
-        
         if (recipe == null || recipe.isEmpty() || product == null)
             return;
         
@@ -136,8 +128,10 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             output = ((Chest) getOutputChest().getBlock().getState()).getInventory();
         }
         
-        if (!isChunkLoadedAtLocation(inputChest) || !isChunkLoadedAtLocation(outputChest))
+        if (!Utils.isChunkLoaded(inputChest) || !Utils.isChunkLoaded(outputChest) || !Utils.isChunkLoaded(daylightSensor))
             return;
+
+        displayItem.tick();
         
         DaylightDetector detector = (DaylightDetector) daylightSensor.getBlock().getBlockData();
         //Does the input chest contain all necessary materials?
@@ -157,22 +151,19 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             addToOutput();
         }
         daylightSensor.getWorld().playSound(daylightSensor, Sound.BLOCK_BEACON_AMBIENT, 0.2F, 1F);
-        doParticles();
+        spawnParticles();
         
         detector.setInverted(false);
         daylightSensor.getBlock().setBlockData(detector);
     }
     
-    private void doParticles() {
-        if (!isChunkLoadedAtLocation(daylightSensor))
+    private void spawnParticles() {
+        if (!Utils.isChunkLoaded(daylightSensor))
             return;
-        Location centerSensor = daylightSensor.clone();
+        Location centerSensor = daylightSensor.clone().add(0.5, 0, 0.5);
         Particle.DustOptions particle = new Particle.DustOptions(Color.WHITE, 1F);
-        centerSensor.setX(centerSensor.getX() + 0.5);
-        centerSensor.setZ(centerSensor.getZ() + 0.5);
         for (double i = daylightSensor.getY(); i < daylightSensor.getY() + 1; i += 0.05) {
             centerSensor.setY(i);
-            
             centerSensor.getWorld().spawnParticle(Particle.REDSTONE, centerSensor, 1, particle);
         }
     }
@@ -193,13 +184,12 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     }
     
     private void addToOutput() {
-        Location dropLocation = getOutputChest().clone();
-        dropLocation.setY(dropLocation.getY() + 1);
-        dropLocation.setX(dropLocation.getX() + 0.5);
-        dropLocation.setZ(dropLocation.getZ() + 0.5);
-        if (!output.addItem(product).isEmpty()) {
+        Map<Integer, ItemStack> fullItems = output.addItem(product.clone());
+        
+        if(!fullItems.isEmpty()) {
+            Location dropLocation = getOutputChest().clone().add(0.5, 1, 0.5);
             World world = getInitialBlock().getWorld();
-            world.dropItem(dropLocation, product);
+            fullItems.forEach((a, b) -> world.dropItem(dropLocation, b));
             world.playSound(getInitialBlock(), Sound.ENTITY_ITEM_BREAK, SoundCategory.BLOCKS, 1, 1);
         }
     }
@@ -266,10 +256,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_SCAFFOLDING_PLACE, 0.5F, 1F);
         player.sendMessage(CLFeatures.CC_PREFIX + "§eYou have set the replicator to craft §6" + product.getType().name() + "§e.");
         
-        if (displayItem != null)
-            displayItem.remove();
-        displayItem = new ReplicatorDisplayItem(this);
-        displayItem.spawn();
+        displayItem.setItemStack(product);
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -309,5 +296,23 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     
     public ReplicatorDisplayItem getDisplayItem() {
         return displayItem;
+    }
+    
+    @EventHandler()
+    public void onChunkLoad(ChunkLoadEvent e) {
+        Chunk c = e.getChunk();
+        
+        if (c.getX() == inputChest.getBlockX() >> 4 && c.getZ() == inputChest.getBlockZ() >> 4) {
+            input = ((Chest) getInputChest().getBlock().getState()).getInventory();
+            output = ((Chest) getOutputChest().getBlock().getState()).getInventory();
+            displayItem.tick();
+        }
+    }
+
+    @EventHandler()
+    public void onChunkUnload(ChunkUnloadEvent e) {
+        Chunk c = e.getChunk();
+        if (c.getX() == inputChest.getBlockX() >> 4 && c.getZ() == inputChest.getBlockZ() >> 4)
+            displayItem.remove();
     }
 }
