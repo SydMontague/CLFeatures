@@ -23,13 +23,13 @@ public class PortalMoveCommand extends SubCommand {
             return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't use this command.";
 
         Player p = (Player) sender;
-        p.setMetadata(PortalFeatureInstance.MOVE_METADATA, new FixedMetadataValue(getPlugin(), ""));
+        p.setMetadata(PortalFeature.MOVE_METADATA, new FixedMetadataValue(getPlugin(), ""));
 
         new LambdaRunnable(() ->  {
-            if(!p.hasMetadata(PortalFeatureInstance.MOVE_METADATA))
+            if(!p.hasMetadata(PortalFeature.MOVE_METADATA))
                 return;
             
-            p.removeMetadata(PortalFeatureInstance.MOVE_METADATA, getPlugin());
+            p.removeMetadata(PortalFeature.MOVE_METADATA, getPlugin());
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Portal move timed out.");
         }).runTaskLater(getPlugin(), 1200L);
         

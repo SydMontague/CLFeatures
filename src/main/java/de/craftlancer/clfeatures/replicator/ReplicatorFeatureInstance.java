@@ -90,7 +90,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     }
     
     @Override
-    protected void destroy() {
+    public void destroy() {
         displayItem.remove();
         super.destroy();
     }

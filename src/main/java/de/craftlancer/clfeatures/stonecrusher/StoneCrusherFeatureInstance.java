@@ -14,10 +14,7 @@ import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.data.Directional;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -26,11 +23,8 @@ import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeature.CrusherResult;
 import de.craftlancer.core.structure.BlockStructure;
-import net.md_5.bungee.api.ChatColor;
 
 public class StoneCrusherFeatureInstance extends FeatureInstance {
-    public static final String MOVE_METADATA = "crusherMove";
-    
     private StoneCrusherFeature manager;
     
     private Location inputChest;
@@ -127,24 +121,5 @@ public class StoneCrusherFeatureInstance extends FeatureInstance {
             manager = (StoneCrusherFeature) CLFeatures.getInstance().getFeature("stonecrusher");
         
         return manager;
-    }
-    
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onInteractMove(PlayerInteractEvent event) {
-        Player p = event.getPlayer();
-        
-        if (!event.hasBlock() || !p.hasMetadata(MOVE_METADATA))
-            return;
-        
-        if (!getStructure().containsBlock(event.getClickedBlock()))
-            return;
-        
-        if (!getOwnerId().equals(p.getUniqueId()))
-            return;
-        
-        destroy();
-        getManager().giveFeatureItem(p);
-        p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "StoneCrusher successfully moved back to your inventory.");
-        p.removeMetadata(MOVE_METADATA, getManager().getPlugin());
     }
 }

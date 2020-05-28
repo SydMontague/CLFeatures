@@ -75,7 +75,7 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
     
     protected abstract Feature<?> getManager();
     
-    protected void destroy() {
+    public void destroy() {
         HandlerList.unregisterAll(this);
         getManager().remove(this);
         task.cancel();
