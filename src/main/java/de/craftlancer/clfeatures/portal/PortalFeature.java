@@ -332,6 +332,8 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         }
         else
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to move this portal. You need 3 Lesser Fragments.");
+        
+        p.removeMetadata(MOVE_METADATA, getPlugin());
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
