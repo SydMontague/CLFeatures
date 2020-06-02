@@ -3,6 +3,8 @@ package de.craftlancer.clfeatures;
 import de.craftlancer.core.CLCore;
 import de.craftlancer.core.Utils;
 import de.craftlancer.core.command.CommandHandler;
+import me.sizzlemcgrizzle.blueprints.util.SchematicUtil;
+
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -26,6 +28,7 @@ import org.bukkit.util.BoundingBox;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,11 +95,16 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return plugin;
     }
     
-    public void giveFeatureItem(Player player) {
-        ItemStack item = CLCore.getInstance().getItemRegistry().getItem(getFeatureItem());
-        
+    public void giveFeatureItem(Player player, T feature) {
+        List<ItemStack> items = feature != null ? SchematicUtil.getBlueprint(feature.getUsedSchematic()) : Collections.emptyList();
+        ItemStack item = items.isEmpty() ? CLCore.getInstance().getItemRegistry().getItem(getFeatureItem()) : items.get(0);
+
         if (item != null)
             player.getInventory().addItem(item).forEach((a, b) -> player.getWorld().dropItem(player.getLocation(), b));
+    }
+    
+    public void giveFeatureItem(Player player) {
+        giveFeatureItem(player, null);
     }
     
     /**
@@ -115,7 +123,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     @Deprecated
     public abstract boolean createInstance(Player creator, Block initialBlock);
     
-    public abstract boolean createInstance(Player creator, Block initialBlock, List<Location> blocks);
+    public abstract boolean createInstance(Player creator, Block initialBlock, List<Location> blocks, String schematic);
     
     public abstract void save();
     

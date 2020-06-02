@@ -33,8 +33,8 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
     private TrophyChestFeature manager;
     private int score = 0;
     
-    public TrophyChestFeatureInstance(TrophyChestFeature manager, UUID ownerId, BlockStructure blocks, Location location) {
-        super(ownerId, blocks, location);
+    public TrophyChestFeatureInstance(TrophyChestFeature manager, UUID ownerId, BlockStructure blocks, Location location, String usedSchematic) {
+        super(ownerId, blocks, location, usedSchematic);
         this.manager = manager;
     }
     
@@ -128,7 +128,7 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
             return;
         
         destroy();
-        getManager().giveFeatureItem(p);
+        getManager().giveFeatureItem(p, this);
         p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "TrophyChest successfully moved back to your inventory.");
         p.removeMetadata(MOVE_METADATA, getManager().getPlugin());
     }

@@ -119,7 +119,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         if (!feature.isPresent())
             return;
         
-        feature.get().createInstance(event.getPlayer(), event.getFeatureLocation().getBlock(), event.getBlocksPasted());
+        feature.get().createInstance(event.getPlayer(), event.getFeatureLocation().getBlock(), event.getBlocksPasted(), event.getSchematic());
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)

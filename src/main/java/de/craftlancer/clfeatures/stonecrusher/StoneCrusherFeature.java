@@ -172,12 +172,12 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
         blocks.add(initialBlock.getRelative(-facing.getModZ(), 1, facing.getModX()).getLocation());
         blocks.add(initialBlock.getRelative(-facing.getModZ(), 2, facing.getModX()).getLocation());
         
-        return createInstance(creator, initialBlock, blocks);
+        return createInstance(creator, initialBlock, blocks, null);
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks) {
-        return instances.add(new StoneCrusherFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation()));
+    public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks, String usedSchematic) {
+        return instances.add(new StoneCrusherFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation(), usedSchematic));
     }
     
     @Override
@@ -255,7 +255,7 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
             return;
         
         feature.get().destroy();
-        giveFeatureItem(p);
+        giveFeatureItem(p, feature.get());
         p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "StoneCrusher successfully moved back to your inventory.");
         p.removeMetadata(MOVE_METADATA, getPlugin());
     }

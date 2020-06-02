@@ -33,8 +33,8 @@ public class StoneCrusherFeatureInstance extends FeatureInstance {
     private Inventory input;
     private Inventory output;
     
-    public StoneCrusherFeatureInstance(StoneCrusherFeature manager, UUID ownerId, BlockStructure blocks, Location location) {
-        super(ownerId, blocks, location);
+    public StoneCrusherFeatureInstance(StoneCrusherFeature manager, UUID ownerId, BlockStructure blocks, Location location, String usedSchematic) {
+        super(ownerId, blocks, location, usedSchematic);
         this.manager = manager;
         
         outputChest = location;

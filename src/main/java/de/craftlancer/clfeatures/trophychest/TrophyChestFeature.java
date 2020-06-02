@@ -52,8 +52,6 @@ public class TrophyChestFeature extends Feature<TrophyChestFeatureInstance> {
     @Override
     public boolean isFeatureItem(ItemStack item) {
         return false;
-        //ItemStack fItem = CLCore.getInstance().getItemRegistry().getItem(featureItem);
-        //return item != null && fItem != null && fItem.isSimilar(item);
     }
     
     @Override
@@ -68,13 +66,13 @@ public class TrophyChestFeature extends Feature<TrophyChestFeatureInstance> {
     
     @Override
     public boolean createInstance(Player creator, Block initialBlock) {
-        return createInstance(creator, initialBlock, Arrays.asList(initialBlock.getLocation()));
+        return createInstance(creator, initialBlock, Arrays.asList(initialBlock.getLocation()), null);
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialBlock, List<Location> blocks) {
+    public boolean createInstance(Player creator, Block initialBlock, List<Location> blocks, String usedSchematic) {
         TrophyChestFeatureInstance instance = new TrophyChestFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks),
-                initialBlock.getLocation());
+                initialBlock.getLocation(), usedSchematic);
         
         if (instances.add(instance)) {
             playerLookupTable.put(creator.getUniqueId(), instance);
@@ -136,7 +134,7 @@ public class TrophyChestFeature extends Feature<TrophyChestFeatureInstance> {
     }
     
     public int getItemValue(ItemStack a) {
-        if(a == null || a.getType().isAir())
+        if (a == null || a.getType().isAir())
             return 0;
         
         ItemStack e = a.clone();
@@ -160,7 +158,7 @@ public class TrophyChestFeature extends Feature<TrophyChestFeatureInstance> {
     public double getScore(OfflinePlayer player) {
         return getScore(player.getUniqueId());
     }
-
+    
     public double getScore(UUID uuid) {
         return playerLookupTable.containsKey(uuid) ? playerLookupTable.get(uuid).getScore() : 0;
     }

@@ -30,7 +30,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.Utils;
 import de.craftlancer.core.structure.BlockStructure;
@@ -54,8 +53,8 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     private Map<Material, Integer> recipe = new EnumMap<>(Material.class);
     private ItemStack product = null;
     
-    public ReplicatorFeatureInstance(ReplicatorFeature manager, UUID ownerId, BlockStructure blocks, Location origin) {
-        super(ownerId, blocks, origin);
+    public ReplicatorFeatureInstance(ReplicatorFeature manager, UUID ownerId, BlockStructure blocks, Location origin, String usedSchematic) {
+        super(ownerId, blocks, origin, usedSchematic);
         
         this.manager = manager;
         
@@ -108,9 +107,9 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             
             map.put("recipe", list);
             map.put("product", product);
-            map.put("daylightDetector", daylightSensor);
         }
-        
+
+        map.put("daylightDetector", daylightSensor);
         displayItem.remove();
         
         return map;
@@ -119,6 +118,11 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     @Override
     protected void tick() {
         tickId += 10;
+        
+        if(daylightSensor == null) {
+            getManager().getPlugin().getLogger().severe("Tried ticking Replicator without Daylight Sensor at " + getInitialBlock());
+            return;
+        }
         
         if (recipe == null || recipe.isEmpty() || product == null)
             return;
@@ -195,7 +199,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     }
     
     @Override
-    protected Feature<?> getManager() {
+    protected ReplicatorFeature getManager() {
         if (manager == null)
             manager = (ReplicatorFeature) CLFeatures.getInstance().getFeature("replicator");
         
@@ -273,7 +277,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             return;
         
         destroy();
-        getManager().giveFeatureItem(p);
+        getManager().giveFeatureItem(p, this);
         p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Replicator successfully moved back to your inventory.");
         p.removeMetadata(MOVE_METADATA, getManager().getPlugin());
     }

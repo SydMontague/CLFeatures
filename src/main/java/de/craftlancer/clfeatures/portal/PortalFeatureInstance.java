@@ -45,8 +45,8 @@ public class PortalFeatureInstance extends FeatureInstance {
     private BoundingBox box;
     private Location targetLocation;
     
-    public PortalFeatureInstance(PortalFeature manager, Player owner, BlockStructure blocks, Block initialBlock) {
-        super(owner.getUniqueId(), blocks, initialBlock.getLocation());
+    public PortalFeatureInstance(PortalFeature manager, Player owner, BlockStructure blocks, Block initialBlock, String usedSchematic) {
+        super(owner.getUniqueId(), blocks, initialBlock.getLocation(), usedSchematic);
         
         this.manager = manager;
         this.lastUsage = Instant.now().getEpochSecond();

@@ -136,8 +136,8 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks) {
-        return instances.add(new ReplicatorFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation()));
+    public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks, String usedSchematic) {
+        return instances.add(new ReplicatorFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation(), usedSchematic));
     }
     
     public List<ReplicatorFeatureInstance> getReplicatorsByUUID(UUID uuid) {

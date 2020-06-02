@@ -206,17 +206,17 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 3, facing.getModX() * -1).getLocation());
         blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 3, facing.getModX() * -2).getLocation());
         
-        return createInstance(creator, initialBlock, blocks);
+        return createInstance(creator, initialBlock, blocks, null);
     }
 
     @Override
-    public boolean createInstance(Player creator, Block initialBlock, List<Location> blocksPasted) {
+    public boolean createInstance(Player creator, Block initialBlock, List<Location> blocksPasted, String schematic) {
         blocksPasted.stream().map(Location::getBlock).filter(a -> a.getType() == Material.BARRIER).forEach(a -> a.setType(Material.AIR));
         BlockStructure blocks = new BlockStructure(blocksPasted);
 
         creator.sendMessage("[§4Craft§fCitizen]" + ChatColor.YELLOW + "Portal placed, use " + ChatColor.GREEN + "/portal name <name>" + ChatColor.YELLOW
                 + " to give your portal an address!");
-        return instances.add(new PortalFeatureInstance(this, creator, blocks, initialBlock));
+        return instances.add(new PortalFeatureInstance(this, creator, blocks, initialBlock, schematic));
     }
     
     @Override
@@ -327,7 +327,7 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
             if(portal.get().getName() != null)
                 deductMoveCost(p);
             portal.get().destroy();
-            giveFeatureItem(p);
+            giveFeatureItem(p, portal.get());
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Portal successfully moved back to your inventory.");
         }
         else
