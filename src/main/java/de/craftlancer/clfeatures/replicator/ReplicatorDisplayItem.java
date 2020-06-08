@@ -49,7 +49,11 @@ public class ReplicatorDisplayItem {
     public void remove() {
         if (item == null)
             return;
-        item.teleport(new Location(world, 0, 2, 0));
+        
+        item.setInvulnerable(false);
+        item.setGlowing(true);
+        item.setCustomName("This should not happen. Contact Admin");
+        item.setCustomNameVisible(true);
         item.remove();
     }
     
