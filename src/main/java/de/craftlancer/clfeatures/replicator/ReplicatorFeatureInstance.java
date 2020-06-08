@@ -231,7 +231,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             return;
         
         Player player = (Player) event.getWhoClicked();
-        List<Material> blockedProducts = ((ReplicatorFeature) CLFeatures.getInstance().getFeature("replicator")).getBlockedProducts();
+        List<Material> blockedProducts = getManager().getBlockedProducts();
         
         if (blockedProducts.contains(inventory.getResult().getType())) {
             player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "This item is too powerful for the replicator and cannot be crafted.");

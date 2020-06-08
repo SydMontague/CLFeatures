@@ -107,21 +107,6 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
     }
     
     @Override
-    public boolean checkFeatureLimit(Player player) {
-        if (player.hasPermission("clfeature.portal.ignoreLimit"))
-            return true;
-        
-        int limit = getLimit(player);
-        
-        if (limit < 0)
-            return true;
-        
-        long current = instances.stream().filter(a -> a.isOwner(player)).count();
-        
-        return current < limit;
-    }
-    
-    @Override
     public Collection<Block> checkEnvironment(Block initialBlock) {
         Lectern lectern = (Lectern) initialBlock.getBlockData();
         BlockFace facing = lectern.getFacing().getOppositeFace();

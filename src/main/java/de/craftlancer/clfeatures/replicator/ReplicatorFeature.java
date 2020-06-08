@@ -63,21 +63,6 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
         return false;
     }
     
-    @Override
-    public boolean checkFeatureLimit(Player player) {
-        if (player.hasPermission("clfeature.portal.ignoreLimit"))
-            return true;
-        
-        int limit = getLimit(player);
-        
-        if (limit < 0)
-            return true;
-        
-        long current = instances.stream().filter(a -> a.isOwner(player)).count();
-        
-        return current < limit;
-    }
-    
     // Unused with blueprints
     @Override
     public Collection<Block> checkEnvironment(Block initialBlock) {

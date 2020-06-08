@@ -1,21 +1,13 @@
 package de.craftlancer.clfeatures;
 
-import de.craftlancer.clfeatures.portal.PortalFeature;
-import de.craftlancer.clfeatures.portal.PortalFeatureInstance;
-import de.craftlancer.clfeatures.replicator.ReplicatorFeature;
-import de.craftlancer.clfeatures.replicator.ReplicatorFeatureInstance;
-import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeature;
-import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeatureInstance;
-import de.craftlancer.clfeatures.trophychest.TrophyChestFeature;
-import de.craftlancer.clfeatures.trophychest.TrophyChestFeatureInstance;
-import de.craftlancer.core.LambdaRunnable;
-import de.craftlancer.core.conversation.ClickableBooleanPrompt;
-import de.craftlancer.core.conversation.FormattedConversable;
-import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
-import me.sizzlemcgrizzle.blueprints.api.BlueprintPrePasteEvent;
-import net.md_5.bungee.api.ChatColor;
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -33,12 +25,25 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import de.craftlancer.clfeatures.portal.PortalFeature;
+import de.craftlancer.clfeatures.portal.PortalFeatureInstance;
+import de.craftlancer.clfeatures.replicator.ReplicatorFeature;
+import de.craftlancer.clfeatures.replicator.ReplicatorFeatureInstance;
+import de.craftlancer.clfeatures.spawnblocker.SpawnBlockGroup;
+import de.craftlancer.clfeatures.spawnblocker.SpawnBlockerFeature;
+import de.craftlancer.clfeatures.spawnblocker.SpawnBlockerFeatureInstance;
+import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeature;
+import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeatureInstance;
+import de.craftlancer.clfeatures.trophychest.TrophyChestFeature;
+import de.craftlancer.clfeatures.trophychest.TrophyChestFeatureInstance;
+import de.craftlancer.core.LambdaRunnable;
+import de.craftlancer.core.conversation.ClickableBooleanPrompt;
+import de.craftlancer.core.conversation.FormattedConversable;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPrePasteEvent;
+import net.md_5.bungee.api.ChatColor;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 
 public class CLFeatures extends JavaPlugin implements Listener {
     public static final String CC_PREFIX = "§f[§4Craft§fCitizen] ";
@@ -64,6 +69,8 @@ public class CLFeatures extends JavaPlugin implements Listener {
         ConfigurationSerialization.registerClass(StoneCrusherFeatureInstance.class);
         ConfigurationSerialization.registerClass(TrophyChestFeatureInstance.class);
         ConfigurationSerialization.registerClass(ReplicatorFeatureInstance.class);
+        ConfigurationSerialization.registerClass(SpawnBlockerFeatureInstance.class);
+        ConfigurationSerialization.registerClass(SpawnBlockGroup.class);
         
         saveDefaultConfig();
         instance = this;
@@ -76,6 +83,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         registerFeature("stonecrusher", new StoneCrusherFeature(this, getConfig().getConfigurationSection("stonecrusher")));
         registerFeature("trophyChest", new TrophyChestFeature(this, getConfig().getConfigurationSection("trophyChest")));
         registerFeature("replicator", new ReplicatorFeature(this, getConfig().getConfigurationSection("replicator")));
+        registerFeature("spawnBlocker", new SpawnBlockerFeature(this, getConfig().getConfigurationSection("spawnBlocker")));
         
         new LambdaRunnable(() -> features.forEach((a, b) -> b.save())).runTaskTimer(this, 18000L, 18000L);
     }

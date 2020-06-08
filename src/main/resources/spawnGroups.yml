@@ -1,0 +1,97 @@
+SLOT_1:
+  ==: de.craftlancer.clfeatures.spawnblocker.SpawnBlockGroup
+  itemType: ZOMBIE_HEAD
+  itemName: "Monster"
+  itemLore: 
+  - "Hostile Mobs"
+  defaultState: true
+  blockedEntities:
+  - BLAZE
+  - CAVE_SPIDER
+  - CREEPER
+  - DROWNED
+  - ENDERMAN
+  - ENDERMITE
+  - EVOKER
+  - GHAST
+  - GUARDIAN
+  - HUSK
+  - ILLUSIONER
+  - MAGMA_CUBE
+  - PHANTOM
+  - PIG_ZOMBIE
+  - PILLAGER
+  - RAVAGER
+  - SILVERFISH
+  - SKELETON
+  - SLIME
+  - SPIDER
+  - STRAY
+  - TRADER_LLAMA
+  - VEX
+  - VINDICATOR
+  - WITCH
+  - WITHER_SKELETON
+  - ZOMBIE
+  - ZOMBIE_VILLAGER
+SLOT_2:
+  ==: de.craftlancer.clfeatures.spawnblocker.SpawnBlockGroup
+  itemType: MILK_BUCKET
+  itemName: "Animals"
+  itemLore: 
+  - "Passive/Peaceful Mobs"
+  defaultState: true
+  blockedEntities:
+  - BEE
+  - CAT
+  - CHICKEN
+  - COW
+  - DONKEY
+  - FOX
+  - HORSE
+  - IRON_GOLEM
+  - LLAMA
+  - MULE
+  - MUSHROOM_COW
+  - OCELOT
+  - PANDA
+  - PARROT
+  - PIG
+  - POLAR_BEAR
+  - RABBIT
+  - SHEEP
+  - SKELETON_HORSE
+  - ZOMBIE_HORSE
+  - WOLF
+SLOT_3:
+  ==: de.craftlancer.clfeatures.spawnblocker.SpawnBlockGroup
+  itemType: POPPY
+  itemName: "Ambient Mobs"
+  itemLore: 
+  - "Currently only bats"
+  defaultState: true
+  blockedEntities:
+  - BAT
+SLOT_4:
+  ==: de.craftlancer.clfeatures.spawnblocker.SpawnBlockGroup
+  itemType: WATER_BUCKET
+  itemName: "Water Mobs"
+  itemLore: 
+  - "All Water Mobs except fish"
+  defaultState: true
+  blockedEntities:
+  - DOLPHIN
+  - SQUID
+  - TURTLE
+SLOT_5:
+  ==: de.craftlancer.clfeatures.spawnblocker.SpawnBlockGroup
+  itemType: TROPICAL_FISH
+  itemName: "Fish"
+  itemLore: 
+  - "All fish mobs"
+  defaultState: true
+  blockedEntities:
+  - COD
+  - PUFFERFISH
+  - SALMON
+  - TROPICAL_FISH

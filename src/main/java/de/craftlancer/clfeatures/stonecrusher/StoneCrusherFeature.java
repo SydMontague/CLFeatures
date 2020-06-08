@@ -102,21 +102,6 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
     }
     
     @Override
-    public boolean checkFeatureLimit(Player player) {
-        if (player.hasPermission("clfeature.portal.ignoreLimit"))
-            return true;
-        
-        int limit = getLimit(player);
-        
-        if (limit < 0)
-            return true;
-        
-        long current = instances.stream().filter(a -> a.isOwner(player)).count();
-        
-        return current < limit;
-    }
-    
-    @Override
     public Collection<Block> checkEnvironment(Block initialBlock) {
         Chest chest = (Chest) initialBlock.getBlockData();
         BlockFace facing = chest.getFacing().getOppositeFace();

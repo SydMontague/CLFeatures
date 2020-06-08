@@ -20,6 +20,9 @@ commands:
   replicator:
     description: "Replicator related commands"
     usage: /replicator [move|list]
+  spawnBlocker:
+    description: "SpawnBlocker related commands"
+    usage: /spawnblocker [move|list]
 permissions:
   clfeature.portal.ignoreLimit:
     default: op

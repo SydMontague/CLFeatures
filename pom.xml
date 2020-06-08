@@ -41,6 +41,12 @@
       <groupId>me.sizzlemcgrizzle</groupId>
       <artifactId>blueprints</artifactId>
       <version>1.5.9</version>
+      <exclusions>
+          <exclusion>
+              <groupId>*</groupId>
+              <artifactId>*</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 

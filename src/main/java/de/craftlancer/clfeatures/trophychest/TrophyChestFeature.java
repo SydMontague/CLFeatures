@@ -54,6 +54,14 @@ public class TrophyChestFeature extends Feature<TrophyChestFeatureInstance> {
         return false;
     }
     
+    /*
+     * Only one TrophyChest per player allowed at all times
+     */
+    @Override
+    public int getLimit(Player player) {
+        return 1;
+    }
+    
     @Override
     public boolean checkFeatureLimit(Player player) {
         return instances.stream().filter(a -> a.isOwner(player)).count() < 1;

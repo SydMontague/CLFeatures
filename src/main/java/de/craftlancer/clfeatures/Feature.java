@@ -71,6 +71,20 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return groupLimit < 0 ? -1 : groupLimit + individualLimit;
     }
     
+    public boolean checkFeatureLimit(Player player) {
+        if (player.hasPermission(String.format("clfeature.%s.ignoreLimit", getName())))
+            return true;
+        
+        int limit = getLimit(player);
+        
+        if (limit < 0)
+            return true;
+        
+        long current = getFeatures().stream().filter(a -> a.isOwner(player)).count();
+        
+        return current < limit;
+    }
+    
     public void addFeatureLimit(Player player, int amount) {
         int individualLimit = player.getPersistentDataContainer().getOrDefault(limitKey, PersistentDataType.INTEGER, 0).intValue();
         player.getPersistentDataContainer().set(limitKey, PersistentDataType.INTEGER, individualLimit + amount);
@@ -112,9 +126,11 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
      */
     @Deprecated
     public abstract boolean isFeatureItem(ItemStack item);
-    
-    public abstract boolean checkFeatureLimit(Player player);
-    
+
+    /**
+     * @deprecated use blueprints instead
+     */
+    @Deprecated
     public abstract Collection<Block> checkEnvironment(Block initialBlock);
     
     /**
