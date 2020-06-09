@@ -62,7 +62,8 @@ public class StoneCrusherFeatureInstance extends FeatureInstance {
         
         double sum = 0;
         double chance = Math.random();
-        input.removeItem(new ItemStack(material));
+        if(!input.removeItem(new ItemStack(material)).isEmpty())
+            return false;
         
         for (CrusherResult a : lootTable) {
             sum += a.getChance();
