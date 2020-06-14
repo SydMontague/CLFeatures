@@ -9,8 +9,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -117,6 +119,32 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
     protected void tick() {
         if (inventory == null)
             setupInventory();
+        
+        if (isActive())
+            spawnParticles();
+        
+    }
+    
+    private boolean isActive() {
+        if (enabledGroups.values().stream().noneMatch(Boolean::booleanValue))
+            return false;
+        
+        for (boolean b : enabledChunks)
+            if (b)
+                return true;
+            
+        return false;
+    }
+    
+    private void spawnParticles() {
+        if (!Utils.isChunkLoaded(getInitialBlock()))
+            return;
+        Location centerSensor = getInitialBlock().clone().add(0.5, 0, 0.5);
+        Particle.DustOptions particle = new Particle.DustOptions(Color.WHITE, 1F);
+        for (double i = getInitialBlock().getY(); i < getInitialBlock().getY() + 1; i += 0.05) {
+            centerSensor.setY(i);
+            centerSensor.getWorld().spawnParticle(Particle.REDSTONE, centerSensor, 1, particle);
+        }
     }
     
     @Override
@@ -150,7 +178,7 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
         
         if (!event.getEntityType().isAlive())
             return;
-
+        
         if (Math.abs(chunkX) > 2 || Math.abs(chunkZ) > 2)
             return;
         
