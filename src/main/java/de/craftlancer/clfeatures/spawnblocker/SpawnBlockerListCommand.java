@@ -1,4 +1,4 @@
-package de.craftlancer.clfeatures.replicator;
+package de.craftlancer.clfeatures.spawnblocker;
 
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -11,10 +11,10 @@ import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.core.command.SubCommand;
 import net.md_5.bungee.api.ChatColor;
 
-public class ReplicatorListCommand extends SubCommand {
-    private ReplicatorFeature feature;
+public class SpawnBlockerListCommand extends SubCommand {
+    private SpawnBlockerFeature feature;
     
-    public ReplicatorListCommand(Plugin plugin, ReplicatorFeature feature) {
+    public SpawnBlockerListCommand(Plugin plugin, SpawnBlockerFeature feature) {
         super("", plugin, false);
         this.feature = feature;
     }
@@ -31,7 +31,7 @@ public class ReplicatorListCommand extends SubCommand {
         p.sendMessage("      " + ChatColor.GOLD + "# | Location");
         
         int counter = 1;
-        for (ReplicatorFeatureInstance featureInstance : feature.getFeaturesByUUID(p.getUniqueId())) {
+        for (SpawnBlockerFeatureInstance featureInstance : feature.getFeaturesByUUID(p.getUniqueId())) {
             Location location = featureInstance.getInitialBlock();
             p.sendMessage("      " + ChatColor.YELLOW + counter + " | " + location.getWorld().getName().toUpperCase() + ", " + (int) location.getX() + ", " + (int) location.getY() + ", " + (int) location.getZ());
             counter++;

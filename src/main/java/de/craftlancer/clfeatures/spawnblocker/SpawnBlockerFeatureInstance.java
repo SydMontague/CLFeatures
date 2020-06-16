@@ -17,6 +17,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -29,6 +30,8 @@ import de.craftlancer.core.gui.GUIInventory;
 import de.craftlancer.core.structure.BlockStructure;
 
 public class SpawnBlockerFeatureInstance extends FeatureInstance {
+
+    public static final String MOVE_METADATA = "spawnBlockerMove";
     private static final int GRID_SIZE = 5;
     
     private SpawnBlockerFeature manager;
@@ -41,12 +44,15 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
     private int centerChunkX;
     private int centerChunkZ;
     
+    private Location interactLocation;
+    
     public SpawnBlockerFeatureInstance(SpawnBlockerFeature manager, UUID ownerId, BlockStructure blocks, Location location, String usedSchematic) {
         super(ownerId, blocks, location, usedSchematic);
         this.manager = manager;
         
         centerChunkX = location.getBlockX() >> 4;
         centerChunkZ = location.getBlockZ() >> 4;
+        interactLocation = location.clone().add(0, 1, 0);
         
         enabledGroups = manager.getBlockGroups().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, a -> a.getValue().getDefaultState()));
     }
@@ -56,6 +62,7 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
         super(map);
         centerChunkX = getInitialBlock().getBlockX() >> 4;
         centerChunkZ = getInitialBlock().getBlockZ() >> 4;
+        interactLocation = getInitialBlock().clone().add(0, 1, 0);
         
         enabledGroups = ((Map<String, Boolean>) map.get("enabledGroups")).entrySet().stream()
                                                                          .collect(Collectors.toMap(a -> SpawnBlockGroupSlot.valueOf(a.getKey()),
@@ -137,11 +144,11 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
     }
     
     private void spawnParticles() {
-        if (!Utils.isChunkLoaded(getInitialBlock()))
+        if (!Utils.isChunkLoaded(interactLocation))
             return;
-        Location centerSensor = getInitialBlock().clone().add(0.5, 0, 0.5);
+        Location centerSensor = interactLocation.clone().add(0.5, 0, 0.5);
         Particle.DustOptions particle = new Particle.DustOptions(Color.WHITE, 1F);
-        for (double i = getInitialBlock().getY(); i < getInitialBlock().getY() + 1; i += 0.05) {
+        for (double i = interactLocation.getY(); i < interactLocation.getY() + 1; i += 0.05) {
             centerSensor.setY(i);
             centerSensor.getWorld().spawnParticle(Particle.REDSTONE, centerSensor, 1, particle);
         }
@@ -162,7 +169,7 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
         
         Block block = event.getClickedBlock();
         
-        if (!block.getLocation().equals(getInitialBlock()))
+        if (!block.getLocation().equals(interactLocation))
             return;
         
         Player player = event.getPlayer();
@@ -201,4 +208,22 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
         return false;
     }
     
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onInteractMove(PlayerInteractEvent event) {
+        Player p = event.getPlayer();
+        
+        if (!event.hasBlock() || !p.hasMetadata(MOVE_METADATA))
+            return;
+        
+        if (!getStructure().containsBlock(event.getClickedBlock()))
+            return;
+        
+        if (!getOwnerId().equals(p.getUniqueId()))
+            return;
+        
+        destroy();
+        getManager().giveFeatureItem(p, this);
+        p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "SpawnBlocker successfully moved back to your inventory.");
+        p.removeMetadata(MOVE_METADATA, getManager().getPlugin());
+    }
 }

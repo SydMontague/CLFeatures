@@ -32,9 +32,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     private List<ReplicatorFeatureInstance> instances;
@@ -123,10 +121,6 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     @Override
     public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks, String usedSchematic) {
         return instances.add(new ReplicatorFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation(), usedSchematic));
-    }
-    
-    public List<ReplicatorFeatureInstance> getReplicatorsByUUID(UUID uuid) {
-        return instances.stream().filter(a -> a.isOwner(uuid)).collect(Collectors.toList());
     }
     
     /*

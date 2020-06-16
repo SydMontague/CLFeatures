@@ -1,9 +1,16 @@
 package de.craftlancer.clfeatures;
 
-import de.craftlancer.core.CLCore;
-import de.craftlancer.core.Utils;
-import de.craftlancer.core.command.CommandHandler;
-import me.sizzlemcgrizzle.blueprints.util.SchematicUtil;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -26,15 +33,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.BoundingBox;
 
-import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
+import de.craftlancer.core.CLCore;
+import de.craftlancer.core.Utils;
+import de.craftlancer.core.command.CommandHandler;
+import me.sizzlemcgrizzle.blueprints.util.SchematicUtil;
 
 public abstract class Feature<T extends FeatureInstance> implements Listener {
     
@@ -84,6 +86,12 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         
         return current < limit;
     }
+    
+
+    public List<T> getFeaturesByUUID(UUID uuid) {
+        return getFeatures().stream().filter(a -> a.isOwner(uuid)).collect(Collectors.toList());
+    }
+    
     
     public void addFeatureLimit(Player player, int amount) {
         int individualLimit = player.getPersistentDataContainer().getOrDefault(limitKey, PersistentDataType.INTEGER, 0).intValue();
