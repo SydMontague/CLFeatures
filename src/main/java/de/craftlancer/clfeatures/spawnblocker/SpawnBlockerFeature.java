@@ -89,8 +89,7 @@ public class SpawnBlockerFeature extends Feature<SpawnBlockerFeatureInstance> {
 
     @Override
     public CommandHandler getCommandHandler() {
-        // TODO Auto-generated method stub
-        return null;
+        return new SpawnBlockerCommandHandler(getPlugin(), this);
     }
 
     @Override

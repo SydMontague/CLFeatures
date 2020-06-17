@@ -99,8 +99,8 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
                 });
             }
         
-        ItemStack onItem = Utils.buildItemStack(Material.REDSTONE_TORCH, "Group enabled", Arrays.asList("Click to toggle."));
-        ItemStack offItem = Utils.buildItemStack(Material.LEVER, "Group disabled", Arrays.asList("Click to toggle."));
+        ItemStack onItem = Utils.buildItemStack(Material.REDSTONE_TORCH, "Group spawns blocked", Arrays.asList("Click to toggle."));
+        ItemStack offItem = Utils.buildItemStack(Material.LEVER, "Group spawns enabled", Arrays.asList("Click to toggle."));
         
         getManager().getBlockGroups().forEach((a, b) -> {
             inventory.setItem(15 + a.ordinal() * 9, b.getItem());
@@ -137,7 +137,7 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
             return false;
         
         for (boolean b : enabledChunks)
-            if (b)
+            if (!b)
                 return true;
             
         return false;
