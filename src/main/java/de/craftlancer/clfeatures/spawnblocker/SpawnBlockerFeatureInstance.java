@@ -74,7 +74,7 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
     }
     
     private void setupInventory() {
-        inventory = new GUIInventory(CLFeatures.getInstance());
+        inventory = new GUIInventory(CLFeatures.getInstance(), "SpawnBlocker");
         inventory.fill(Utils.buildItemStack(Material.BLACK_STAINED_GLASS_PANE, ChatColor.BLACK + "", Collections.emptyList()));
         
         for (int x = 0; x < 5; x++)
