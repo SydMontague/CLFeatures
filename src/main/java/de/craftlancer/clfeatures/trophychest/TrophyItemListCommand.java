@@ -35,7 +35,7 @@ public class TrophyItemListCommand extends SubCommand {
         int id = 0;
         for(Entry<ItemStack, Integer> a : feature.getTrophyItems().entrySet()) {
             BaseComponent delAction = new TextComponent("[Delete]");
-            delAction.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/trophy remove " + a.getKey().hashCode()));
+            delAction.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/trophychest remove " + a.getKey().hashCode()));
             
             BaseComponent base = new TextComponent(Integer.toString(id));
             base.addExtra(" - ");
