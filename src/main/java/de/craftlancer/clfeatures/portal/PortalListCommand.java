@@ -42,7 +42,7 @@ public class PortalListCommand extends SubCommand {
         feature.getPortalsByPlayer(player).forEach(a -> {
             Location loc = a.getInitialBlock();
             
-            BaseComponent component = new TextComponent(ChatColor.YELLOW + String.format("      %s | %d, %d, %d   ", Optional.of(a.getName()).orElse("<no name>"), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+            BaseComponent component = new TextComponent(ChatColor.YELLOW + String.format("      %s | %d, %d, %d   ", Optional.ofNullable(a.getName()).orElse("<no name>"), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
             BaseComponent pbookAdd = new TextComponent("[Add]");
             pbookAdd.setColor(ChatColor.DARK_GREEN);
             pbookAdd.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pbook add " + a.getName()));
