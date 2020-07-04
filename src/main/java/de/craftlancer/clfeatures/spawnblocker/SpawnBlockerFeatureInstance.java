@@ -30,7 +30,7 @@ import de.craftlancer.core.gui.GUIInventory;
 import de.craftlancer.core.structure.BlockStructure;
 
 public class SpawnBlockerFeatureInstance extends FeatureInstance {
-
+    
     public static final String MOVE_METADATA = "spawnBlockerMove";
     private static final int GRID_SIZE = 5;
     
@@ -185,6 +185,26 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
         
         if (!event.getEntityType().isAlive())
             return;
+        
+        switch (event.getSpawnReason()) {
+            case CUSTOM:
+            case BEEHIVE:
+            case BREEDING:
+            case BUILD_IRONGOLEM:
+            case BUILD_SNOWMAN:
+            case BUILD_WITHER:
+            case DISPENSE_EGG:
+            case DROWNED:
+            case EGG:
+            case INFECTION:
+            case LIGHTNING:
+            case SILVERFISH_BLOCK:
+            case SHOULDER_ENTITY:
+            case SPAWNER_EGG:
+                return;
+            default:
+                break;
+        }
         
         if (Math.abs(chunkX) > 2 || Math.abs(chunkZ) > 2)
             return;
