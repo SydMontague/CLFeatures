@@ -99,8 +99,8 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
                 });
             }
         
-        ItemStack onItem = Utils.buildItemStack(Material.REDSTONE_TORCH, "Group spawns blocked", Arrays.asList("Click to toggle."));
-        ItemStack offItem = Utils.buildItemStack(Material.LEVER, "Group spawns enabled", Arrays.asList("Click to toggle."));
+        ItemStack onItem = Utils.buildItemStack(Material.REDSTONE_TORCH, ChatColor.RED + "§lGroup spawns blocked", Arrays.asList(ChatColor.GREEN + "Click to toggle."));
+        ItemStack offItem = Utils.buildItemStack(Material.LEVER, ChatColor.DARK_GREEN + "§lGroup spawns enabled", Arrays.asList(ChatColor.GREEN + "Click to toggle."));
         
         getManager().getBlockGroups().forEach((a, b) -> {
             inventory.setItem(15 + a.ordinal() * 9, b.getItem());
