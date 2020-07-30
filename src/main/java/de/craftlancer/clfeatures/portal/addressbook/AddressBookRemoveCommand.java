@@ -37,7 +37,7 @@ public class AddressBookRemoveCommand extends SubCommand {
         }
         
         if (removed) {
-            AddressBookUtils.writeBook(item, AddressBookUtils.getCurrentTarget(item), addresses);
+            AddressBookUtils.writeBook(item, AddressBookUtils.getCurrentTarget(item).orElse(""), addresses);
             return "§f[§4Craft§fCitizen] §eAddress(es) removed.";
         }
         else

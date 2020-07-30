@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -99,10 +100,10 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     }
     
     public boolean isLimitToken(@Nonnull ItemStack item) {
-        if (!CLCore.getInstance().getItemRegistry().hasItem(limitToken) || item.getType().isAir())
+        if(item.getType().isAir())
             return false;
         
-        return item.isSimilar(CLCore.getInstance().getItemRegistry().getItem(limitToken));
+        return item.isSimilar(CLCore.getInstance().getItemRegistry().getItem(limitToken).orElseGet(() -> new ItemStack(Material.AIR)));
     }
     
     public int getMaxLimit() {
@@ -119,7 +120,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     
     public void giveFeatureItem(Player player, T feature) {
         List<ItemStack> items = feature != null ? SchematicUtil.getBlueprint(feature.getUsedSchematic()) : Collections.emptyList();
-        ItemStack item = items.isEmpty() ? CLCore.getInstance().getItemRegistry().getItem(getFeatureItem()) : items.get(0);
+        ItemStack item = items.isEmpty() ? CLCore.getInstance().getItemRegistry().getItem(getFeatureItem()).orElseGet(() -> new ItemStack(Material.AIR)) : items.get(0);
 
         if (item != null)
             player.getInventory().addItem(item).forEach((a, b) -> player.getWorld().dropItem(player.getLocation(), b));

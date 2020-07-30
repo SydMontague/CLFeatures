@@ -3,6 +3,7 @@ package de.craftlancer.clfeatures.portal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
@@ -75,8 +76,9 @@ public class PortalFeatureInstance extends FeatureInstance {
         if (item == null || item.getType() != Material.WRITTEN_BOOK)
             return null;
         
-        if (AddressBookUtils.isAddressBook(item))
-            return AddressBookUtils.getCurrentTarget(item);
+        Optional<String> bookTarget = AddressBookUtils.getCurrentTarget(item);
+        if(bookTarget.isPresent())
+            return bookTarget.get();
         
         BookMeta meta = ((BookMeta) item.getItemMeta());
         
@@ -104,7 +106,7 @@ public class PortalFeatureInstance extends FeatureInstance {
         if (!w.isChunkLoaded(getInitialBlock().getBlockX() >> 4, getInitialBlock().getBlockZ() >> 4))
             return;
         
-        if (!(getInitialBlock().getBlock().getState() instanceof Lectern)) {
+        if (getInitialBlock().getBlock().getType() != Material.LECTERN) {
             getManager().getPlugin().getLogger().warning(() -> String.format("Portal \"%s\" is missing it's Lectern, did it get removed somehow?", name));
             getManager().getPlugin().getLogger().warning("Location: " + getInitialBlock() + " | " + getOwnerId());
             getManager().getPlugin().getLogger().warning("Removing the portal to prevent further errors.");
