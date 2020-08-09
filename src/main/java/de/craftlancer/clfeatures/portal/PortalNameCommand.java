@@ -35,13 +35,13 @@ public class PortalNameCommand extends SubCommand {
             return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "The name is too long, 20 characters max.";
         
         Player p = (Player) sender;
-        p.setMetadata(PortalFeatureInstance.RENAME_METADATA, new FixedMetadataValue(getPlugin(), name));
+        p.setMetadata(PortalFeature.RENAME_METADATA, new FixedMetadataValue(getPlugin(), name));
         
         new LambdaRunnable(() ->  {
-            if(!p.hasMetadata(PortalFeatureInstance.RENAME_METADATA))
+            if(!p.hasMetadata(PortalFeature.RENAME_METADATA))
                 return;
             
-            p.removeMetadata(PortalFeatureInstance.RENAME_METADATA, getPlugin());
+            p.removeMetadata(PortalFeature.RENAME_METADATA, getPlugin());
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Portal rename timed out.");
         }).runTaskLater(getPlugin(), 1200L);
         

@@ -15,6 +15,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.DoubleChestInventory;
@@ -32,8 +33,8 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
     private TrophyChestFeature manager;
     private int score = 0;
     
-    public TrophyChestFeatureInstance(TrophyChestFeature manager, UUID ownerId, BlockStructure blocks, Location location) {
-        super(ownerId, blocks, location);
+    public TrophyChestFeatureInstance(TrophyChestFeature manager, UUID ownerId, BlockStructure blocks, Location location, String usedSchematic) {
+        super(ownerId, blocks, location, usedSchematic);
         this.manager = manager;
     }
     
@@ -74,7 +75,15 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
         return map;
     }
     
-    private boolean isInventory(InventoryHolder holder) {
+    private boolean isInventory(Inventory inventory) {
+        if (inventory.getType() != InventoryType.CHEST)
+            return false;
+        
+        if (!getStructure().containsBlock(inventory.getLocation()))
+            return false;
+        
+        InventoryHolder holder = inventory.getHolder();
+        
         if (holder instanceof DoubleChest) {
             Inventory i = holder.getInventory();
             return ((DoubleChestInventory) i).getLeftSide().getLocation().equals(getInitialBlock())
@@ -92,13 +101,13 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
     
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onItemMove(InventoryMoveItemEvent event) {
-        if (isInventory(event.getDestination().getHolder()) || isInventory(event.getSource().getHolder()))
+        if (isInventory(event.getDestination()) || isInventory(event.getSource()))
             event.setCancelled(true);
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onClose(InventoryCloseEvent event) {
-        if (!isInventory(event.getInventory().getHolder()))
+        if (!isInventory(event.getInventory()))
             return;
         
         recalculateScore(event.getInventory());
@@ -119,7 +128,7 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
             return;
         
         destroy();
-        getManager().giveFeatureItem(p);
+        getManager().giveFeatureItem(p, this);
         p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "TrophyChest successfully moved back to your inventory.");
         p.removeMetadata(MOVE_METADATA, getManager().getPlugin());
     }

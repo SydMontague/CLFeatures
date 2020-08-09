@@ -36,7 +36,7 @@ public class AddressBookAddCommand extends SubCommand {
         List<String> addresses = AddressBookUtils.getAddresses(item);
         addresses.add(name);
         
-        AddressBookUtils.writeBook(item, AddressBookUtils.getCurrentTarget(item), addresses);
+        AddressBookUtils.writeBook(item, AddressBookUtils.getCurrentTarget(item).orElse(""), addresses);
         return "§f[§4Craft§fCitizen] §eAddress added.";
     }
     

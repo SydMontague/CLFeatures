@@ -26,7 +26,7 @@ public class AddressBookRemoveAllCommand extends SubCommand {
         if (!AddressBookUtils.isAddressBook(item))
             return "§f[§4Craft§fCitizen] §eYou must hold an address book in your hand. Use /kit book to get one.";
         
-        AddressBookUtils.writeBook(item, AddressBookUtils.getCurrentTarget(item), Collections.emptyList());
+        AddressBookUtils.writeBook(item, AddressBookUtils.getCurrentTarget(item).orElse(""), Collections.emptyList());
         return "§f[§4Craft§fCitizen] §eAddresses removed.";
     }
     
