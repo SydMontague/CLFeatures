@@ -19,17 +19,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ReplicatorFeatureInstance extends FeatureInstance {
     public static final String MOVE_METADATA = "replicatorMove";
@@ -153,8 +158,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         
         //Remove all items in the recipe from input chest
         if (tickId % 20 == 0) {
-            removeFromInput();
-            addToOutput();
+            craft();
         }
         daylightSensor.getWorld().playSound(daylightSensor, Sound.BLOCK_BEACON_AMBIENT, 0.2F, 1F);
         doParticles();
@@ -177,7 +181,8 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         }
     }
     
-    private void removeFromInput() {
+    private void craft() {
+        //Removing from input
         for (Map.Entry<Material, Integer> entry : recipe.entrySet()) {
             for (int i = 0; i < entry.getValue(); i++) {
                 int first = input.first(entry.getKey());
@@ -190,18 +195,24 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
                 input.setItem(first, firstItem);
             }
         }
-    }
-    
-    private void addToOutput() {
+        
+        //Adding to output
         Location dropLocation = getOutputChest().clone();
         dropLocation.setY(dropLocation.getY() + 1);
         dropLocation.setX(dropLocation.getX() + 0.5);
         dropLocation.setZ(dropLocation.getZ() + 0.5);
-        if (!output.addItem(product).isEmpty()) {
-            World world = getInitialBlock().getWorld();
-            world.dropItem(dropLocation, product);
+        
+        ItemStack[] items;
+        if (product.getType() == Material.HONEY_BLOCK)
+            items = new ItemStack[]{product, new ItemStack(Material.GLASS_BOTTLE, 4)};
+        else
+            items = new ItemStack[]{product};
+        
+        World world = getInitialBlock().getWorld();
+        output.addItem(items).forEach((k, v) -> {
+            world.dropItem(dropLocation, v);
             world.playSound(getInitialBlock(), Sound.ENTITY_ITEM_BREAK, SoundCategory.BLOCKS, 1, 1);
-        }
+        });
     }
     
     @Override
@@ -229,9 +240,38 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         player.openWorkbench(daylightSensor, true);
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    public void onRecipeSet(CraftItemEvent event) {
+    @EventHandler
+    public void onPreRecipeSet(PrepareItemCraftEvent event) {
         CraftingInventory inventory = event.getInventory();
+        
+        if (inventory.getLocation() == null || !inventory.getLocation().equals(daylightSensor))
+            return;
+        
+        List<Material> materials = Arrays.asList(inventory.getMatrix()).stream().filter(Objects::nonNull).map(ItemStack::getType).collect(Collectors.toList());
+        
+        if (materials.size() < 9)
+            return;
+        
+        if (materials.stream().anyMatch(mat -> !mat.name().contains("CONCRETE_POWDER")))
+            return;
+        
+        Material color = materials.get(0);
+        
+        if (materials.stream().anyMatch(mat -> mat != color))
+            return;
+        
+        inventory.setResult(new ItemStack(Material.valueOf(color.name().replace("CONCRETE_POWDER", "CONCRETE")), 9));
+    }
+    
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onRecipeSet(InventoryClickEvent event) {
+        if (!(event.getInventory() instanceof CraftingInventory) || event.getSlotType() != InventoryType.SlotType.RESULT)
+            return;
+        
+        CraftingInventory inventory = (CraftingInventory) event.getInventory();
+        
+        if (inventory.getResult() == null || inventory.getResult().getType() == Material.AIR)
+            return;
         
         if (inventory.getLocation() == null || !inventory.getLocation().equals(daylightSensor))
             return;
