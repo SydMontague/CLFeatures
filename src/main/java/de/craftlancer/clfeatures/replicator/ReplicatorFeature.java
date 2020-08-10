@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     private List<ReplicatorFeatureInstance> instances;

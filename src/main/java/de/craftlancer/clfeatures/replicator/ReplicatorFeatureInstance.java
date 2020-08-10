@@ -1,11 +1,10 @@
 package de.craftlancer.clfeatures.replicator;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.FeatureInstance;
+import de.craftlancer.core.Utils;
+import de.craftlancer.core.structure.BlockStructure;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -31,11 +30,14 @@ import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.Utils;
-import de.craftlancer.core.structure.BlockStructure;
-import net.md_5.bungee.api.ChatColor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ReplicatorFeatureInstance extends FeatureInstance {
     public static final String MOVE_METADATA = "replicatorMove";
@@ -76,7 +78,6 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         daylightSensor = (Location) map.get("daylightDetector");
         
         if (map.containsKey("recipe") && map.containsKey("product")) {
-            @SuppressWarnings("unchecked")
             List<ItemStack> list = (List<ItemStack>) map.get("recipe");
             list.forEach(item -> {
                 if (recipe.containsKey(item.getType()))
@@ -110,7 +111,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             map.put("recipe", list);
             map.put("product", product);
         }
-
+        
         map.put("daylightDetector", daylightSensor);
         displayItem.remove();
         
@@ -121,7 +122,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
     protected void tick() {
         tickId += 10;
         
-        if(daylightSensor == null) {
+        if (daylightSensor == null) {
             getManager().getPlugin().getLogger().severe("Tried ticking Replicator without Daylight Sensor at " + getInitialBlock());
             return;
         }
@@ -136,7 +137,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
         
         if (!Utils.isChunkLoaded(inputChest) || !Utils.isChunkLoaded(outputChest) || !Utils.isChunkLoaded(daylightSensor))
             return;
-
+        
         displayItem.tick();
         
         DaylightDetector detector = (DaylightDetector) daylightSensor.getBlock().getBlockData();
@@ -187,7 +188,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
                 input.setItem(first, firstItem);
             }
         }
-       
+        
         //Adding to output
         Location dropLocation = getOutputChest().clone();
         dropLocation.setY(dropLocation.getY() + 1);
@@ -350,7 +351,7 @@ public class ReplicatorFeatureInstance extends FeatureInstance {
             displayItem.tick();
         }
     }
-
+    
     @EventHandler()
     public void onChunkUnload(ChunkUnloadEvent e) {
         Chunk c = e.getChunk();
