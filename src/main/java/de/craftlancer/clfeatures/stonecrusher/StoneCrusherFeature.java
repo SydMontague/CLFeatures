@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,9 @@ import org.bukkit.block.data.type.Slab.Type;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -35,6 +39,8 @@ import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 
 public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
+    static final String MOVE_METADATA = "crusherMove";
+    
     private static final Material CRUSHER_MATERIAL = Material.CHEST;
     private static final String CRUSHER_NAME = ChatColor.DARK_PURPLE + "StoneCrusher";
 
@@ -96,21 +102,6 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
     }
     
     @Override
-    public boolean checkFeatureLimit(Player player) {
-        if (player.hasPermission("clfeature.portal.ignoreLimit"))
-            return true;
-        
-        int limit = getLimit(player);
-        
-        if (limit < 0)
-            return true;
-        
-        long current = instances.stream().filter(a -> a.isOwner(player)).count();
-        
-        return current < limit;
-    }
-    
-    @Override
     public Collection<Block> checkEnvironment(Block initialBlock) {
         Chest chest = (Chest) initialBlock.getBlockData();
         BlockFace facing = chest.getFacing().getOppositeFace();
@@ -166,12 +157,12 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
         blocks.add(initialBlock.getRelative(-facing.getModZ(), 1, facing.getModX()).getLocation());
         blocks.add(initialBlock.getRelative(-facing.getModZ(), 2, facing.getModX()).getLocation());
         
-        return createInstance(creator, initialBlock, blocks);
+        return createInstance(creator, initialBlock, blocks, null);
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks) {
-        return instances.add(new StoneCrusherFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation()));
+    public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks, String usedSchematic) {
+        return instances.add(new StoneCrusherFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation(), usedSchematic));
     }
     
     @Override
@@ -230,5 +221,27 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
     @Override
     public List<StoneCrusherFeatureInstance> getFeatures() {
         return instances;
+    }
+
+    
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onInteractMove(PlayerInteractEvent event) {
+        Player p = event.getPlayer();
+        
+        if (!event.hasBlock() || !p.hasMetadata(MOVE_METADATA))
+            return;
+        
+        Optional<StoneCrusherFeatureInstance> feature = getFeatures().stream().filter(a -> a.getStructure().containsBlock(event.getClickedBlock())).findAny();
+        
+        if(!feature.isPresent())
+            return;
+
+        if(!feature.get().getOwnerId().equals(p.getUniqueId()))
+            return;
+        
+        feature.get().destroy();
+        giveFeatureItem(p, feature.get());
+        p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "StoneCrusher successfully moved back to your inventory.");
+        p.removeMetadata(MOVE_METADATA, getPlugin());
     }
 }

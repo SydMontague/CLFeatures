@@ -1,9 +1,19 @@
 package de.craftlancer.clfeatures;
 
-import de.craftlancer.core.CLCore;
-import de.craftlancer.core.Utils;
-import de.craftlancer.core.command.CommandHandler;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -24,14 +34,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.BoundingBox;
 
-import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
+import de.craftlancer.core.CLCore;
+import de.craftlancer.core.Utils;
+import de.craftlancer.core.command.CommandHandler;
+import me.sizzlemcgrizzle.blueprints.util.SchematicUtil;
 
 public abstract class Feature<T extends FeatureInstance> implements Listener {
     
@@ -68,16 +74,36 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return groupLimit < 0 ? -1 : groupLimit + individualLimit;
     }
     
+    public boolean checkFeatureLimit(Player player) {
+        if (player.hasPermission(String.format("clfeature.%s.ignoreLimit", getName())))
+            return true;
+        
+        int limit = getLimit(player);
+        
+        if (limit < 0)
+            return true;
+        
+        long current = getFeatures().stream().filter(a -> a.isOwner(player)).count();
+        
+        return current < limit;
+    }
+    
+
+    public List<T> getFeaturesByUUID(UUID uuid) {
+        return getFeatures().stream().filter(a -> a.isOwner(uuid)).collect(Collectors.toList());
+    }
+    
+    
     public void addFeatureLimit(Player player, int amount) {
         int individualLimit = player.getPersistentDataContainer().getOrDefault(limitKey, PersistentDataType.INTEGER, 0).intValue();
         player.getPersistentDataContainer().set(limitKey, PersistentDataType.INTEGER, individualLimit + amount);
     }
     
     public boolean isLimitToken(@Nonnull ItemStack item) {
-        if (!CLCore.getInstance().getItemRegistry().hasItem(limitToken) || item.getType().isAir())
+        if(item.getType().isAir())
             return false;
         
-        return item.isSimilar(CLCore.getInstance().getItemRegistry().getItem(limitToken));
+        return item.isSimilar(CLCore.getInstance().getItemRegistry().getItem(limitToken).orElseGet(() -> new ItemStack(Material.AIR)));
     }
     
     public int getMaxLimit() {
@@ -92,11 +118,16 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return plugin;
     }
     
-    public void giveFeatureItem(Player player) {
-        ItemStack item = CLCore.getInstance().getItemRegistry().getItem(getFeatureItem());
-        
+    public void giveFeatureItem(Player player, T feature) {
+        List<ItemStack> items = feature != null ? SchematicUtil.getBlueprint(feature.getUsedSchematic()) : Collections.emptyList();
+        ItemStack item = items.isEmpty() ? CLCore.getInstance().getItemRegistry().getItem(getFeatureItem()).orElseGet(() -> new ItemStack(Material.AIR)) : items.get(0);
+
         if (item != null)
             player.getInventory().addItem(item).forEach((a, b) -> player.getWorld().dropItem(player.getLocation(), b));
+    }
+    
+    public void giveFeatureItem(Player player) {
+        giveFeatureItem(player, null);
     }
     
     /**
@@ -104,9 +135,11 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
      */
     @Deprecated
     public abstract boolean isFeatureItem(ItemStack item);
-    
-    public abstract boolean checkFeatureLimit(Player player);
-    
+
+    /**
+     * @deprecated use blueprints instead
+     */
+    @Deprecated
     public abstract Collection<Block> checkEnvironment(Block initialBlock);
     
     /**
@@ -115,7 +148,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     @Deprecated
     public abstract boolean createInstance(Player creator, Block initialBlock);
     
-    public abstract boolean createInstance(Player creator, Block initialBlock, List<Location> blocks);
+    public abstract boolean createInstance(Player creator, Block initialBlock, List<Location> blocks, String schematic);
     
     public abstract void save();
     

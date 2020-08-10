@@ -23,13 +23,13 @@ public class StoneCrusherMoveCommand extends SubCommand {
             return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't use this command.";
 
         Player p = (Player) sender;
-        p.setMetadata(StoneCrusherFeatureInstance.MOVE_METADATA, new FixedMetadataValue(getPlugin(), ""));
+        p.setMetadata(StoneCrusherFeature.MOVE_METADATA, new FixedMetadataValue(getPlugin(), ""));
 
         new LambdaRunnable(() ->  {
-            if(!p.hasMetadata(StoneCrusherFeatureInstance.MOVE_METADATA))
+            if(!p.hasMetadata(StoneCrusherFeature.MOVE_METADATA))
                 return;
             
-            p.removeMetadata(StoneCrusherFeatureInstance.MOVE_METADATA, getPlugin());
+            p.removeMetadata(StoneCrusherFeature.MOVE_METADATA, getPlugin());
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "StoneCrusher move timed out.");
         }).runTaskLater(getPlugin(), 1200L);
         

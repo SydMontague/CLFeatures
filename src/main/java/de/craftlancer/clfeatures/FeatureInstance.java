@@ -2,6 +2,7 @@ package de.craftlancer.clfeatures;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -30,14 +31,16 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
     private UUID ownerId;
     private BlockStructure structure;
     private Location initialBlock;
+    private String usedSchematic;
     
     private ConversationFactory conversation = new ConversationFactory(CLFeatures.getInstance()).withLocalEcho(false).withModality(false).withTimeout(30)
                                                                                                 .withFirstPrompt(new DestroyPrompt());
     
-    public FeatureInstance(UUID ownerId, BlockStructure blocks, Location location) {
+    public FeatureInstance(UUID ownerId, BlockStructure blocks, Location location, String usedSchematic) {
         this.ownerId = ownerId;
         this.structure = blocks;
         this.initialBlock = location;
+        this.usedSchematic = usedSchematic;
         
         Bukkit.getPluginManager().registerEvents(this, CLFeatures.getInstance());
         task = new LambdaRunnable(this::tick).runTaskTimer(CLFeatures.getInstance(), 10L, 10L);
@@ -47,9 +50,14 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         this.ownerId = UUID.fromString(map.get("owner").toString());
         this.initialBlock = (Location) map.get("lecternLoc");
         this.structure = (BlockStructure) map.get("structure");
+        this.usedSchematic = Objects.toString(map.get("usedSchematic"), null);
         
         Bukkit.getPluginManager().registerEvents(this, CLFeatures.getInstance());
         task = new LambdaRunnable(this::tick).runTaskTimer(CLFeatures.getInstance(), 10L, 10L);
+    }
+    
+    public String getUsedSchematic() {
+        return usedSchematic;
     }
     
     @Override
@@ -59,6 +67,7 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         map.put("owner", ownerId.toString());
         map.put("structure", structure);
         map.put("lecternLoc", getInitialBlock()); // legacy name
+        map.put("usedSchematic", usedSchematic);
 
         return map;
     }
@@ -75,7 +84,7 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
     
     protected abstract Feature<?> getManager();
     
-    protected void destroy() {
+    public void destroy() {
         HandlerList.unregisterAll(this);
         getManager().remove(this);
         task.cancel();
@@ -111,17 +120,17 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
     private class DestroyPrompt extends ClickableBooleanPrompt {
         
         public DestroyPrompt() {
-            super("Do you really want to destroy this feature? It will be gone forever! Check the move command of the feature otherwise.");
+            super(CLFeatures.CC_PREFIX + "§eDo you really want to destroy this feature? It will be gone forever! Check the move command of the feature otherwise.");
         }
         
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, boolean input) {
             if (input) {
                 destroy();
-                context.getForWhom().sendRawMessage("You destroyed this feature.");
+                context.getForWhom().sendRawMessage(CLFeatures.CC_PREFIX + "§eYou destroyed this feature.");
             }
             else
-                context.getForWhom().sendRawMessage("You didn't destroy this feature.");
+                context.getForWhom().sendRawMessage(CLFeatures.CC_PREFIX + "§eYou didn't destroy this feature.");
             return END_OF_CONVERSATION;
         }
         

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -31,9 +32,16 @@ public class AddressBookUtils {
         return meta.hasCustomModelData() && meta.getCustomModelData() == ADDRESSBOOK_MODEL_DATA;
     }
     
-    public static String getCurrentTarget(ItemStack item) {
+    public static Optional<String> getCurrentTarget(ItemStack item) {
+        if (item.getType() != Material.WRITTEN_BOOK)
+            return Optional.empty();
+        
         BookMeta meta = (BookMeta) item.getItemMeta();
-        return ChatColor.stripColor(meta.getPage(1).split("\n")[1].trim());
+        
+        if(!meta.hasCustomModelData() || meta.getCustomModelData() != ADDRESSBOOK_MODEL_DATA)
+            return Optional.empty();
+        
+        return Optional.of(ChatColor.stripColor(meta.getPage(1).split("\n")[1].trim()));
     }
     
     static List<String> getAddresses(ItemStack item) {
