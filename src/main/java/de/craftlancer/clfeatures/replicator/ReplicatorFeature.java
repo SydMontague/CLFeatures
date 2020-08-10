@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     private List<ReplicatorFeatureInstance> instances;
@@ -43,9 +44,7 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     public ReplicatorFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "replicator.limit"));
         
-        List<String> stringList = config.getStringList("excludedProducts");
-        blockedProducts = new ArrayList<>();
-        stringList.forEach(string -> blockedProducts.add(Material.getMaterial(string)));
+        blockedProducts = config.getStringList("excludedProducts").stream().map(Material::getMaterial).collect(Collectors.toList());
         
         instances = (List<ReplicatorFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/replicator.yml"))
                                                                        .getList("replicator", new ArrayList<>());
