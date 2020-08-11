@@ -10,6 +10,7 @@ public class StoneCrusherCommandHandler extends CommandHandler {
         super(plugin);
         
         registerSubCommand("move", new StoneCrusherMoveCommand(plugin));
+        registerSubCommand("list", new StoneCrusherListCommand(plugin, feature));
     }
     
 }

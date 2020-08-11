@@ -4,8 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -43,13 +44,10 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
     
     private static final Material CRUSHER_MATERIAL = Material.CHEST;
     private static final String CRUSHER_NAME = ChatColor.DARK_PURPLE + "StoneCrusher";
-
+    
     private List<StoneCrusherFeatureInstance> instances = new ArrayList<>();
     
-    private List<CrusherResult> lootTableStone = new ArrayList<>();
-    private List<CrusherResult> lootTableCobble = new ArrayList<>();
-    private List<CrusherResult> lootTableGravel = new ArrayList<>();
-    
+    private Map<Material, List<StoneCrusherResult>> lootTable = new EnumMap<>(Material.class);
     private int crushesPerTick = 1;
     
     @SuppressWarnings("unchecked")
@@ -58,37 +56,26 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
         
         crushesPerTick = config.getInt("stonesPerTick", 1);
         
-        // TODO support itemregistry
-        // TODO support more crushed items (Netherrack)
-        // TODO support ingame config
-        ConfigurationSection stoneConfig = config.getConfigurationSection("lootTableStone");
-        ConfigurationSection cobbleConfig = config.getConfigurationSection("lootTableCobble");
-        ConfigurationSection gravelConfig = config.getConfigurationSection("lootTableGravel");
+        config.getMapList("lootTable").forEach(a -> {
+            String matName = (String) a.get("input");
+            Material input = matName != null ? Material.matchMaterial(matName) : null;
+            
+            if (input == null || input == Material.AIR)
+                return;
+            
+            List<Map<?, ?>> output = (List<Map<?, ?>>) a.get("output");
+            
+            if (output == null)
+                return;
+            
+            List<StoneCrusherResult> result = output.stream().map(b -> new StoneCrusherResult((String) b.get("item"), ((Number) b.get("chance")).doubleValue()))
+                                                    .collect(Collectors.toList());
+            
+            lootTable.put(input, result);
+        });
         
-        stoneConfig.getKeys(false).forEach(a -> lootTableStone.add(new CrusherResult(stoneConfig.getItemStack(a + ".item"), stoneConfig.getDouble(a + ".chance"))));
-        cobbleConfig.getKeys(false).forEach(a -> lootTableCobble.add(new CrusherResult(cobbleConfig.getItemStack(a + ".item"), cobbleConfig.getDouble(a + ".chance"))));
-        gravelConfig.getKeys(false).forEach(a -> lootTableGravel.add(new CrusherResult(gravelConfig.getItemStack(a + ".item"), gravelConfig.getDouble(a + ".chance"))));
-                                                                   
         instances = (List<StoneCrusherFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/stonecrusher.yml"))
-                                                                   .getList("stonecrusher", new ArrayList<>());
-    }
-    
-    public class CrusherResult {
-        private final ItemStack result;
-        private final double chance;
-        
-        public CrusherResult(ItemStack result, double chance) {
-            this.chance = chance;
-            this.result = result;
-        }
-        
-        public double getChance() {
-            return chance;
-        }
-        
-        public ItemStack getResult() {
-            return result;
-        }
+                                                                         .getList("stonecrusher", new ArrayList<>());
     }
     
     @Override
@@ -105,7 +92,7 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
     public Collection<Block> checkEnvironment(Block initialBlock) {
         Chest chest = (Chest) initialBlock.getBlockData();
         BlockFace facing = chest.getFacing().getOppositeFace();
-
+        
         List<Block> blocks = new ArrayList<>();
         blocks.add(initialBlock.getRelative(facing.getModZ(), 0, -facing.getModX()));
         blocks.add(initialBlock.getRelative(facing.getModZ(), 1, -facing.getModX()));
@@ -132,7 +119,7 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
             ((Chest) a).setFacing(facing.getOppositeFace());
         }));
         initialBlock.getRelative(facing.getModZ(), 1, -facing.getModX()).setBlockData(slabData);
-
+        
         initialBlock.getRelative(facing.getModZ(), 2, -facing.getModX()).setBlockData(Material.TRAPPED_CHEST.createBlockData(a -> {
             ((Chest) a).setType(Chest.Type.RIGHT);
             ((Chest) a).setFacing(facing.getOppositeFace());
@@ -143,7 +130,7 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
             ((Chest) a).setFacing(facing.getOppositeFace());
         }));
         initialBlock.getRelative(-facing.getModZ(), 0, facing.getModX()).setType(Material.END_PORTAL_FRAME);
-        //initialBlock.getRelative(-facing.getModZ(), 1, -facing.getModX()); // air 
+        // initialBlock.getRelative(-facing.getModZ(), 1, -facing.getModX()); // air
         initialBlock.getRelative(-facing.getModZ(), 2, facing.getModX()).setBlockData(pistonData);
         
         List<Location> blocks = new ArrayList<>();
@@ -162,7 +149,8 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
     
     @Override
     public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks, String usedSchematic) {
-        return instances.add(new StoneCrusherFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation(), usedSchematic));
+        return instances.add(new StoneCrusherFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation(),
+                usedSchematic));
     }
     
     @Override
@@ -179,7 +167,7 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
                 getPlugin().getLogger().log(Level.SEVERE, "Error while saving Stonecrusher: ", e);
             }
         });
-
+        
         if (getPlugin().isEnabled())
             saveTask.runTaskAsynchronously(getPlugin());
         else
@@ -196,21 +184,13 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
         if (instance instanceof StoneCrusherFeatureInstance)
             instances.remove(instance);
     }
-
+    
     public int getCrushesPerTick() {
         return crushesPerTick;
     }
     
-    public List<CrusherResult> getLootTableStone() {
-        return Collections.unmodifiableList(lootTableStone);
-    }
-    
-    public List<CrusherResult> getLootTableCobble() {
-        return Collections.unmodifiableList(lootTableCobble);
-    }
-    
-    public List<CrusherResult> getLootTableGravel() {
-        return Collections.unmodifiableList(lootTableGravel);
+    public Map<Material, List<StoneCrusherResult>> getLootTable() {
+        return lootTable;
     }
     
     @Override
@@ -222,7 +202,6 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
     public List<StoneCrusherFeatureInstance> getFeatures() {
         return instances;
     }
-
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInteractMove(PlayerInteractEvent event) {
@@ -233,10 +212,10 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
         
         Optional<StoneCrusherFeatureInstance> feature = getFeatures().stream().filter(a -> a.getStructure().containsBlock(event.getClickedBlock())).findAny();
         
-        if(!feature.isPresent())
+        if (!feature.isPresent())
             return;
-
-        if(!feature.get().getOwnerId().equals(p.getUniqueId()))
+        
+        if (!feature.get().getOwnerId().equals(p.getUniqueId()))
             return;
         
         feature.get().destroy();
