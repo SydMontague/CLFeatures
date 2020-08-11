@@ -8,7 +8,6 @@ public class FeatureCommandHandler extends CommandHandler {
 
     public FeatureCommandHandler(Plugin plugin) {
         super(plugin);
-        // TODO Auto-generated constructor stub
     }
     
 }

@@ -21,6 +21,9 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Lectern;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -28,9 +31,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import de.craftlancer.clfeatures.CLFeatures;
@@ -38,6 +44,7 @@ import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookCommandHandler;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookUtils;
+import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
@@ -46,6 +53,7 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
     static final String LOOP_METADATA = "portalLoop";
     static final String RENAME_METADATA = "portalRename";
     static final String MOVE_METADATA = "portalMove";
+    private static final String COOLDOWN_METADATA = "hasPortalCooldown";
     
     private static final Material LECTERN_MATERIAL = Material.LECTERN;
     private static final String LECTERN_NAME = ChatColor.DARK_PURPLE + "Portal";
@@ -73,8 +81,8 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         renameItems = (List<ItemStack>) config.getList("renameItems", new ArrayList<>());
         moveItems = (List<ItemStack>) config.getList("moveItems", new ArrayList<>());
         inactivityTimeout = config.getLong("inactivityTimeout", 155520000L);
-        booklessTicks = config.getLong("booklessTicks", 30L);
-        portalCooldown = config.getInt("portalCooldown", 300);
+        booklessTicks = config.getLong("booklessTicks", 600L);
+        portalCooldown = config.getInt("portalCooldown", 600);
         defaultPortals = config.getStringList("defaultPortals");
         defaultPortal = config.getString("defaultPortal", "valgard");
         
@@ -372,4 +380,51 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         p.removeMetadata(RENAME_METADATA, getPlugin());
     }
     
+    /*
+     * Portal Cooldown on death
+     */
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+
+        player.setMetadata(COOLDOWN_METADATA, new FixedMetadataValue(getPlugin(), ""));
+        new PortalCooldown(getPlugin(), player, getPortalCooldown() / 20).runTaskTimer(getPlugin(), 0, 20);
+    }
+    
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onPortal(PortalTeleportEvent event) {
+        if(event.getPlayer().hasMetadata(COOLDOWN_METADATA))
+            event.setCancelled(true);
+    }
+    
+    private class PortalCooldown extends BukkitRunnable {
+        private final Plugin plugin;
+        private final Player player;
+        private final int timer;
+        private int currentTimer = 0;
+        
+        private BossBar bar;
+        
+        public PortalCooldown(Plugin plugin, Player p, int timer) {
+            this.timer = timer <= 0 ? 1 : timer;
+            this.player = p;
+            this.plugin = plugin;
+
+            bar = Bukkit.createBossBar("Portal Cooldown", BarColor.PURPLE, BarStyle.SOLID);
+            bar.addPlayer(player);
+        }
+
+        @Override
+        public void run() {
+            bar.setProgress(1D - (double) currentTimer / timer);
+            bar.setTitle(ChatColor.YELLOW + "Portal Cooldown " + ChatColor.GRAY + " - " + ChatColor.GOLD + " " + (timer - currentTimer) + " "
+                    + ChatColor.YELLOW + "seconds");
+
+            if(currentTimer++ >= timer) {
+                bar.removeAll();
+                player.removeMetadata(COOLDOWN_METADATA, plugin);
+                cancel();
+            }
+        }
+    }
 }

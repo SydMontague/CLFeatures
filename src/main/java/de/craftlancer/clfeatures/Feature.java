@@ -35,6 +35,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.BoundingBox;
 
 import de.craftlancer.core.CLCore;
+import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.Utils;
 import de.craftlancer.core.command.CommandHandler;
 import me.sizzlemcgrizzle.blueprints.util.SchematicUtil;
@@ -64,6 +65,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
             limitConfig.getKeys(false).forEach(a -> limitMap.put(a, limitConfig.getInt(a)));
         
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        new LambdaRunnable(() -> getFeatures().forEach(FeatureInstance::tick)).runTaskTimer(getPlugin(), 10, 10);
     }
     
     public int getLimit(Player player) {
