@@ -81,7 +81,7 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         renameItems = (List<ItemStack>) config.getList("renameItems", new ArrayList<>());
         moveItems = (List<ItemStack>) config.getList("moveItems", new ArrayList<>());
         inactivityTimeout = config.getLong("inactivityTimeout", 155520000L);
-        booklessTicks = config.getLong("booklessTicks", 600L);
+        booklessTicks = config.getLong("booklessTicks", 30L);
         portalCooldown = config.getInt("portalCooldown", 600);
         defaultPortals = config.getStringList("defaultPortals");
         defaultPortal = config.getString("defaultPortal", "valgard");
