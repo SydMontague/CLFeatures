@@ -17,6 +17,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 public class PortalListCommand extends SubCommand {
     
@@ -46,7 +47,7 @@ public class PortalListCommand extends SubCommand {
             BaseComponent pbookAdd = new TextComponent("[Add]");
             pbookAdd.setColor(ChatColor.DARK_GREEN);
             pbookAdd.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pbook add " + a.getName()));
-            pbookAdd.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click while holding an Address Book to add.").color(ChatColor.DARK_GRAY).create()));
+            pbookAdd.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder("Click while holding an Address Book to add.").color(ChatColor.DARK_GRAY).create())));
             
             component.addExtra(pbookAdd);
             sender.spigot().sendMessage(component);
