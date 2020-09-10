@@ -28,10 +28,10 @@ public class SpawnBlockerMoveCommand extends SubCommand {
                 return;
             
             p.removeMetadata(SpawnBlockerFeatureInstance.MOVE_METADATA, getPlugin());
-            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Replicator move timed out.");
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "SpawnBlocker move timed out.");
         }).runTaskLater(getPlugin(), 1200L);
         
-        return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Right click the replicator you want to move.";
+        return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Right click the SpawnBlocker you want to move.";
     }
     
     @Override
