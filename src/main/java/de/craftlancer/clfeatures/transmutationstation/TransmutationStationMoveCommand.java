@@ -1,4 +1,4 @@
-package de.craftlancer.clfeatures.spawnblocker;
+package de.craftlancer.clfeatures.transmutationstation;
 
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.core.LambdaRunnable;
@@ -10,8 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 
-public class SpawnBlockerMoveCommand extends SubCommand {
-    public SpawnBlockerMoveCommand(Plugin plugin) {
+public class TransmutationStationMoveCommand extends SubCommand {
+    public TransmutationStationMoveCommand(Plugin plugin) {
         super("", plugin, false);
     }
     
@@ -21,17 +21,17 @@ public class SpawnBlockerMoveCommand extends SubCommand {
             return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't use this command.";
         
         Player p = (Player) sender;
-        p.setMetadata(SpawnBlockerFeatureInstance.MOVE_METADATA, new FixedMetadataValue(getPlugin(), ""));
+        p.setMetadata(TransmutationStationFeatureInstance.MOVE_METADATA, new FixedMetadataValue(getPlugin(), ""));
         
         new LambdaRunnable(() -> {
-            if (!p.hasMetadata(SpawnBlockerFeatureInstance.MOVE_METADATA))
+            if (!p.hasMetadata(TransmutationStationFeatureInstance.MOVE_METADATA))
                 return;
             
-            p.removeMetadata(SpawnBlockerFeatureInstance.MOVE_METADATA, getPlugin());
-            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Replicator move timed out.");
+            p.removeMetadata(TransmutationStationFeatureInstance.MOVE_METADATA, getPlugin());
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Transmutation station move timed out.");
         }).runTaskLater(getPlugin(), 1200L);
         
-        return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Right click the spawnblocker you want to move.";
+        return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Right click the transmutation station you want to move.";
     }
     
     @Override
