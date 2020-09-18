@@ -139,7 +139,7 @@ public class PortalFeatureInstance extends FeatureInstance {
         });
         
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.getPortalCooldown() != 0 || p.hasMetadata(PortalFeature.LOOP_METADATA) || !box.contains(p.getLocation().toVector()))
+            if (p.hasMetadata(PortalFeature.LOOP_METADATA) || !box.contains(p.getLocation().toVector()))
                 continue;
             
             PortalTeleportEvent event = new PortalTeleportEvent(p, this, target);
@@ -147,7 +147,6 @@ public class PortalFeatureInstance extends FeatureInstance {
             
             if (!event.isCancelled()) {
                 p.teleport(target.getTargetLocation(), TeleportCause.PLUGIN);
-                p.setPortalCooldown(manager.getPortalCooldown());
                 p.setMetadata(PortalFeature.LOOP_METADATA, new FixedMetadataValue(getManager().getPlugin(), target.getTargetLocation()));
             }
         }

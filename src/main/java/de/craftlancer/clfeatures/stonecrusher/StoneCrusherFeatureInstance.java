@@ -21,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeature.CrusherResult;
 import de.craftlancer.core.structure.BlockStructure;
 
 public class StoneCrusherFeatureInstance extends FeatureInstance {
@@ -56,16 +55,16 @@ public class StoneCrusherFeatureInstance extends FeatureInstance {
         return outputChest;
     }
     
-    private boolean doCrushing(Material material, List<CrusherResult> lootTable) {
+    private boolean doCrushing(Material material, List<StoneCrusherResult> lootTable) {
         if (!input.contains(material))
             return false;
         
         double sum = 0;
         double chance = Math.random();
-        if(!input.removeItem(new ItemStack(material)).isEmpty())
+        if (!input.removeItem(new ItemStack(material)).isEmpty())
             return false;
         
-        for (CrusherResult a : lootTable) {
+        for (StoneCrusherResult a : lootTable) {
             sum += a.getChance();
             if (chance < sum) {
                 if (!output.addItem(a.getResult().clone()).isEmpty()) {
@@ -95,10 +94,8 @@ public class StoneCrusherFeatureInstance extends FeatureInstance {
                 || !w.isChunkLoaded(outputChest.getBlockX() >> 4, outputChest.getBlockZ() >> 4))
             return;
         
-        for (int i = 0; i < getManager().getCrushesPerTick(); i++) {
-            if (!doCrushing(Material.STONE, getManager().getLootTableStone()) && !doCrushing(Material.COBBLESTONE, getManager().getLootTableCobble()))
-                doCrushing(Material.GRAVEL, getManager().getLootTableGravel());
-        }
+        for (int i = 0; i < getManager().getCrushesPerTick(); i++)
+            getManager().getLootTable().entrySet().stream().anyMatch(a -> doCrushing(a.getKey(), a.getValue()));
         
         Location effectLocation = getInitialBlock().clone().add(-facing.getModZ() + 0.4 + Math.random() / 5, 1.5, facing.getModX() + 0.4 + Math.random() / 5);
         w.spawnParticle(Particle.FALLING_LAVA, effectLocation, 1);

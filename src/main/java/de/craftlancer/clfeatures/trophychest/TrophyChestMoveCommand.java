@@ -38,8 +38,7 @@ public class TrophyChestMoveCommand extends SubCommand {
     
     @Override
     public void help(CommandSender sender) {
-        // TODO Auto-generated method stub
-        
+        // not implemented
     }
     
 }

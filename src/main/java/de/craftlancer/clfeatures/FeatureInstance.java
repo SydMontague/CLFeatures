@@ -18,16 +18,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.scheduler.BukkitTask;
 
-import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.conversation.ClickableBooleanPrompt;
 import de.craftlancer.core.conversation.FormattedConversable;
 import de.craftlancer.core.structure.BlockStructure;
 
 public abstract class FeatureInstance implements Listener, ConfigurationSerializable {
-    private BukkitTask task;
-    
     private UUID ownerId;
     private BlockStructure structure;
     private Location initialBlock;
@@ -43,7 +39,6 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         this.usedSchematic = usedSchematic;
         
         Bukkit.getPluginManager().registerEvents(this, CLFeatures.getInstance());
-        task = new LambdaRunnable(this::tick).runTaskTimer(CLFeatures.getInstance(), 10L, 10L);
     }
     
     public FeatureInstance(Map<String, Object> map) {
@@ -53,7 +48,6 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         this.usedSchematic = Objects.toString(map.get("usedSchematic"), null);
         
         Bukkit.getPluginManager().registerEvents(this, CLFeatures.getInstance());
-        task = new LambdaRunnable(this::tick).runTaskTimer(CLFeatures.getInstance(), 10L, 10L);
     }
     
     public String getUsedSchematic() {
@@ -82,12 +76,11 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
     
     protected abstract void tick();
     
-    protected abstract Feature<?> getManager();
+    protected abstract Feature<? extends FeatureInstance> getManager();
     
     public void destroy() {
         HandlerList.unregisterAll(this);
         getManager().remove(this);
-        task.cancel();
         
         structure.forEach(a -> a.getBlock().setType(Material.AIR));
     }
