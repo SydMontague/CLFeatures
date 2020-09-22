@@ -26,6 +26,7 @@ import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookUtils;
 import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
+import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.structure.BlockStructure;
 
 // TODO transfer portal ownership
@@ -65,10 +66,12 @@ public class PortalFeatureInstance extends FeatureInstance {
         int maxZ = airBlocks.stream().map(Location::getBlockZ).max(Integer::compare).orElseGet(() -> 0);
         
         if (minX == 0 && minY == 0 && minZ == 0 && maxX == 0 && maxY == 0 && maxZ == 0)
-            getManager().getPlugin().getLogger().warning("Invalid portal detected: " + this.getName() + " " + getInitialBlock());
+            CLFeatures.getInstance().getLogger().warning("Invalid portal detected: " + this.getName() + " " + getInitialBlock());
         
         box = new BoundingBox(minX, minY, minZ, maxX + 1D, maxY + 1D, maxZ + 1D);
-        BlockFace facing = ((Directional) getInitialBlock().getBlock().getBlockData()).getFacing().getOppositeFace();
+        
+        Block block = getInitialBlock().getBlock();
+        BlockFace facing = block.getType() == Material.LECTERN ? ((Directional) getInitialBlock().getBlock().getBlockData()).getFacing().getOppositeFace() : BlockFace.NORTH;
         targetLocation = new Location(getInitialBlock().getWorld(), box.getCenterX(), box.getMinY(), box.getCenterZ()).setDirection(facing.getOppositeFace().getDirection());
     }
     
@@ -112,7 +115,7 @@ public class PortalFeatureInstance extends FeatureInstance {
             getManager().getPlugin().getLogger().warning(() -> String.format("Portal \"%s\" is missing it's Lectern, did it get removed somehow?", name));
             getManager().getPlugin().getLogger().warning("Location: " + getInitialBlock() + " | " + getOwnerId());
             getManager().getPlugin().getLogger().warning("Removing the portal to prevent further errors.");
-            destroy();
+            new LambdaRunnable(this::destroy).runTask(getManager().getPlugin());
             return;
         }
         
