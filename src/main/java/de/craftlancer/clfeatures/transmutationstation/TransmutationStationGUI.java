@@ -33,18 +33,18 @@ public class TransmutationStationGUI {
         inventory = new GUIInventory(CLFeatures.getInstance(), ChatColor.DARK_PURPLE + "Transportable Transmutation Station", 3);
         
         //set the fragment items in their correct slots
-        registry.getItem("pettyfragment").ifPresent(fragment -> inventory.setItem(0, new ItemBuilder(fragment).setAmount(10).build()));
-        registry.getItem("lesserfragment").ifPresent(fragment -> inventory.setItem(2, new ItemBuilder(fragment).setAmount(1).build()));
-        registry.getItem("lesserfragment").ifPresent(fragment -> inventory.setItem(6, new ItemBuilder(fragment).setAmount(1).build()));
-        registry.getItem("pettyfragment").ifPresent(fragment -> inventory.setItem(8, new ItemBuilder(fragment).setAmount(10).build()));
-        registry.getItem("lesserfragment").ifPresent(fragment -> inventory.setItem(9, new ItemBuilder(fragment).setAmount(5).build()));
-        registry.getItem("commonfragment").ifPresent(fragment -> inventory.setItem(11, new ItemBuilder(fragment).setAmount(1).build()));
-        registry.getItem("commonfragment").ifPresent(fragment -> inventory.setItem(15, new ItemBuilder(fragment).setAmount(1).build()));
-        registry.getItem("lesserfragment").ifPresent(fragment -> inventory.setItem(17, new ItemBuilder(fragment).setAmount(5).build()));
-        registry.getItem("commonfragment").ifPresent(fragment -> inventory.setItem(18, new ItemBuilder(fragment).setAmount(4).build()));
-        registry.getItem("greaterfragment").ifPresent(fragment -> inventory.setItem(20, new ItemBuilder(fragment).setAmount(1).build()));
-        registry.getItem("greaterfragment").ifPresent(fragment -> inventory.setItem(24, new ItemBuilder(fragment).setAmount(1).build()));
-        registry.getItem("commonfragment").ifPresent(fragment -> inventory.setItem(26, new ItemBuilder(fragment).setAmount(4).build()));
+        registry.getItem("pettyfragment").ifPresent(fragment -> inventory.setItem(0, new ItemBuilder(fragment).setAmountUnsafe(10).build()));
+        registry.getItem("lesserfragment").ifPresent(fragment -> inventory.setItem(2, new ItemBuilder(fragment).setAmountUnsafe(1).build()));
+        registry.getItem("lesserfragment").ifPresent(fragment -> inventory.setItem(6, new ItemBuilder(fragment).setAmountUnsafe(1).build()));
+        registry.getItem("pettyfragment").ifPresent(fragment -> inventory.setItem(8, new ItemBuilder(fragment).setAmountUnsafe(10).build()));
+        registry.getItem("lesserfragment").ifPresent(fragment -> inventory.setItem(9, new ItemBuilder(fragment).setAmountUnsafe(5).build()));
+        registry.getItem("commonfragment").ifPresent(fragment -> inventory.setItem(11, new ItemBuilder(fragment).setAmountUnsafe(1).build()));
+        registry.getItem("commonfragment").ifPresent(fragment -> inventory.setItem(15, new ItemBuilder(fragment).setAmountUnsafe(1).build()));
+        registry.getItem("lesserfragment").ifPresent(fragment -> inventory.setItem(17, new ItemBuilder(fragment).setAmountUnsafe(5).build()));
+        registry.getItem("commonfragment").ifPresent(fragment -> inventory.setItem(18, new ItemBuilder(fragment).setAmountUnsafe(4).build()));
+        registry.getItem("greaterfragment").ifPresent(fragment -> inventory.setItem(20, new ItemBuilder(fragment).setAmountUnsafe(1).build()));
+        registry.getItem("greaterfragment").ifPresent(fragment -> inventory.setItem(24, new ItemBuilder(fragment).setAmountUnsafe(1).build()));
+        registry.getItem("commonfragment").ifPresent(fragment -> inventory.setItem(26, new ItemBuilder(fragment).setAmountUnsafe(4).build()));
         
         //set the arrows, gray the arrow out if the transaction isn't/shouldn't be possible
         inventory.setItem(1, new ItemBuilder(Material.ARROW).setEnchantmentGlow(true).setCustomModelData(2).setDisplayName(ChatColor.GREEN + "10 Petty Fragments -> 1 Lesser Fragment").build());
