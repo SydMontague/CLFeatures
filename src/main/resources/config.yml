@@ -47,27 +47,23 @@ stonecrusher:
   limits:
     Peasant: -1
   stonesPerTick: 1
-  lootTableStone:
-    diamond:
-      chance: 0.999
-      item:
-        ==: org.bukkit.inventory.ItemStack
-        v: 1976
-        type: GRAVEL
-  lootTableCobble:
-    diamond:
-      chance: 0.999
-      item:
-        ==: org.bukkit.inventory.ItemStack
-        v: 1976
-        type: GRAVEL
-  lootTableGravel:
-    diamond:
-      chance: 0.999
-      item:
-        ==: org.bukkit.inventory.ItemStack
-        v: 1976
-        type: GRAVEL
+  lootTable:
+  - input: STONE
+    output:
+    - item: lesserfragment
+      chance: 0.1
+    - item: GRAVEL
+      chance: 0.9
+  - input: COBBLESTONE
+    output:
+    - item: DIAMOND
+      chance: 0.1
+    - item: GRAVEL
+      chance: 0.9
+  - input: GRAVEL
+    output:
+    - item: DIAMOND
+      chance: 0.1
 trophyChest:
   featureItem: something
 replicator:
