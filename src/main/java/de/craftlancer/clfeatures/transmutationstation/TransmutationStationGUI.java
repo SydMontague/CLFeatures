@@ -69,32 +69,25 @@ public class TransmutationStationGUI {
                         ChatColor.GRAY + "Click the arrows to transmute.")
                 .build());
         
-        //set click actions for the arrows, only the green arrows
-        ItemStack petty = registry.getItem("pettyfragment").get();
-        ItemStack lesser = registry.getItem("lesserfragment").get();
-        ItemStack common = registry.getItem("commonfragment").get();
-        ItemStack greater = registry.getItem("greaterfragment").get();
-        
-        
         inventory.setClickAction(1, player -> {
-            if (!removeFromInventory(petty, 10, player.getInventory())) {
+            if (!removeFromInventory(registry.getItem("pettyfragment").get(), 10, player.getInventory())) {
                 player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.RED + "You do not have the necessary items!");
                 player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5F, 1F);
                 return;
             }
             
-            player.getInventory().addItem(lesser).forEach((k, v) -> player.getWorld().dropItemNaturally(player.getLocation(), v));
+            player.getInventory().addItem(registry.getItem("lesserfragment").get()).forEach((k, v) -> player.getWorld().dropItemNaturally(player.getLocation(), v));
             player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.GREEN + "You have transmuted 10 petty fragments for 1 lesser fragment.");
             player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.5F, 1F);
         });
         inventory.setClickAction(7, player -> {
-            if (!removeFromInventory(lesser, 1, player.getInventory())) {
+            if (!removeFromInventory(registry.getItem("lesserfragment").get(), 1, player.getInventory())) {
                 player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.RED + "You do not have the necessary items!");
                 player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5F, 1F);
                 return;
             }
             
-            player.getInventory().addItem(new ItemBuilder(petty).setAmount(10).build()).forEach((k, v) -> player.getWorld().dropItemNaturally(player.getLocation(), v));
+            player.getInventory().addItem(new ItemBuilder(registry.getItem("pettyfragment").get()).setAmountUnsafe(10).build()).forEach((k, v) -> player.getWorld().dropItemNaturally(player.getLocation(), v));
             player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.GREEN + "You have transmuted 1 lesser fragment for 10 petty fragments.");
             player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.5F, 1F);
         });
@@ -103,13 +96,13 @@ public class TransmutationStationGUI {
             player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5F, 1F);
         });
         inventory.setClickAction(16, player -> {
-            if (!removeFromInventory(common, 1, player.getInventory())) {
+            if (!removeFromInventory(registry.getItem("greaterfragment").get(), 1, player.getInventory())) {
                 player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.RED + "You do not have the necessary items!");
                 player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5F, 1F);
                 return;
             }
             
-            player.getInventory().addItem(new ItemBuilder(lesser).setAmount(5).build()).forEach((k, v) -> player.getWorld().dropItemNaturally(player.getLocation(), v));
+            player.getInventory().addItem(new ItemBuilder(registry.getItem("lesserfragment").get()).setAmountUnsafe(5).build()).forEach((k, v) -> player.getWorld().dropItemNaturally(player.getLocation(), v));
             player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.GREEN + "You have transmuted 1 common fragment for 5 lesser fragments.");
             player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.5F, 1F);
         });
@@ -118,13 +111,13 @@ public class TransmutationStationGUI {
             player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5F, 1F);
         });
         inventory.setClickAction(25, player -> {
-            if (!removeFromInventory(greater, 1, player.getInventory())) {
+            if (!removeFromInventory(registry.getItem("commonfragment").get(), 1, player.getInventory())) {
                 player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.RED + "You do not have the necessary items!");
                 player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5F, 1F);
                 return;
             }
             
-            player.getInventory().addItem(new ItemBuilder(common).setAmount(4).build()).forEach((k, v) -> player.getWorld().dropItemNaturally(player.getLocation(), v));
+            player.getInventory().addItem(new ItemBuilder(registry.getItem("greaterfragment").get()).setAmountUnsafe(4).build()).forEach((k, v) -> player.getWorld().dropItemNaturally(player.getLocation(), v));
             player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.GREEN + "You have transmuted 1 greater fragment for 4 common fragments.");
             player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.5F, 1F);
         });
@@ -135,23 +128,12 @@ public class TransmutationStationGUI {
      * @return true if items were removed successfully, false if the inventory didn't contain the correct amount of items
      */
     private boolean removeFromInventory(ItemStack item, int amount, Inventory inventory) {
-        
         if (!inventory.containsAtLeast(item, amount))
             return false;
         
-        for (int i = 0; i < amount; i++) {
-            int first = -1;
-            for (int e = 0; e < inventory.getSize(); e++)
-                if (inventory.getItem(e) != null && inventory.getItem(e).isSimilar(item))
-                    first = e;
-            
-            if (first == -1)
-                return false;
-            
-            ItemStack firstItem = inventory.getItem(first);
-            firstItem.setAmount(firstItem.getAmount() - 1);
-            inventory.setItem(first, firstItem);
-        }
+        item.setAmount(amount);
+        
+        inventory.removeItem(item);
         
         return true;
     }
