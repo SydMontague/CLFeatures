@@ -1,4 +1,4 @@
-package de.craftlancer.clfeatures.spawnblocker;
+package de.craftlancer.clfeatures.transmutationstation;
 
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.core.command.SubCommand;
@@ -10,10 +10,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class SpawnBlockerListCommand extends SubCommand {
-    private SpawnBlockerFeature feature;
+public class TransmutationStationListCommand extends SubCommand {
+    private TransmutationStationFeature feature;
     
-    public SpawnBlockerListCommand(Plugin plugin, SpawnBlockerFeature feature) {
+    public TransmutationStationListCommand(Plugin plugin, TransmutationStationFeature feature) {
         super("", plugin, false);
         this.feature = feature;
     }
@@ -26,11 +26,11 @@ public class SpawnBlockerListCommand extends SubCommand {
         Player p = (Player) sender;
         
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 1.2F);
-        p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + " Your placed spawnblockers:");
+        p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + " Your placed transmutation stations:");
         p.sendMessage("      " + ChatColor.GOLD + "# | Location");
         
         int counter = 1;
-        for (SpawnBlockerFeatureInstance featureInstance : feature.getFeaturesByUUID(p.getUniqueId())) {
+        for (TransmutationStationFeatureInstance featureInstance : feature.getFeaturesByUUID(p.getUniqueId())) {
             Location location = featureInstance.getInitialBlock();
             p.sendMessage("      " + ChatColor.YELLOW + counter + " | " + location.getWorld().getName().toUpperCase() + ", " + (int) location.getX() + ", " + (int) location.getY() + ", " + (int) location.getZ());
             counter++;
@@ -42,7 +42,7 @@ public class SpawnBlockerListCommand extends SubCommand {
     
     @Override
     public void help(CommandSender sender) {
-        // not implemented
+        // TODO Auto-generated method stub
         
     }
 }

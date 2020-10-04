@@ -23,6 +23,9 @@ commands:
   spawnBlocker:
     description: "SpawnBlocker related commands"
     usage: /spawnblocker [move|list]
+  transmutationStation:
+    description: "TransmutationStation related commands"
+    usage: /transmutationstation [move|list]
 permissions:
   clfeature.portal.ignoreLimit:
     default: op
