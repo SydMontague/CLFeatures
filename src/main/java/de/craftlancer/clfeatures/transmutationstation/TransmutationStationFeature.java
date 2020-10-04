@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -28,6 +29,7 @@ public class TransmutationStationFeature extends Feature<TransmutationStationFea
     private List<TransmutationStationFeatureInstance> instances;
     private TransmutationStationGUI gui;
     
+    @SuppressWarnings("unchecked")
     public TransmutationStationFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "transmutationStation.limit"));
         
@@ -44,7 +46,7 @@ public class TransmutationStationFeature extends Feature<TransmutationStationFea
     
     @Override
     public Collection<Block> checkEnvironment(Block initialBlock) {
-        return null;
+        return Collections.emptyList();
     }
     
     @Override

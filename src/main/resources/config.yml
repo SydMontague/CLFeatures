@@ -73,3 +73,5 @@ replicator:
     Peasant: -1
   excludedProducts:
     - ELYTRA
+transmutationStation:
+  featureItem: transmutationStation

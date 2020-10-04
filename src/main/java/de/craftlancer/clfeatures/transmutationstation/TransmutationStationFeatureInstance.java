@@ -1,7 +1,6 @@
 package de.craftlancer.clfeatures.transmutationstation;
 
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.structure.BlockStructure;
 import net.md_5.bungee.api.ChatColor;
@@ -30,11 +29,11 @@ public class TransmutationStationFeatureInstance extends FeatureInstance {
     
     @Override
     protected void tick() {
-    
+        // nothing to tick
     }
     
     @Override
-    protected Feature<?> getManager() {
+    protected TransmutationStationFeature getManager() {
         if (manager == null)
             manager = (TransmutationStationFeature) CLFeatures.getInstance().getFeature("transmutationStation");
         
@@ -48,7 +47,6 @@ public class TransmutationStationFeatureInstance extends FeatureInstance {
             return;
         
         Player p = event.getPlayer();
-        
         Block block = event.getClickedBlock();
         
         if (!getStructure().containsBlock(block))
@@ -63,6 +61,6 @@ public class TransmutationStationFeatureInstance extends FeatureInstance {
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Transmutation station successfully moved back to your inventory.");
             p.removeMetadata(MOVE_METADATA, getManager().getPlugin());
         } else
-            ((TransmutationStationFeature) getManager()).getGui().display(event.getPlayer());
+            getManager().getGui().display(event.getPlayer());
     }
 }
