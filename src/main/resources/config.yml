@@ -75,3 +75,5 @@ replicator:
     - ELYTRA
 transmutationStation:
   featureItem: transmutationStation
+spawnBlocker:
+  featureItem: spawnBlocker

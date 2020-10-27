@@ -100,7 +100,7 @@ public class TransmutationStationGUI {
             player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5F, 1F);
         });
         gui.setClickAction(16, player -> {
-            if (!removeFromInventory(registry.getItem(GREATERFRAGMENT).get(), 1, player.getInventory())) {
+            if (!removeFromInventory(registry.getItem(COMMONFRAGMENT).get(), 1, player.getInventory())) {
                 player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.RED + "You do not have the necessary items!");
                 player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5F, 1F);
                 return;
@@ -115,13 +115,13 @@ public class TransmutationStationGUI {
             player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5F, 1F);
         });
         gui.setClickAction(25, player -> {
-            if (!removeFromInventory(registry.getItem(COMMONFRAGMENT).get(), 1, player.getInventory())) {
+            if (!removeFromInventory(registry.getItem(GREATERFRAGMENT).get(), 1, player.getInventory())) {
                 player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.RED + "You do not have the necessary items!");
                 player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5F, 1F);
                 return;
             }
             
-            player.getInventory().addItem(new ItemBuilder(registry.getItem(GREATERFRAGMENT).get()).setAmountUnsafe(4).build()).forEach((k, v) -> player.getWorld().dropItemNaturally(player.getLocation(), v));
+            player.getInventory().addItem(new ItemBuilder(registry.getItem(COMMONFRAGMENT).get()).setAmountUnsafe(4).build()).forEach((k, v) -> player.getWorld().dropItemNaturally(player.getLocation(), v));
             player.sendMessage(CLFeatures.CC_PREFIX + ChatColor.GREEN + "You have transmuted 1 greater fragment for 4 common fragments.");
             player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.5F, 1F);
         });

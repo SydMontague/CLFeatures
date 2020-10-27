@@ -186,6 +186,7 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
         if (!event.getEntityType().isAlive())
             return;
         
+        // TODO only enable specified reasons
         switch (event.getSpawnReason()) {
             case CUSTOM:
             case BEEHIVE:
