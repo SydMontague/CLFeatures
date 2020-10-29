@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -41,6 +42,7 @@ public class PortalFeatureInstance extends FeatureInstance {
     // runtime
     private String currentTarget;
     private int ticksWithoutBook = 0;
+    private long newBookDelay = 0;
     
     private List<Location> airBlocks;
     private BoundingBox box;
@@ -78,21 +80,21 @@ public class PortalFeatureInstance extends FeatureInstance {
         targetLocation = new Location(getInitialBlock().getWorld(), box.getCenterX(), box.getMinY(), box.getCenterZ()).setDirection(facing.getOppositeFace().getDirection());
     }
     
-    private String getCurrentTarget(ItemStack item) {
+    private Optional<String> getCurrentTarget(ItemStack item) {
         if (item == null || item.getType() != Material.WRITTEN_BOOK)
-            return null;
+            return Optional.empty();
         
         Optional<String> bookTarget = AddressBookUtils.getCurrentTarget(item);
         if(bookTarget.isPresent())
-            return bookTarget.get();
+            return bookTarget;
         
         BookMeta meta = ((BookMeta) item.getItemMeta());
         
         if (meta.getPageCount() == 0)
-            return null;
+            return Optional.empty();
         
         String[] lines = meta.getPage(1).split("\n");
-        return lines.length > 0 ? lines[0].trim() : null;
+        return lines.length > 0 ? Optional.ofNullable(lines[0].trim()) : Optional.empty();
     }
     
     @Override
@@ -129,8 +131,15 @@ public class PortalFeatureInstance extends FeatureInstance {
         Lectern l = (Lectern) getInitialBlock().getBlock().getState();
         ItemStack item = l.getInventory().getItem(0);
         
-        if (item != null && item.getType() == Material.WRITTEN_BOOK) {
-            currentTarget = getCurrentTarget(item);
+        // set target null if a book is put into the portal shortly after one got taken out
+        if(--newBookDelay > 0 && item != null)
+            currentTarget = null;
+        else if (item != null && item.getType() == Material.WRITTEN_BOOK) {
+            Optional<String> newTarget = getCurrentTarget(item);
+            
+            newTarget.filter(a -> !a.equalsIgnoreCase(name) && !a.equalsIgnoreCase(currentTarget)).ifPresent(a -> w.playSound(getInitialBlock(), Sound.ITEM_BOOK_PAGE_TURN, 1, 1));
+            
+            currentTarget = newTarget.orElse(null);
             ticksWithoutBook = 0;
         }
         
@@ -156,6 +165,14 @@ public class PortalFeatureInstance extends FeatureInstance {
                 p.setMetadata(PortalFeature.LOOP_METADATA, new FixedMetadataValue(getManager().getPlugin(), target.getTargetLocation()));
             }
         }
+    }
+    
+    public long getNewBookDelay() {
+        return newBookDelay;
+    }
+    
+    public void setNewBookDelay(long newBookDelay) {
+        this.newBookDelay = newBookDelay;
     }
     
     public boolean isValid() {

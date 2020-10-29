@@ -32,6 +32,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -64,6 +65,7 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
     
     private long inactivityTimeout;
     private long booklessTicks;
+    private long newBookDelay;
     private double renameMoney;
     private int portalCooldown;
     private List<ItemStack> renameItems;
@@ -85,6 +87,7 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         portalCooldown = config.getInt("portalCooldown", 600);
         defaultPortals = config.getStringList("defaultPortals");
         defaultPortal = config.getString("defaultPortal", "valgard");
+        newBookDelay = config.getLong("newBookDelay", 100L);
         
         plugin.getCommand("pbook").setExecutor(new AddressBookCommandHandler(plugin));
         
@@ -93,15 +96,13 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         
         instances.stream().filter(a -> a.getName() != null && !a.getName().isEmpty()).forEach(a -> lookupTable.put(a.getName().toLowerCase(), a));
         
-        new LambdaRunnable(() -> 
-            Bukkit.getOnlinePlayers().forEach(a -> {
-                if(a.hasMetadata(LOOP_METADATA)) {
-                    Location loc = (Location) a.getMetadata(LOOP_METADATA).get(0).value();
-                    if (!loc.getWorld().equals(a.getWorld()) || loc.distanceSquared(a.getLocation()) > 2)
-                        a.removeMetadata(LOOP_METADATA, plugin);
-                }
-            })
-        ).runTaskTimer(plugin, 5, 5);
+        new LambdaRunnable(() -> Bukkit.getOnlinePlayers().forEach(a -> {
+            if (a.hasMetadata(LOOP_METADATA)) {
+                Location loc = (Location) a.getMetadata(LOOP_METADATA).get(0).value();
+                if (!loc.getWorld().equals(a.getWorld()) || loc.distanceSquared(a.getLocation()) > 2)
+                    a.removeMetadata(LOOP_METADATA, plugin);
+            }
+        })).runTaskTimer(plugin, 5, 5);
     }
     
     @Override
@@ -201,12 +202,12 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         
         return createInstance(creator, initialBlock, blocks, null);
     }
-
+    
     @Override
     public boolean createInstance(Player creator, Block initialBlock, List<Location> blocksPasted, String schematic) {
         blocksPasted.stream().map(Location::getBlock).filter(a -> a.getType() == Material.BARRIER).forEach(a -> a.setType(Material.AIR));
         BlockStructure blocks = new BlockStructure(blocksPasted);
-
+        
         creator.sendMessage("[§4Craft§fCitizen]" + ChatColor.YELLOW + "Portal placed, use " + ChatColor.GREEN + "/portal name <name>" + ChatColor.YELLOW
                 + " to give your portal an address!");
         return instances.add(new PortalFeatureInstance(this, creator, blocks, initialBlock, schematic));
@@ -242,7 +243,7 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
                 getPlugin().getLogger().log(Level.SEVERE, "Error while saving Portals: ", e);
             }
         });
-
+        
         if (getPlugin().isEnabled())
             saveTask.runTaskAsynchronously(getPlugin());
         else
@@ -288,7 +289,7 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
     public String getDefaultPortal() {
         return defaultPortal;
     }
-
+    
     @Override
     public List<PortalFeatureInstance> getFeatures() {
         return this.instances;
@@ -301,6 +302,12 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         event.getPlayer().removeMetadata(LOOP_METADATA, getPlugin());
     }
     
+    @EventHandler
+    public void onBookTake(PlayerTakeLecternBookEvent event) {
+        getFeatures().stream().filter(a -> a.getStructure().containsBlock(event.getLectern().getBlock())).findAny()
+                     .ifPresent(a -> a.setNewBookDelay(newBookDelay / 10));
+    }
+    
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInteractMove(PlayerInteractEvent event) {
         Player p = event.getPlayer();
@@ -310,14 +317,14 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         
         Optional<PortalFeatureInstance> portal = getFeatures().stream().filter(a -> a.getStructure().containsBlock(event.getClickedBlock())).findAny();
         
-        if(!portal.isPresent())
+        if (!portal.isPresent())
             return;
         
-        if(!portal.get().getOwnerId().equals(p.getUniqueId()))
+        if (!portal.get().getOwnerId().equals(p.getUniqueId()))
             return;
         
-        if(portal.get().getName() == null || checkMoveCost(p)) {
-            if(portal.get().getName() != null)
+        if (portal.get().getName() == null || checkMoveCost(p)) {
+            if (portal.get().getName() != null)
                 deductMoveCost(p);
             portal.get().destroy();
             giveFeatureItem(p, portal.get());
@@ -335,13 +342,13 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         
         if (!event.hasBlock() || !p.hasMetadata(RENAME_METADATA))
             return;
-
+        
         Optional<PortalFeatureInstance> portal = getFeatures().stream().filter(a -> a.getStructure().containsBlock(event.getClickedBlock())).findAny();
         
-        if(!portal.isPresent())
+        if (!portal.isPresent())
             return;
-
-        if(!portal.get().getOwnerId().equals(p.getUniqueId()))
+        
+        if (!portal.get().getOwnerId().equals(p.getUniqueId()))
             return;
         
         String newName = p.getMetadata(RENAME_METADATA).get(0).asString();
@@ -386,14 +393,14 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-
+        
         player.setMetadata(COOLDOWN_METADATA, new FixedMetadataValue(getPlugin(), ""));
         new PortalCooldown(getPlugin(), player, getPortalCooldown() / 20).runTaskTimer(getPlugin(), 0, 20);
     }
     
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPortal(PortalTeleportEvent event) {
-        if(event.getPlayer().hasMetadata(COOLDOWN_METADATA))
+        if (event.getPlayer().hasMetadata(COOLDOWN_METADATA))
             event.setCancelled(true);
     }
     
@@ -409,18 +416,18 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
             this.timer = timer <= 0 ? 1 : timer;
             this.player = p;
             this.plugin = plugin;
-
+            
             bar = Bukkit.createBossBar("Portal Cooldown", BarColor.PURPLE, BarStyle.SOLID);
             bar.addPlayer(player);
         }
-
+        
         @Override
         public void run() {
             bar.setProgress(1D - (double) currentTimer / timer);
-            bar.setTitle(ChatColor.YELLOW + "Portal Cooldown " + ChatColor.GRAY + " - " + ChatColor.GOLD + " " + (timer - currentTimer) + " "
-                    + ChatColor.YELLOW + "seconds");
-
-            if(currentTimer++ >= timer) {
+            bar.setTitle(ChatColor.YELLOW + "Portal Cooldown " + ChatColor.GRAY + " - " + ChatColor.GOLD + " " + (timer - currentTimer) + " " + ChatColor.YELLOW
+                    + "seconds");
+            
+            if (currentTimer++ >= timer) {
                 bar.removeAll();
                 player.removeMetadata(COOLDOWN_METADATA, plugin);
                 cancel();
