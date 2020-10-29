@@ -23,6 +23,7 @@ import de.craftlancer.core.conversation.ClickableBooleanPrompt;
 import de.craftlancer.core.conversation.FormattedConversable;
 import de.craftlancer.core.structure.BlockStructure;
 
+//TODO transfer feature ownership
 public abstract class FeatureInstance implements Listener, ConfigurationSerializable {
     private UUID ownerId;
     private BlockStructure structure;

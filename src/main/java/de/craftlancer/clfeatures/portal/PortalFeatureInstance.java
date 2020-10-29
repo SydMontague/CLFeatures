@@ -29,7 +29,6 @@ import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.structure.BlockStructure;
 
-// TODO transfer portal ownership
 public class PortalFeatureInstance extends FeatureInstance {
     
     // technical
@@ -46,6 +45,8 @@ public class PortalFeatureInstance extends FeatureInstance {
     private List<Location> airBlocks;
     private BoundingBox box;
     private Location targetLocation;
+    
+    private boolean isValid = true;
     
     public PortalFeatureInstance(PortalFeature manager, Player owner, BlockStructure blocks, Block initialBlock, String usedSchematic) {
         super(owner.getUniqueId(), blocks, initialBlock.getLocation(), usedSchematic);
@@ -65,8 +66,10 @@ public class PortalFeatureInstance extends FeatureInstance {
         int maxY = airBlocks.stream().map(Location::getBlockY).max(Integer::compare).orElseGet(() -> 0);
         int maxZ = airBlocks.stream().map(Location::getBlockZ).max(Integer::compare).orElseGet(() -> 0);
         
-        if (minX == 0 && minY == 0 && minZ == 0 && maxX == 0 && maxY == 0 && maxZ == 0)
+        if (minX == 0 && minY == 0 && minZ == 0 && maxX == 0 && maxY == 0 && maxZ == 0) {
             CLFeatures.getInstance().getLogger().warning("Invalid portal detected: " + this.getName() + " " + getInitialBlock());
+            isValid = false;
+        }
         
         box = new BoundingBox(minX, minY, minZ, maxX + 1D, maxY + 1D, maxZ + 1D);
         
@@ -133,7 +136,7 @@ public class PortalFeatureInstance extends FeatureInstance {
         
         PortalFeatureInstance target = getManager().getPortal(currentTarget);
         
-        if (target == null || this == target)
+        if (target == null || this == target || !target.isValid())
             return;
         
         airBlocks.forEach(a -> {
@@ -153,6 +156,10 @@ public class PortalFeatureInstance extends FeatureInstance {
                 p.setMetadata(PortalFeature.LOOP_METADATA, new FixedMetadataValue(getManager().getPlugin(), target.getTargetLocation()));
             }
         }
+    }
+    
+    public boolean isValid() {
+        return isValid;
     }
     
     private Location getTargetLocation() {
