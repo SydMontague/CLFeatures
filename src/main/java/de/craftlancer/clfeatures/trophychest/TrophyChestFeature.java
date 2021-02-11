@@ -1,5 +1,21 @@
 package de.craftlancer.clfeatures.trophychest;
 
+import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.Feature;
+import de.craftlancer.clfeatures.FeatureInstance;
+import de.craftlancer.core.LambdaRunnable;
+import de.craftlancer.core.command.CommandHandler;
+import de.craftlancer.core.structure.BlockStructure;
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,23 +29,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
-import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.LambdaRunnable;
-import de.craftlancer.core.command.CommandHandler;
-import de.craftlancer.core.structure.BlockStructure;
-
+@Deprecated
 public class TrophyChestFeature extends Feature<TrophyChestFeatureInstance> {
     private List<TrophyChestFeatureInstance> instances = new ArrayList<>();
     private Map<UUID, TrophyChestFeatureInstance> playerLookupTable = new HashMap<>();
@@ -37,16 +37,15 @@ public class TrophyChestFeature extends Feature<TrophyChestFeatureInstance> {
     private Map<ItemStack, Integer> trophies = new HashMap<>();
     // TODO trophy collections for extra points
     
-    @SuppressWarnings("unchecked")
     public TrophyChestFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "trophyChest.limit"));
         
         instances = (List<TrophyChestFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/trophy.yml"))
-                                                                        .getList("trophies", new ArrayList<>());
+                .getList("trophies", new ArrayList<>());
         playerLookupTable = instances.stream().collect(Collectors.toMap(TrophyChestFeatureInstance::getOwnerId, a -> a));
         
         trophies = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "trophyItems.yml")).getMapList("trophyItems").stream()
-                                    .collect(Collectors.toMap(a -> (ItemStack) a.get("item"), a -> (Integer) a.get("value")));
+                .collect(Collectors.toMap(a -> (ItemStack) a.get("item"), a -> (Integer) a.get("value")));
     }
     
     @Override
@@ -111,8 +110,7 @@ public class TrophyChestFeature extends Feature<TrophyChestFeatureInstance> {
             try {
                 config.save(f);
                 config2.save(trophyFile);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 getPlugin().getLogger().log(Level.SEVERE, "Error while saving Trophies: ", e);
             }
         });

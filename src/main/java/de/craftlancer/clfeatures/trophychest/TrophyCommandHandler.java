@@ -3,6 +3,7 @@ package de.craftlancer.clfeatures.trophychest;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.core.command.CommandHandler;
 
+@Deprecated
 public class TrophyCommandHandler extends CommandHandler {
     
     public TrophyCommandHandler(CLFeatures plugin, TrophyChestFeature feature) {

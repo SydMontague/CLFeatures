@@ -1,10 +1,9 @@
 package de.craftlancer.clfeatures.trophychest;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
+import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.FeatureInstance;
+import de.craftlancer.core.structure.BlockStructure;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
@@ -22,11 +21,12 @@ import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
-import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.structure.BlockStructure;
-import net.md_5.bungee.api.ChatColor;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
+@Deprecated
 public class TrophyChestFeatureInstance extends FeatureInstance {
     
     public static final String MOVE_METADATA = "trophyChest.move";
@@ -88,8 +88,7 @@ public class TrophyChestFeatureInstance extends FeatureInstance {
             Inventory i = holder.getInventory();
             return ((DoubleChestInventory) i).getLeftSide().getLocation().equals(getInitialBlock())
                     || ((DoubleChestInventory) i).getRightSide().getLocation().equals(getInitialBlock());
-        }
-        else if (holder instanceof BlockInventoryHolder)
+        } else if (holder instanceof BlockInventoryHolder)
             return ((BlockInventoryHolder) holder).getBlock().getLocation().equals(getInitialBlock());
         else
             return false;
