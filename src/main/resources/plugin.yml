@@ -14,9 +14,9 @@ commands:
   stonecrusher:
     description: "Stonecrusher related commands"
     usage: /stonecrusher [move]
-  trophyChest:
-    description: "TrophyChest related commands"
-    usage: /trophyChest [move]
+  #  trophyChest:
+  #    description: "TrophyChest related commands"
+  #    usage: /trophyChest [move]
   replicator:
     description: "Replicator related commands"
     usage: /replicator [move|list]
@@ -26,6 +26,9 @@ commands:
   transmutationStation:
     description: "TransmutationStation related commands"
     usage: /transmutationstation [move|list]
+  trophyDepositor:
+    description: "TrophyDepositor related commands"
+    usage: /trophyDepositor [move]
 permissions:
   clfeature.portal.ignoreLimit:
     default: op

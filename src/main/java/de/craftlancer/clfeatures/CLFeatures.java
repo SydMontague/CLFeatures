@@ -11,8 +11,9 @@ import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeature;
 import de.craftlancer.clfeatures.stonecrusher.StoneCrusherFeatureInstance;
 import de.craftlancer.clfeatures.transmutationstation.TransmutationStationFeature;
 import de.craftlancer.clfeatures.transmutationstation.TransmutationStationFeatureInstance;
-import de.craftlancer.clfeatures.trophychest.TrophyChestFeature;
-import de.craftlancer.clfeatures.trophychest.TrophyChestFeatureInstance;
+import de.craftlancer.clfeatures.trophydepositor.TrophyDepositorBoost;
+import de.craftlancer.clfeatures.trophydepositor.TrophyDepositorFeature;
+import de.craftlancer.clfeatures.trophydepositor.TrophyDepositorFeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.conversation.ClickableBooleanPrompt;
 import de.craftlancer.core.conversation.FormattedConversable;
@@ -46,7 +47,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class CLFeatures extends JavaPlugin implements Listener {
-    public static final String CC_PREFIX = "§f[§4Craft§fCitizen] ";
+    public static final String CC_PREFIX = "§f[§4Craft§fCitizen]§e ";
     
     private static CLFeatures instance;
     private static final Material ERROR_BLOCK = Material.RED_CONCRETE;
@@ -67,7 +68,10 @@ public class CLFeatures extends JavaPlugin implements Listener {
     public void onEnable() {
         ConfigurationSerialization.registerClass(PortalFeatureInstance.class);
         ConfigurationSerialization.registerClass(StoneCrusherFeatureInstance.class);
-        ConfigurationSerialization.registerClass(TrophyChestFeatureInstance.class);
+        //ConfigurationSerialization.registerClass(TrophyChestFeatureInstance.class);
+        ConfigurationSerialization.registerClass(TrophyDepositorFeatureInstance.class);
+        ConfigurationSerialization.registerClass(TrophyDepositorFeature.TrophyEntry.class);
+        ConfigurationSerialization.registerClass(TrophyDepositorBoost.class);
         ConfigurationSerialization.registerClass(ReplicatorFeatureInstance.class);
         ConfigurationSerialization.registerClass(SpawnBlockerFeatureInstance.class);
         ConfigurationSerialization.registerClass(SpawnBlockGroup.class);
@@ -82,10 +86,11 @@ public class CLFeatures extends JavaPlugin implements Listener {
         
         registerFeature("portal", new PortalFeature(this, getConfig().getConfigurationSection("portal")));
         registerFeature("stonecrusher", new StoneCrusherFeature(this, getConfig().getConfigurationSection("stonecrusher")));
-        registerFeature("trophyChest", new TrophyChestFeature(this, getConfig().getConfigurationSection("trophyChest")));
+        //registerFeature("trophyChest", new TrophyChestFeature(this, getConfig().getConfigurationSection("trophyChest")));
         registerFeature("replicator", new ReplicatorFeature(this, getConfig().getConfigurationSection("replicator")));
         registerFeature("spawnBlocker", new SpawnBlockerFeature(this, getConfig().getConfigurationSection("spawnBlocker")));
         registerFeature("transmutationStation", new TransmutationStationFeature(this, getConfig().getConfigurationSection("transmutationStation")));
+        registerFeature("trophyDepositor", new TrophyDepositorFeature(this, getConfig().getConfigurationSection("trophyDepositor")));
         
         new LambdaRunnable(() -> features.forEach((a, b) -> b.save())).runTaskTimer(this, 18000L, 18000L);
     }

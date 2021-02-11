@@ -1,6 +1,7 @@
-package de.craftlancer.clfeatures.trophychest;
+package de.craftlancer.clfeatures.trophydepositor.command;
 
 import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.trophydepositor.TrophyDepositorFeature;
 import de.craftlancer.core.Utils;
 import de.craftlancer.core.command.SubCommand;
 import org.bukkit.command.Command;
@@ -9,12 +10,11 @@ import org.bukkit.command.CommandSender;
 import java.util.Collections;
 import java.util.List;
 
-@Deprecated
-public class TrophyItemRemoveCommand extends SubCommand {
+public class TrophyDepositorItemRemoveCommand extends SubCommand {
     
-    private TrophyChestFeature feature;
+    private TrophyDepositorFeature feature;
     
-    public TrophyItemRemoveCommand(CLFeatures plugin, TrophyChestFeature feature) {
+    public TrophyDepositorItemRemoveCommand(CLFeatures plugin, TrophyDepositorFeature feature) {
         super("clfeature.trophy.item.remove", plugin, true);
         this.feature = feature;
     }
@@ -22,11 +22,11 @@ public class TrophyItemRemoveCommand extends SubCommand {
     @Override
     protected String execute(CommandSender sender, Command cmd, String label, String[] args) {
         if (!checkSender(sender))
-            return "You're not allowed to use this command.";
+            return CLFeatures.CC_PREFIX + "You're not allowed to use this command.";
         
         int hash = Utils.parseIntegerOrDefault(args[1], -1);
         
-        return feature.removeTrophyByHash(hash) ? "Item removed" : "No item with given hash found.";
+        return CLFeatures.CC_PREFIX + (feature.removeTrophyByHash(hash) ? "Item removed" : "No item with given hash found.");
     }
     
     @Override

@@ -1,6 +1,7 @@
-package de.craftlancer.clfeatures.trophychest;
+package de.craftlancer.clfeatures.trophydepositor.command;
 
 import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.trophydepositor.TrophyDepositorFeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.SubCommand;
 import net.md_5.bungee.api.ChatColor;
@@ -10,10 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 
-@Deprecated
-public class TrophyChestMoveCommand extends SubCommand {
+public class TrophyDepositorMoveCommand extends SubCommand {
     
-    public TrophyChestMoveCommand(Plugin plugin) {
+    public TrophyDepositorMoveCommand(Plugin plugin) {
         super("", plugin, false);
     }
     
@@ -23,17 +23,17 @@ public class TrophyChestMoveCommand extends SubCommand {
             return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't use this command.";
         
         Player p = (Player) sender;
-        p.setMetadata(TrophyChestFeatureInstance.MOVE_METADATA, new FixedMetadataValue(getPlugin(), ""));
+        p.setMetadata(TrophyDepositorFeatureInstance.MOVE_METADATA, new FixedMetadataValue(getPlugin(), ""));
         
         new LambdaRunnable(() -> {
-            if (!p.hasMetadata(TrophyChestFeatureInstance.MOVE_METADATA))
+            if (!p.hasMetadata(TrophyDepositorFeatureInstance.MOVE_METADATA))
                 return;
             
-            p.removeMetadata(TrophyChestFeatureInstance.MOVE_METADATA, getPlugin());
-            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "TrophyChest move timed out.");
+            p.removeMetadata(TrophyDepositorFeatureInstance.MOVE_METADATA, getPlugin());
+            p.sendMessage(CLFeatures.CC_PREFIX + "TrophyDepositor move timed out.");
         }).runTaskLater(getPlugin(), 1200L);
         
-        return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Right click your TrophyChest you want to move.";
+        return CLFeatures.CC_PREFIX + "Right click the TrophyDepositor you want to move.";
     }
     
     @Override
