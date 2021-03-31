@@ -160,7 +160,7 @@ public class TrophyDepositorFeature extends Feature<TrophyDepositorFeatureInstan
         
         boosts.removeIf(b -> b.getTrophiesLeft() <= 0);
         
-        return a.getAmount() * (originalValue + boostedValue);
+        return a.getAmount() * originalValue + boostedValue;
     }
     
     public boolean addTrophyItem(ItemStack item, int value) {

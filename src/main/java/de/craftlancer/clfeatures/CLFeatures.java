@@ -1,5 +1,8 @@
 package de.craftlancer.clfeatures;
 
+import de.craftlancer.clfeatures.amplifiedbeacon.AmplifiedBeaconFeatureInstance;
+import de.craftlancer.clfeatures.jukebox.JukeboxFeature;
+import de.craftlancer.clfeatures.jukebox.JukeboxFeatureInstance;
 import de.craftlancer.clfeatures.portal.PortalFeature;
 import de.craftlancer.clfeatures.portal.PortalFeatureInstance;
 import de.craftlancer.clfeatures.replicator.ReplicatorFeature;
@@ -17,9 +20,11 @@ import de.craftlancer.clfeatures.trophydepositor.TrophyDepositorFeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.conversation.ClickableBooleanPrompt;
 import de.craftlancer.core.conversation.FormattedConversable;
+import de.craftlancer.core.util.MessageUtil;
 import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import me.sizzlemcgrizzle.blueprints.api.BlueprintPrePasteEvent;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Material;
@@ -76,6 +81,8 @@ public class CLFeatures extends JavaPlugin implements Listener {
         ConfigurationSerialization.registerClass(SpawnBlockerFeatureInstance.class);
         ConfigurationSerialization.registerClass(SpawnBlockGroup.class);
         ConfigurationSerialization.registerClass(TransmutationStationFeatureInstance.class);
+        ConfigurationSerialization.registerClass(AmplifiedBeaconFeatureInstance.class);
+        ConfigurationSerialization.registerClass(JukeboxFeatureInstance.class);
         
         saveDefaultConfig();
         instance = this;
@@ -91,6 +98,10 @@ public class CLFeatures extends JavaPlugin implements Listener {
         registerFeature("spawnBlocker", new SpawnBlockerFeature(this, getConfig().getConfigurationSection("spawnBlocker")));
         registerFeature("transmutationStation", new TransmutationStationFeature(this, getConfig().getConfigurationSection("transmutationStation")));
         registerFeature("trophyDepositor", new TrophyDepositorFeature(this, getConfig().getConfigurationSection("trophyDepositor")));
+        registerFeature("jukebox", new JukeboxFeature(this, getConfig().getConfigurationSection("jukebox")));
+        
+        MessageUtil.register(this, new TextComponent("§f[§4Craft§fCitizen]"), ChatColor.WHITE, ChatColor.YELLOW, ChatColor.RED,
+                ChatColor.DARK_RED, ChatColor.DARK_AQUA, ChatColor.GREEN);
         
         new LambdaRunnable(() -> features.forEach((a, b) -> b.save())).runTaskTimer(this, 18000L, 18000L);
     }

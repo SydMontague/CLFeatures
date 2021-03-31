@@ -1,17 +1,11 @@
 package de.craftlancer.clfeatures;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-
+import de.craftlancer.clfeatures.jukebox.JukeboxFeature;
+import de.craftlancer.core.CLCore;
+import de.craftlancer.core.LambdaRunnable;
+import de.craftlancer.core.Utils;
+import de.craftlancer.core.command.CommandHandler;
+import me.sizzlemcgrizzle.blueprints.util.SchematicUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -34,11 +28,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.BoundingBox;
 
-import de.craftlancer.core.CLCore;
-import de.craftlancer.core.LambdaRunnable;
-import de.craftlancer.core.Utils;
-import de.craftlancer.core.command.CommandHandler;
-import me.sizzlemcgrizzle.blueprints.util.SchematicUtil;
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public abstract class Feature<T extends FeatureInstance> implements Listener {
     
@@ -65,7 +64,8 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
             limitConfig.getKeys(false).forEach(a -> limitMap.put(a, limitConfig.getInt(a)));
         
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        new LambdaRunnable(() -> getFeatures().forEach(FeatureInstance::tick)).runTaskTimer(getPlugin(), 10, 10);
+        new LambdaRunnable(() -> getFeatures().forEach(FeatureInstance::tick)).runTaskTimer(getPlugin(), 10,
+                this instanceof JukeboxFeature ? 1 : 10);
     }
     
     public int getLimit(Player player) {
@@ -90,7 +90,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return current < limit;
     }
     
-
+    
     public List<T> getFeaturesByUUID(UUID uuid) {
         return getFeatures().stream().filter(a -> a.isOwner(uuid)).collect(Collectors.toList());
     }
@@ -102,7 +102,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     }
     
     public boolean isLimitToken(@Nonnull ItemStack item) {
-        if(item.getType().isAir())
+        if (item.getType().isAir())
             return false;
         
         return item.isSimilar(CLCore.getInstance().getItemRegistry().getItem(limitToken).orElseGet(() -> new ItemStack(Material.AIR)));
@@ -123,7 +123,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     public void giveFeatureItem(Player player, T feature) {
         List<ItemStack> items = feature != null ? SchematicUtil.getBlueprint(feature.getUsedSchematic()) : Collections.emptyList();
         ItemStack item = items.isEmpty() ? CLCore.getInstance().getItemRegistry().getItem(getFeatureItem()).orElseGet(() -> new ItemStack(Material.AIR)) : items.get(0);
-
+        
         if (item != null)
             player.getInventory().addItem(item).forEach((a, b) -> player.getWorld().dropItem(player.getLocation(), b));
     }
@@ -137,7 +137,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
      */
     @Deprecated
     public abstract boolean isFeatureItem(ItemStack item);
-
+    
     /**
      * @deprecated use blueprints instead
      */
