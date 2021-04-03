@@ -132,23 +132,11 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         giveFeatureItem(player, null);
     }
     
-    /**
-     * @deprecated use blueprints instead
-     */
-    @Deprecated
     public abstract boolean isFeatureItem(ItemStack item);
     
-    /**
-     * @deprecated use blueprints instead
-     */
-    @Deprecated
     public abstract Collection<Block> checkEnvironment(Block initialBlock);
     
-    /**
-     * @deprecated use blueprints instead
-     */
-    @Deprecated
-    public abstract boolean createInstance(Player creator, Block initialBlock);
+    public abstract boolean createInstance(Player creator, Block initialBlock, ItemStack hand);
     
     public abstract boolean createInstance(Player creator, Block initialBlock, List<Location> blocks, String schematic);
     

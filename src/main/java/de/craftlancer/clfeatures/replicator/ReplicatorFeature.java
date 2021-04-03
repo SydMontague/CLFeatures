@@ -6,7 +6,6 @@ import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -40,14 +39,13 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     
     private List<Material> blockedProducts;
     
-    @SuppressWarnings("unchecked")
     public ReplicatorFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "replicator.limit"));
         
         blockedProducts = config.getStringList("excludedProducts").stream().map(Material::getMaterial).collect(Collectors.toList());
         
         instances = (List<ReplicatorFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/replicator.yml"))
-                                                                       .getList("replicator", new ArrayList<>());
+                .getList("replicator", new ArrayList<>());
     }
     
     public List<Material> getBlockedProducts() {
@@ -68,7 +66,7 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     
     // Unused with blueprints
     @Override
-    public boolean createInstance(Player creator, Block initialBlock) {
+    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
         return false;
     }
     
@@ -81,8 +79,7 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
         BukkitRunnable saveTask = new LambdaRunnable(() -> {
             try {
                 config.save(f);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 getPlugin().getLogger().log(Level.SEVERE, "Error while saving Replicator: ", e);
             }
         });

@@ -1,12 +1,12 @@
 package de.craftlancer.clfeatures.jukebox;
 
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
+import de.craftlancer.clfeatures.ItemFrameFeature;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -22,14 +22,15 @@ import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class JukeboxFeature extends Feature<JukeboxFeatureInstance> {
+public class JukeboxFeature extends ItemFrameFeature<JukeboxFeatureInstance> {
     
     private List<JukeboxFeatureInstance> instances;
     
@@ -59,26 +60,18 @@ public class JukeboxFeature extends Feature<JukeboxFeatureInstance> {
     
     //Unused with blueprints
     @Override
-    public boolean isFeatureItem(ItemStack item) {
-        return false;
+    public List<Block> checkEnvironment(Block initialBlock) {
+        return Stream.of(initialBlock.getRelative(0, 1, 0))
+                .filter(block -> !block.getType().isAir()).collect(Collectors.toList());
     }
     
-    //Unused with blueprints
     @Override
-    public Collection<Block> checkEnvironment(Block initialBlock) {
-        return null;
-    }
-    
-    //Unused with blueprints
-    @Override
-    public boolean createInstance(Player creator, Block initialBlock) {
-        return false;
-    }
-    
-    
-    @Override
-    public boolean createInstance(Player creator, Block initialBlock, List<Location> blocks, String schematic) {
-        return instances.add(new JukeboxFeatureInstance(creator.getUniqueId(), new BlockStructure(blocks), initialBlock.getLocation(), schematic));
+    public void onInstanceCreate(Player creator, Block initialBlock, ItemStack hand, UUID itemFrame) {
+        initialBlock.getRelative(0, 1, 0).setType(Material.BARRIER);
+        
+        instances.add(new JukeboxFeatureInstance(creator.getUniqueId(),
+                new BlockStructure(initialBlock.getLocation(), initialBlock.getLocation().add(0, 1, 0)),
+                initialBlock.getLocation(), hand, itemFrame));
     }
     
     @Override
@@ -109,6 +102,7 @@ public class JukeboxFeature extends Feature<JukeboxFeatureInstance> {
     
     @Override
     public void remove(FeatureInstance instance) {
+        super.remove(instance);
         if (instance instanceof JukeboxFeatureInstance)
             instances.remove(instance);
     }

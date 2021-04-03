@@ -65,7 +65,7 @@ public class TrophyDepositorFeature extends Feature<TrophyDepositorFeatureInstan
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialBlock) {
+    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
         return createInstance(creator, initialBlock, Arrays.asList(initialBlock.getLocation()), null);
     }
     

@@ -8,5 +8,6 @@ public class JukeboxCommandHandler extends CommandHandler {
         super(plugin);
         
         registerSubCommand("song", new JukeboxSongCommand(plugin, feature));
+        registerSubCommand("move", new JukeboxMoveCommand(plugin));
     }
 }

@@ -13,6 +13,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
@@ -36,7 +37,9 @@ public class AmplifiedBeaconFeature extends Feature<AmplifiedBeaconFeatureInstan
     // Unused with blueprints
     @Override
     public boolean isFeatureItem(ItemStack item) {
-        return false;
+        return item.getItemMeta().getPersistentDataContainer().getKeys().stream()
+                .anyMatch(k -> k.getKey().equals(getPlugin().getFeatureItemKey().getKey())
+                        && item.getItemMeta().getPersistentDataContainer().get(k, PersistentDataType.STRING).equalsIgnoreCase(getName()));
     }
     
     // Unused with blueprints
@@ -47,7 +50,7 @@ public class AmplifiedBeaconFeature extends Feature<AmplifiedBeaconFeatureInstan
     
     // Unused with blueprints
     @Override
-    public boolean createInstance(Player creator, Block initialBlock) {
+    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
         return false;
     }
     

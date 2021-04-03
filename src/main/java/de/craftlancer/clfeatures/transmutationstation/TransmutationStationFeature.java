@@ -29,7 +29,6 @@ public class TransmutationStationFeature extends Feature<TransmutationStationFea
     private List<TransmutationStationFeatureInstance> instances;
     private TransmutationStationGUI gui;
     
-    @SuppressWarnings("unchecked")
     public TransmutationStationFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "transmutationStation.limit"));
         
@@ -50,7 +49,7 @@ public class TransmutationStationFeature extends Feature<TransmutationStationFea
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialBlock) {
+    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
         return false;
     }
     

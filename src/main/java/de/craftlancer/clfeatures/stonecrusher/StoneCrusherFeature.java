@@ -1,16 +1,11 @@
 package de.craftlancer.clfeatures.stonecrusher;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
-
+import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.Feature;
+import de.craftlancer.clfeatures.FeatureInstance;
+import de.craftlancer.core.LambdaRunnable;
+import de.craftlancer.core.command.CommandHandler;
+import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,12 +27,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
-import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.LambdaRunnable;
-import de.craftlancer.core.command.CommandHandler;
-import de.craftlancer.core.structure.BlockStructure;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
     static final String MOVE_METADATA = "crusherMove";
@@ -50,7 +49,6 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
     private Map<Material, List<StoneCrusherResult>> lootTable = new EnumMap<>(Material.class);
     private int crushesPerTick = 1;
     
-    @SuppressWarnings("unchecked")
     public StoneCrusherFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "stonecrusher.limit"));
         
@@ -69,13 +67,13 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
                 return;
             
             List<StoneCrusherResult> result = output.stream().map(b -> new StoneCrusherResult((String) b.get("item"), ((Number) b.get("chance")).doubleValue()))
-                                                    .collect(Collectors.toList());
+                    .collect(Collectors.toList());
             
             lootTable.put(input, result);
         });
         
         instances = (List<StoneCrusherFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/stonecrusher.yml"))
-                                                                         .getList("stonecrusher", new ArrayList<>());
+                .getList("stonecrusher", new ArrayList<>());
     }
     
     @Override
@@ -107,7 +105,7 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialBlock) {
+    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
         Chest chest = (Chest) initialBlock.getBlockData();
         BlockFace facing = chest.getFacing().getOppositeFace();
         
@@ -162,8 +160,7 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
         BukkitRunnable saveTask = new LambdaRunnable(() -> {
             try {
                 config.save(f);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 getPlugin().getLogger().log(Level.SEVERE, "Error while saving Stonecrusher: ", e);
             }
         });

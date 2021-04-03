@@ -1,17 +1,14 @@
 package de.craftlancer.clfeatures.portal;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
-
+import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.Feature;
+import de.craftlancer.clfeatures.FeatureInstance;
+import de.craftlancer.clfeatures.portal.addressbook.AddressBookCommandHandler;
+import de.craftlancer.clfeatures.portal.addressbook.AddressBookUtils;
+import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
+import de.craftlancer.core.LambdaRunnable;
+import de.craftlancer.core.command.CommandHandler;
+import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -40,15 +37,17 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
-import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.clfeatures.portal.addressbook.AddressBookCommandHandler;
-import de.craftlancer.clfeatures.portal.addressbook.AddressBookUtils;
-import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
-import de.craftlancer.core.LambdaRunnable;
-import de.craftlancer.core.command.CommandHandler;
-import de.craftlancer.core.structure.BlockStructure;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class PortalFeature extends Feature<PortalFeatureInstance> {
     static final String LOOP_METADATA = "portalLoop";
@@ -74,7 +73,6 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
     private List<String> defaultPortals;
     private String defaultPortal;
     
-    @SuppressWarnings("unchecked")
     public PortalFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "portal.limit"));
         
@@ -92,7 +90,7 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         plugin.getCommand("pbook").setExecutor(new AddressBookCommandHandler(plugin));
         
         instances = (List<PortalFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/portals.yml"))
-                                                                   .getList("portals", new ArrayList<>());
+                .getList("portals", new ArrayList<>());
         
         instances.stream().filter(a -> a.getName() != null && !a.getName().isEmpty()).forEach(a -> lookupTable.put(a.getName().toLowerCase(), a));
         
@@ -166,7 +164,7 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialBlock) {
+    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
         Lectern lectern = (Lectern) initialBlock.getBlockData();
         BlockFace facing = lectern.getFacing().getOppositeFace();
         Block firstPortalBlock = initialBlock.getRelative(facing);
@@ -238,8 +236,7 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         BukkitRunnable saveTask = new LambdaRunnable(() -> {
             try {
                 config.save(f);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 getPlugin().getLogger().log(Level.SEVERE, "Error while saving Portals: ", e);
             }
         });
@@ -305,7 +302,7 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
     @EventHandler
     public void onBookTake(PlayerTakeLecternBookEvent event) {
         getFeatures().stream().filter(a -> a.getStructure().containsBlock(event.getLectern().getBlock())).findAny()
-                     .ifPresent(a -> a.setNewBookDelay(newBookDelay / 10));
+                .ifPresent(a -> a.setNewBookDelay(newBookDelay / 10));
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -329,8 +326,7 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
             portal.get().destroy();
             giveFeatureItem(p, portal.get());
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Portal successfully moved back to your inventory.");
-        }
-        else
+        } else
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to move this portal. You need 3 Lesser Fragments.");
         
         p.removeMetadata(MOVE_METADATA, getPlugin());
@@ -372,16 +368,15 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
                 homeMeta.setTitle("Address Book");
                 homeMeta.setAuthor("Server");
                 homeMeta.setLore(Arrays.asList(ChatColor.DARK_GREEN + "This book contains your portal names.",
-                                               ChatColor.DARK_GREEN + "Use it to select your destination in a Portal Lectern.",
-                                               ChatColor.DARK_GREEN + "Type " + ChatColor.GREEN + "/pbook [add|remove|select] <name>"));
+                        ChatColor.DARK_GREEN + "Use it to select your destination in a Portal Lectern.",
+                        ChatColor.DARK_GREEN + "Type " + ChatColor.GREEN + "/pbook [add|remove|select] <name>"));
                 homeBook.setItemMeta(homeMeta);
                 
                 p.getInventory().addItem(homeBook).forEach((a, b) -> p.getWorld().dropItem(p.getLocation(), b));
             }
             
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + String.format("Portal successfully renamed to %s.", newName));
-        }
-        else
+        } else
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to rename this portal. You need a Lesser Fragment.");
         
         p.removeMetadata(RENAME_METADATA, getPlugin());

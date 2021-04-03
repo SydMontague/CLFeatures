@@ -28,7 +28,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationContext;
@@ -46,7 +46,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -58,6 +57,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
     private static final Material ERROR_BLOCK = Material.RED_CONCRETE;
     private static final long ERROR_TIMEOUT = 100L; // 5s
     
+    private NamespacedKey featureItemKey;
     private Map<String, Feature<?>> features = new HashMap<>();
     private Economy econ = null;
     private Permission perms = null;
@@ -88,6 +88,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         instance = this;
         setupEconomy();
         setupPermissions();
+        featureItemKey = new NamespacedKey(this, "clfeature");
         
         getServer().getPluginManager().registerEvents(this, this);
         
@@ -118,6 +119,10 @@ public class CLFeatures extends JavaPlugin implements Listener {
     
     public Permission getPermissions() {
         return perms;
+    }
+    
+    public NamespacedKey getFeatureItemKey() {
+        return featureItemKey;
     }
     
     @Nullable
@@ -161,22 +166,12 @@ public class CLFeatures extends JavaPlugin implements Listener {
             event.setCancelled(true);
         }
         
-        Collection<Block> blocks = feature.get().checkEnvironment(event.getBlock());
-        
-        if (!blocks.isEmpty()) {
-            p.sendMessage(CC_PREFIX + ChatColor.DARK_RED + "This location isn't suited for this feature. Make sure you have enough space.");
-            p.sendMessage(CC_PREFIX + ChatColor.DARK_RED + "See " + ChatColor.GREEN + "https://craftlancer.de/wiki/index.php/Special_Structures");
+        if (!feature.get().createInstance(p, event.getBlock(), event.getItemInHand())) {
+            p.sendMessage(CC_PREFIX + ChatColor.RED + "There are blocks in the way and you cannot place this here.");
             event.setCancelled(true);
-            
-            blocks.forEach(a -> event.getPlayer().sendBlockChange(a.getLocation(), ERROR_BLOCK.createBlockData()));
-            new LambdaRunnable(() -> blocks.forEach(a -> p.sendBlockChange(a.getLocation(), a.getBlockData()))).runTaskLater(this, ERROR_TIMEOUT);
         }
     }
     
-    /**
-     * @deprecated use blueprints instead
-     */
-    @Deprecated
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockPlaceFinal(BlockPlaceEvent event) {
         Optional<Feature<?>> feature = features.values().stream().filter(a -> a.isFeatureItem(event.getItemInHand())).findFirst();
@@ -184,7 +179,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         if (!feature.isPresent())
             return;
         
-        feature.get().createInstance(event.getPlayer(), event.getBlock());
+        feature.get().createInstance(event.getPlayer(), event.getBlock(), event.getItemInHand().clone());
     }
     
     @EventHandler(ignoreCancelled = false, priority = EventPriority.NORMAL)
@@ -263,4 +258,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         getCommand(name).setExecutor(feature.getCommandHandler());
     }
     
+    public Map<String, Feature<?>> getFeatures() {
+        return features;
+    }
 }

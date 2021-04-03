@@ -31,7 +31,6 @@ public class JukeboxNote implements AbstractJukeboxNote {
     private int instrumentIndex = 0;
     
     public JukeboxNote() {
-        super();
         this.instrument = Instrument.PIANO;
         this.note = 0;
     }

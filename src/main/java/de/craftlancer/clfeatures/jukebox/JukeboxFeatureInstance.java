@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.jukebox;
 
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.FeatureInstance;
+import de.craftlancer.clfeatures.ItemFrameFeatureInstance;
 import de.craftlancer.core.Utils;
 import de.craftlancer.core.menu.ConditionalMenu;
 import de.craftlancer.core.menu.MenuItem;
@@ -13,9 +13,11 @@ import de.craftlancer.core.util.Tuple;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -25,7 +27,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class JukeboxFeatureInstance extends FeatureInstance {
+public class JukeboxFeatureInstance extends ItemFrameFeatureInstance {
     
     public static final String MOVE_METADATA = "jukeboxMove";
     
@@ -42,14 +44,13 @@ public class JukeboxFeatureInstance extends FeatureInstance {
     private ConditionalMenu menu;
     
     private ItemStack songItem;
-    private long tickID = 0;
     private int songTick = 0;
     private boolean paused;
     private boolean repeat;
     private boolean hasPlayed;
     
-    public JukeboxFeatureInstance(UUID ownerId, BlockStructure blocks, Location location, String usedSchematic) {
-        super(ownerId, blocks, location, usedSchematic);
+    public JukeboxFeatureInstance(UUID ownerId, BlockStructure blocks, Location location, ItemStack usedItem, UUID uuid) {
+        super(ownerId, blocks, location, usedItem, uuid);
         
         this.songItem = new ItemStack(Material.AIR);
     }
@@ -75,7 +76,6 @@ public class JukeboxFeatureInstance extends FeatureInstance {
     
     @Override
     protected void tick() {
-        tickID++;
         
         if (isPaused())
             return;
@@ -83,10 +83,10 @@ public class JukeboxFeatureInstance extends FeatureInstance {
         if (!isRepeat() && hasPlayed)
             return;
         
-        if (!Utils.isChunkLoaded(getInitialBlock()))
+        if (songItem == null || songItem.getType() == Material.AIR)
             return;
         
-        if (songItem == null || songItem.getType() == Material.AIR)
+        if (!Utils.isChunkLoaded(getInitialBlock()))
             return;
         
         if (!getManager().isSongItem(songItem))
@@ -106,6 +106,8 @@ public class JukeboxFeatureInstance extends FeatureInstance {
         List<Player> nearby = getInitialBlock().getWorld()
                 .getNearbyEntities(getInitialBlock(), 32, 32, 32, e -> e instanceof Player)
                 .stream().map(e -> (Player) e).collect(Collectors.toList());
+        
+        getInitialBlock().getWorld().spawnParticle(Particle.NOTE, getInitialBlock().add(Math.random(), 1 + Math.random(), Math.random()), 1);
         
         song.play(nearby, songTick);
         
@@ -131,6 +133,10 @@ public class JukeboxFeatureInstance extends FeatureInstance {
                 new MenuItem(isPaused() ? PLAY_BUTTON : PAUSE_BUTTON)
                         .addClickAction(click -> {
                             setPaused(!isPaused());
+                            if (!isPaused() && hasPlayed) {
+                                hasPlayed = false;
+                                songTick = 0;
+                            }
                             menu.replace(28, isPaused() ? PLAY_BUTTON : PAUSE_BUTTON);
                         }));
         
@@ -198,8 +204,9 @@ public class JukeboxFeatureInstance extends FeatureInstance {
             return;
         
         if (!p.hasMetadata(MOVE_METADATA)) {
-            if (getStructure().containsBlock(event.getClickedBlock()))
-                display(p);
+            if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
+                if (getStructure().containsBlock(event.getClickedBlock()))
+                    display(p);
             return;
         }
         
