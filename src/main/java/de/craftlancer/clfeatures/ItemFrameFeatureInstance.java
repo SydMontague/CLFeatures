@@ -7,15 +7,13 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class ItemFrameFeatureInstance extends FeatureInstance {
+public abstract class ItemFrameFeatureInstance extends ManualPlacementFeatureInstance {
     
     private UUID itemFrame;
-    private ItemStack usedItem;
     
     public ItemFrameFeatureInstance(UUID ownerId, BlockStructure blocks, Location location, ItemStack usedItem, UUID itemFrameUUID) {
-        super(ownerId, blocks, location, null);
+        super(ownerId, blocks, location, usedItem);
         
-        this.usedItem = usedItem.clone();
         this.itemFrame = itemFrameUUID;
     }
     
@@ -23,7 +21,6 @@ public abstract class ItemFrameFeatureInstance extends FeatureInstance {
         super(map);
         
         this.itemFrame = UUID.fromString((String) map.get("itemFrame"));
-        this.usedItem = (ItemStack) map.get("usedItem");
     }
     
     @Override
@@ -31,13 +28,8 @@ public abstract class ItemFrameFeatureInstance extends FeatureInstance {
         Map<String, Object> map = super.serialize();
         
         map.put("itemFrame", itemFrame.toString());
-        map.put("usedItem", usedItem);
         
         return map;
-    }
-    
-    public ItemStack getUsedItem() {
-        return usedItem;
     }
     
     public UUID getItemFrame() {

@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.replicator;
 
+import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
@@ -20,21 +20,18 @@ import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
+public class ReplicatorFeature extends BlueprintFeature<ReplicatorFeatureInstance> {
     private List<ReplicatorFeatureInstance> instances;
     
     private List<Material> blockedProducts;
@@ -50,24 +47,6 @@ public class ReplicatorFeature extends Feature<ReplicatorFeatureInstance> {
     
     public List<Material> getBlockedProducts() {
         return blockedProducts;
-    }
-    
-    // Unused with blueprints
-    @Override
-    public boolean isFeatureItem(ItemStack item) {
-        return false;
-    }
-    
-    // Unused with blueprints
-    @Override
-    public Collection<Block> checkEnvironment(Block initialBlock) {
-        return Collections.emptyList();
-    }
-    
-    // Unused with blueprints
-    @Override
-    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
-        return false;
     }
     
     @Override

@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.spawnblocker;
 
+import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
@@ -12,20 +12,17 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-public class SpawnBlockerFeature extends Feature<SpawnBlockerFeatureInstance> {
+public class SpawnBlockerFeature extends BlueprintFeature<SpawnBlockerFeatureInstance> {
     private List<SpawnBlockerFeatureInstance> instances = new ArrayList<>();
     private Map<SpawnBlockGroupSlot, SpawnBlockGroup> blockGroups = new EnumMap<>(SpawnBlockGroupSlot.class);
     
@@ -42,21 +39,6 @@ public class SpawnBlockerFeature extends Feature<SpawnBlockerFeatureInstance> {
     
     public Map<SpawnBlockGroupSlot, SpawnBlockGroup> getBlockGroups() {
         return blockGroups;
-    }
-    
-    @Override
-    public boolean isFeatureItem(ItemStack item) {
-        return false;
-    }
-    
-    @Override
-    public Collection<Block> checkEnvironment(Block initialBlock) {
-        return Collections.emptyList();
-    }
-    
-    @Override
-    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
-        return false;
     }
     
     @Override

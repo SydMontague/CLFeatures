@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.trophydepositor;
 
+import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.trophydepositor.command.TrophyDepositorCommandHandler;
 import de.craftlancer.core.LambdaRunnable;
@@ -21,8 +21,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +30,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class TrophyDepositorFeature extends Feature<TrophyDepositorFeatureInstance> {
+public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeatureInstance> {
     private List<TrophyDepositorFeatureInstance> instances;
     private List<TrophyDepositorBoost> boosts;
     private Map<UUID, TrophyEntry> playerLookupTable;
@@ -52,21 +50,6 @@ public class TrophyDepositorFeature extends Feature<TrophyDepositorFeatureInstan
         playerLookupTable = ((List<TrophyEntry>) trophyDepositorConfig.getList("trophyEntries", new ArrayList<>()))
                 .stream().collect(Collectors.toMap(TrophyEntry::getPlayer, e -> e));
         boosts = (List<TrophyDepositorBoost>) trophyDepositorConfig.getList("boosts", new ArrayList<>());
-    }
-    
-    @Override
-    public boolean isFeatureItem(ItemStack item) {
-        return false;
-    }
-    
-    @Override
-    public Collection<Block> checkEnvironment(Block initialBlock) {
-        return Collections.emptyList();
-    }
-    
-    @Override
-    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
-        return createInstance(creator, initialBlock, Arrays.asList(initialBlock.getLocation()), null);
     }
     
     @Override
@@ -160,7 +143,7 @@ public class TrophyDepositorFeature extends Feature<TrophyDepositorFeatureInstan
         
         boosts.removeIf(b -> b.getTrophiesLeft() <= 0);
         
-        return a.getAmount() * originalValue + boostedValue;
+        return a.getAmount() * (originalValue + boostedValue);
     }
     
     public boolean addTrophyItem(ItemStack item, int value) {

@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.stonecrusher;
 
+import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
@@ -11,26 +11,17 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Chest;
-import org.bukkit.block.data.type.Piston;
-import org.bukkit.block.data.type.Slab;
-import org.bukkit.block.data.type.Slab.Type;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +29,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
+public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureInstance> {
     static final String MOVE_METADATA = "crusherMove";
     
     private static final Material CRUSHER_MATERIAL = Material.CHEST;
@@ -74,75 +65,6 @@ public class StoneCrusherFeature extends Feature<StoneCrusherFeatureInstance> {
         
         instances = (List<StoneCrusherFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/stonecrusher.yml"))
                 .getList("stonecrusher", new ArrayList<>());
-    }
-    
-    @Override
-    public boolean isFeatureItem(ItemStack item) {
-        if (item.getType() != CRUSHER_MATERIAL)
-            return false;
-        
-        ItemMeta meta = item.getItemMeta();
-        
-        return (meta != null && meta.hasDisplayName() && meta.getDisplayName().equals(CRUSHER_NAME));
-    }
-    
-    @Override
-    public Collection<Block> checkEnvironment(Block initialBlock) {
-        Chest chest = (Chest) initialBlock.getBlockData();
-        BlockFace facing = chest.getFacing().getOppositeFace();
-        
-        List<Block> blocks = new ArrayList<>();
-        blocks.add(initialBlock.getRelative(facing.getModZ(), 0, -facing.getModX()));
-        blocks.add(initialBlock.getRelative(facing.getModZ(), 1, -facing.getModX()));
-        blocks.add(initialBlock.getRelative(facing.getModZ(), 2, -facing.getModX()));
-        blocks.add(initialBlock.getRelative(0, 1, 0));
-        blocks.add(initialBlock.getRelative(0, 2, 0));
-        blocks.add(initialBlock.getRelative(-facing.getModZ(), 0, facing.getModX()));
-        blocks.add(initialBlock.getRelative(-facing.getModZ(), 1, facing.getModX()));
-        blocks.add(initialBlock.getRelative(-facing.getModZ(), 2, facing.getModX()));
-        
-        return blocks.stream().filter(a -> !a.isEmpty()).collect(Collectors.toList());
-    }
-    
-    @Override
-    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
-        Chest chest = (Chest) initialBlock.getBlockData();
-        BlockFace facing = chest.getFacing().getOppositeFace();
-        
-        BlockData slabData = Material.QUARTZ_SLAB.createBlockData(a -> ((Slab) a).setType(Type.TOP));
-        BlockData pistonData = Material.PISTON.createBlockData(a -> ((Piston) a).setFacing(BlockFace.DOWN));
-        
-        initialBlock.getRelative(facing.getModZ(), 0, -facing.getModX()).setBlockData(Material.CHEST.createBlockData(a -> {
-            ((Chest) a).setType(Chest.Type.RIGHT);
-            ((Chest) a).setFacing(facing.getOppositeFace());
-        }));
-        initialBlock.getRelative(facing.getModZ(), 1, -facing.getModX()).setBlockData(slabData);
-        
-        initialBlock.getRelative(facing.getModZ(), 2, -facing.getModX()).setBlockData(Material.TRAPPED_CHEST.createBlockData(a -> {
-            ((Chest) a).setType(Chest.Type.RIGHT);
-            ((Chest) a).setFacing(facing.getOppositeFace());
-        }));
-        initialBlock.getRelative(0, 1, 0).setBlockData(slabData);
-        initialBlock.getRelative(0, 2, 0).setBlockData(Material.TRAPPED_CHEST.createBlockData(a -> {
-            ((Chest) a).setType(Chest.Type.LEFT);
-            ((Chest) a).setFacing(facing.getOppositeFace());
-        }));
-        initialBlock.getRelative(-facing.getModZ(), 0, facing.getModX()).setType(Material.END_PORTAL_FRAME);
-        // initialBlock.getRelative(-facing.getModZ(), 1, -facing.getModX()); // air
-        initialBlock.getRelative(-facing.getModZ(), 2, facing.getModX()).setBlockData(pistonData);
-        
-        List<Location> blocks = new ArrayList<>();
-        blocks.add(initialBlock.getRelative(facing.getModZ(), 0, -facing.getModX()).getLocation());
-        blocks.add(initialBlock.getRelative(facing.getModZ(), 1, -facing.getModX()).getLocation());
-        blocks.add(initialBlock.getRelative(facing.getModZ(), 2, -facing.getModX()).getLocation());
-        blocks.add(initialBlock.getLocation());
-        blocks.add(initialBlock.getRelative(0, 1, 0).getLocation());
-        blocks.add(initialBlock.getRelative(0, 2, 0).getLocation());
-        blocks.add(initialBlock.getRelative(-facing.getModZ(), 0, facing.getModX()).getLocation());
-        blocks.add(initialBlock.getRelative(-facing.getModZ(), 1, facing.getModX()).getLocation());
-        blocks.add(initialBlock.getRelative(-facing.getModZ(), 2, facing.getModX()).getLocation());
-        
-        return createInstance(creator, initialBlock, blocks, null);
     }
     
     @Override

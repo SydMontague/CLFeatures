@@ -1,6 +1,7 @@
 package de.craftlancer.clfeatures.amplifiedbeacon;
 
 import de.craftlancer.clclans.CLClans;
+import de.craftlancer.clfeatures.BlueprintFeatureInstance;
 import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.structure.BlockStructure;
@@ -15,7 +16,7 @@ import org.bukkit.potion.PotionEffect;
 import java.util.Map;
 import java.util.UUID;
 
-public class AmplifiedBeaconFeatureInstance extends FeatureInstance {
+public class AmplifiedBeaconFeatureInstance extends BlueprintFeatureInstance {
     
     private final CLClans clans = (CLClans) Bukkit.getPluginManager().getPlugin("CLClans");
     private PotionEffect buff1;

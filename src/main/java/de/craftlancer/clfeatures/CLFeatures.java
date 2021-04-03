@@ -29,6 +29,7 @@ import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationContext;
@@ -46,6 +47,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -147,15 +149,17 @@ public class CLFeatures extends JavaPlugin implements Listener {
     public void onBluePrintPaste(BlueprintPostPasteEvent event) {
         Optional<Feature<?>> feature = features.values().stream().filter(a -> a.getName().equalsIgnoreCase(event.getType())).findFirst();
         
-        if (!feature.isPresent())
+        if (!feature.isPresent() || !(feature.get() instanceof BlueprintFeature))
             return;
         
-        feature.get().createInstance(event.getPlayer(), event.getFeatureLocation().getBlock(), event.getBlocksPasted(), event.getSchematic());
+        ((BlueprintFeature) feature.get()).createInstance(event.getPlayer(), event.getFeatureLocation().getBlock(), event.getBlocksPasted(), event.getSchematic());
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event) {
-        Optional<Feature<?>> feature = features.values().stream().filter(a -> a.isFeatureItem(event.getItemInHand())).findFirst();
+        Optional<Feature<?>> feature = features.values().stream().filter(a ->
+                a instanceof ManualPlacementFeature && ((ManualPlacementFeature) a).isFeatureItem(event.getItemInHand())).findFirst();
+        
         Player p = event.getPlayer();
         
         if (!feature.isPresent())
@@ -166,20 +170,27 @@ public class CLFeatures extends JavaPlugin implements Listener {
             event.setCancelled(true);
         }
         
-        if (!feature.get().createInstance(p, event.getBlock(), event.getItemInHand())) {
-            p.sendMessage(CC_PREFIX + ChatColor.RED + "There are blocks in the way and you cannot place this here.");
+        Collection<Block> blocks = ((ManualPlacementFeature) feature.get()).checkEnvironment(event.getBlock());
+        
+        if (!blocks.isEmpty()) {
+            p.sendMessage(CC_PREFIX + ChatColor.DARK_RED + "This location isn't suited for this feature. Make sure you have enough space.");
+            p.sendMessage(CC_PREFIX + ChatColor.DARK_RED + "See " + ChatColor.GREEN + "https://craftlancer.de/wiki/index.php/Special_Structures");
             event.setCancelled(true);
+            
+            blocks.forEach(a -> event.getPlayer().sendBlockChange(a.getLocation(), ERROR_BLOCK.createBlockData()));
+            new LambdaRunnable(() -> blocks.forEach(a -> p.sendBlockChange(a.getLocation(), a.getBlockData()))).runTaskLater(this, ERROR_TIMEOUT);
         }
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockPlaceFinal(BlockPlaceEvent event) {
-        Optional<Feature<?>> feature = features.values().stream().filter(a -> a.isFeatureItem(event.getItemInHand())).findFirst();
+        Optional<Feature<?>> feature = features.values().stream().filter(a ->
+                a instanceof ManualPlacementFeature && ((ManualPlacementFeature) a).isFeatureItem(event.getItemInHand())).findFirst();
         
         if (!feature.isPresent())
             return;
         
-        feature.get().createInstance(event.getPlayer(), event.getBlock(), event.getItemInHand().clone());
+        ((ManualPlacementFeature) feature.get()).createInstance(event.getPlayer(), event.getBlock(), event.getItemInHand().clone());
     }
     
     @EventHandler(ignoreCancelled = false, priority = EventPriority.NORMAL)

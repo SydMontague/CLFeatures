@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.trophychest;
 
+import de.craftlancer.clfeatures.BlueprintFeatureInstance;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.structure.BlockStructure;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Deprecated
-public class TrophyChestFeatureInstance extends FeatureInstance {
+public class TrophyChestFeatureInstance extends BlueprintFeatureInstance {
     
     public static final String MOVE_METADATA = "trophyChest.move";
     private TrophyChestFeature manager;

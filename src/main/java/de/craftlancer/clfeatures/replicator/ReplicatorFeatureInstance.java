@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.replicator;
 
+import de.craftlancer.clfeatures.BlueprintFeatureInstance;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.Utils;
 import de.craftlancer.core.structure.BlockStructure;
 import net.md_5.bungee.api.ChatColor;
@@ -39,7 +39,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class ReplicatorFeatureInstance extends FeatureInstance {
+public class ReplicatorFeatureInstance extends BlueprintFeatureInstance {
     public static final String MOVE_METADATA = "replicatorMove";
     
     private ReplicatorFeature manager;

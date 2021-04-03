@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.amplifiedbeacon;
 
+import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
@@ -12,19 +12,16 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 
-public class AmplifiedBeaconFeature extends Feature<AmplifiedBeaconFeatureInstance> {
+public class AmplifiedBeaconFeature extends BlueprintFeature<AmplifiedBeaconFeatureInstance> {
     
     private List<AmplifiedBeaconFeatureInstance> instances;
     
@@ -32,26 +29,6 @@ public class AmplifiedBeaconFeature extends Feature<AmplifiedBeaconFeatureInstan
         super(plugin, config, limitKey);
         
         this.instances = (List<AmplifiedBeaconFeatureInstance>) config.getList("instances", new ArrayList<>());
-    }
-    
-    // Unused with blueprints
-    @Override
-    public boolean isFeatureItem(ItemStack item) {
-        return item.getItemMeta().getPersistentDataContainer().getKeys().stream()
-                .anyMatch(k -> k.getKey().equals(getPlugin().getFeatureItemKey().getKey())
-                        && item.getItemMeta().getPersistentDataContainer().get(k, PersistentDataType.STRING).equalsIgnoreCase(getName()));
-    }
-    
-    // Unused with blueprints
-    @Override
-    public Collection<Block> checkEnvironment(Block initialBlock) {
-        return null;
-    }
-    
-    // Unused with blueprints
-    @Override
-    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
-        return false;
     }
     
     @Override

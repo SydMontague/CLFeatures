@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.trophychest;
 
+import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
@@ -19,8 +19,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +28,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Deprecated
-public class TrophyChestFeature extends Feature<TrophyChestFeatureInstance> {
+public class TrophyChestFeature extends BlueprintFeature<TrophyChestFeatureInstance> {
     private List<TrophyChestFeatureInstance> instances = new ArrayList<>();
     private Map<UUID, TrophyChestFeatureInstance> playerLookupTable = new HashMap<>();
     
@@ -48,11 +46,6 @@ public class TrophyChestFeature extends Feature<TrophyChestFeatureInstance> {
                 .collect(Collectors.toMap(a -> (ItemStack) a.get("item"), a -> (Integer) a.get("value")));
     }
     
-    @Override
-    public boolean isFeatureItem(ItemStack item) {
-        return false;
-    }
-    
     /*
      * Only one TrophyChest per player allowed at all times
      */
@@ -64,16 +57,6 @@ public class TrophyChestFeature extends Feature<TrophyChestFeatureInstance> {
     @Override
     public boolean checkFeatureLimit(Player player) {
         return instances.stream().filter(a -> a.isOwner(player)).count() < 1;
-    }
-    
-    @Override
-    public Collection<Block> checkEnvironment(Block initialBlock) {
-        return Collections.emptyList();
-    }
-    
-    @Override
-    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
-        return createInstance(creator, initialBlock, Arrays.asList(initialBlock.getLocation()), null);
     }
     
     @Override

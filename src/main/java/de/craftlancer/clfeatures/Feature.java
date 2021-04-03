@@ -1,11 +1,9 @@
 package de.craftlancer.clfeatures;
 
-import de.craftlancer.clfeatures.jukebox.JukeboxFeature;
 import de.craftlancer.core.CLCore;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.Utils;
 import de.craftlancer.core.command.CommandHandler;
-import me.sizzlemcgrizzle.blueprints.util.SchematicUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -29,8 +27,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.BoundingBox;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,8 +60,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
             limitConfig.getKeys(false).forEach(a -> limitMap.put(a, limitConfig.getInt(a)));
         
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        new LambdaRunnable(() -> getFeatures().forEach(FeatureInstance::tick)).runTaskTimer(getPlugin(), 10,
-                this instanceof JukeboxFeature ? 1 : 10);
+        new LambdaRunnable(() -> getFeatures().forEach(FeatureInstance::tick)).runTaskTimer(getPlugin(), 10, getTickFrequency());
     }
     
     public int getLimit(Player player) {
@@ -120,31 +115,21 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return plugin;
     }
     
-    public void giveFeatureItem(Player player, T feature) {
-        List<ItemStack> items = feature != null ? SchematicUtil.getBlueprint(feature.getUsedSchematic()) : Collections.emptyList();
-        ItemStack item = items.isEmpty() ? CLCore.getInstance().getItemRegistry().getItem(getFeatureItem()).orElseGet(() -> new ItemStack(Material.AIR)) : items.get(0);
-        
-        if (item != null)
-            player.getInventory().addItem(item).forEach((a, b) -> player.getWorld().dropItem(player.getLocation(), b));
-    }
+    public abstract void giveFeatureItem(Player player, T instance);
     
     public void giveFeatureItem(Player player) {
         giveFeatureItem(player, null);
     }
-    
-    public abstract boolean isFeatureItem(ItemStack item);
-    
-    public abstract Collection<Block> checkEnvironment(Block initialBlock);
-    
-    public abstract boolean createInstance(Player creator, Block initialBlock, ItemStack hand);
-    
-    public abstract boolean createInstance(Player creator, Block initialBlock, List<Location> blocks, String schematic);
     
     public abstract void save();
     
     public abstract CommandHandler getCommandHandler();
     
     public abstract void remove(FeatureInstance instance);
+    
+    public long getTickFrequency() {
+        return 10;
+    }
     
     @Nonnull
     protected abstract String getName();

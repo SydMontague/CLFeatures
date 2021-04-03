@@ -58,11 +58,23 @@ public class JukeboxFeature extends ItemFrameFeature<JukeboxFeatureInstance> {
         
     }
     
+    @Override
+    public boolean isFeatureItem(ItemStack item) {
+        return item.getItemMeta().getPersistentDataContainer().getKeys().stream()
+                .anyMatch(k -> k.getKey().equals(getPlugin().getFeatureItemKey().getKey())
+                        && item.getItemMeta().getPersistentDataContainer().get(k, PersistentDataType.STRING).equals("jukebox"));
+    }
+    
     //Unused with blueprints
     @Override
     public List<Block> checkEnvironment(Block initialBlock) {
         return Stream.of(initialBlock.getRelative(0, 1, 0))
                 .filter(block -> !block.getType().isAir()).collect(Collectors.toList());
+    }
+    
+    @Override
+    public long getTickFrequency() {
+        return 1;
     }
     
     @Override

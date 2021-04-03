@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.portal;
 
+import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookCommandHandler;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookUtils;
@@ -16,8 +16,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.type.Lectern;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -32,7 +30,6 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -41,7 +38,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +45,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class PortalFeature extends Feature<PortalFeatureInstance> {
+public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
     static final String LOOP_METADATA = "portalLoop";
     static final String RENAME_METADATA = "portalRename";
     static final String MOVE_METADATA = "portalMove";
@@ -103,44 +99,6 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
         })).runTaskTimer(plugin, 5, 5);
     }
     
-    @Override
-    public boolean isFeatureItem(ItemStack item) {
-        if (item.getType() != LECTERN_MATERIAL)
-            return false;
-        
-        ItemMeta meta = item.getItemMeta();
-        
-        return (meta != null && meta.hasDisplayName() && meta.getDisplayName().equals(LECTERN_NAME));
-    }
-    
-    @Override
-    public Collection<Block> checkEnvironment(Block initialBlock) {
-        Lectern lectern = (Lectern) initialBlock.getBlockData();
-        BlockFace facing = lectern.getFacing().getOppositeFace();
-        
-        Block firstPortalBlock = initialBlock.getRelative(facing);
-        List<Block> blocks = new ArrayList<>();
-        
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, -1, facing.getModX() * -1));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, -1, facing.getModX() * -2));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 0, 0, facing.getModX() * -0));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 0, facing.getModX() * -1));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 0, facing.getModX() * -2));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 3, 0, facing.getModX() * -3));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 0, 1, facing.getModX() * -0));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 1, facing.getModX() * -1));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 1, facing.getModX() * -2));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 3, 1, facing.getModX() * -3));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 0, 2, facing.getModX() * -0));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 2, facing.getModX() * -1));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 2, facing.getModX() * -2));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 3, 2, facing.getModX() * -3));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 3, facing.getModX() * -1));
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 3, facing.getModX() * -2));
-        
-        return blocks.stream().filter(a -> !a.isEmpty()).collect(Collectors.toList());
-    }
-    
     public boolean checkRenameCosts(Player player) {
         boolean money = getPlugin().getEconomy() == null || getPlugin().getEconomy().has(player, renameMoney);
         boolean items = renameItems.stream().allMatch(a -> player.getInventory().containsAtLeast(a, a.getAmount()));
@@ -161,44 +119,6 @@ public class PortalFeature extends Feature<PortalFeatureInstance> {
     
     public boolean deductMoveCost(Player player) {
         return player.getInventory().removeItem(moveItems.toArray(new ItemStack[0])).isEmpty();
-    }
-    
-    @Override
-    public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
-        Lectern lectern = (Lectern) initialBlock.getBlockData();
-        BlockFace facing = lectern.getFacing().getOppositeFace();
-        Block firstPortalBlock = initialBlock.getRelative(facing);
-        
-        firstPortalBlock.getRelative(facing.getModZ() * 1, -1, facing.getModX() * -1).setType(PORTAL_MATERIAL); // Quarz
-        firstPortalBlock.getRelative(facing.getModZ() * 2, -1, facing.getModX() * -2).setType(PORTAL_MATERIAL); // Quarz
-        firstPortalBlock.getRelative(facing.getModZ() * 0, 0, facing.getModX() * -0).setType(PORTAL_MATERIAL); // Quarz
-        firstPortalBlock.getRelative(facing.getModZ() * 3, 0, facing.getModX() * -3).setType(PORTAL_MATERIAL); // Quarz
-        firstPortalBlock.getRelative(facing.getModZ() * 0, 1, facing.getModX() * -0).setType(PORTAL_MATERIAL); // Quarz
-        firstPortalBlock.getRelative(facing.getModZ() * 3, 1, facing.getModX() * -3).setType(PORTAL_MATERIAL); // Quarz
-        firstPortalBlock.getRelative(facing.getModZ() * 0, 2, facing.getModX() * -0).setType(PORTAL_MATERIAL); // Quarz
-        firstPortalBlock.getRelative(facing.getModZ() * 3, 2, facing.getModX() * -3).setType(PORTAL_MATERIAL); // Quarz
-        firstPortalBlock.getRelative(facing.getModZ() * 1, 3, facing.getModX() * -1).setType(PORTAL_MATERIAL); // Quarz
-        firstPortalBlock.getRelative(facing.getModZ() * 2, 3, facing.getModX() * -2).setType(PORTAL_MATERIAL); // Quarz
-        
-        List<Location> blocks = new ArrayList<>();
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, -1, facing.getModX() * -1).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, -1, facing.getModX() * -2).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 0, 0, facing.getModX() * -0).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 0, facing.getModX() * -1).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 0, facing.getModX() * -2).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 3, 0, facing.getModX() * -3).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 0, 1, facing.getModX() * -0).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 1, facing.getModX() * -1).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 1, facing.getModX() * -2).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 3, 1, facing.getModX() * -3).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 0, 2, facing.getModX() * -0).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 2, facing.getModX() * -1).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 2, facing.getModX() * -2).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 3, 2, facing.getModX() * -3).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 1, 3, facing.getModX() * -1).getLocation());
-        blocks.add(firstPortalBlock.getRelative(facing.getModZ() * 2, 3, facing.getModX() * -2).getLocation());
-        
-        return createInstance(creator, initialBlock, blocks, null);
     }
     
     @Override

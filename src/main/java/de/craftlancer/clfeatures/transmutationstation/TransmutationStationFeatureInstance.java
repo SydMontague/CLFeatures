@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.transmutationstation;
 
+import de.craftlancer.clfeatures.BlueprintFeatureInstance;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.structure.BlockStructure;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
@@ -14,7 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import java.util.Map;
 import java.util.UUID;
 
-public class TransmutationStationFeatureInstance extends FeatureInstance {
+public class TransmutationStationFeatureInstance extends BlueprintFeatureInstance {
     
     public static final String MOVE_METADATA = "transmutationStationMove";
     private TransmutationStationFeature manager;
