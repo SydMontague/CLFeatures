@@ -1,4 +1,4 @@
-package de.craftlancer.clfeatures.transmutationstation;
+package de.craftlancer.clfeatures.amplifiedbeacon;
 
 import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
@@ -18,39 +18,35 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 
-public class TransmutationStationFeature extends BlueprintFeature<TransmutationStationFeatureInstance> {
-    private List<TransmutationStationFeatureInstance> instances;
-    private TransmutationStationGUI gui;
+public class AmplifiedBeaconFeature extends BlueprintFeature<AmplifiedBeaconFeatureInstance> {
     
-    public TransmutationStationFeature(CLFeatures plugin, ConfigurationSection config) {
-        super(plugin, config, new NamespacedKey(plugin, "transmutationStation.limit"));
+    private List<AmplifiedBeaconFeatureInstance> instances;
+    
+    public AmplifiedBeaconFeature(CLFeatures plugin, ConfigurationSection config, NamespacedKey limitKey) {
+        super(plugin, config, limitKey);
         
-        instances = (List<TransmutationStationFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/transmutationStation.yml"))
-                .getList("transmutationStation", new ArrayList<>());
-        
-        gui = new TransmutationStationGUI();
+        this.instances = (List<AmplifiedBeaconFeatureInstance>) config.getList("instances", new ArrayList<>());
     }
     
     @Override
     public boolean createInstance(Player creator, BlueprintPostPasteEvent e) {
-        return instances.add(new TransmutationStationFeatureInstance(creator.getUniqueId(),
+        return instances.add(new AmplifiedBeaconFeatureInstance(creator.getUniqueId(),
                 new BlockStructure(e.getBlocksPasted()), e.getFeatureLocation(), e.getSchematic()));
     }
     
     @Override
     public void save() {
-        File f = new File(getPlugin().getDataFolder(), "data/transmutationStation.yml");
+        File f = new File(getPlugin().getDataFolder(), "data/amplifiedBeacon.yml");
         YamlConfiguration config = new YamlConfiguration();
-        config.set("transmutationStation", instances);
+        config.set("amplifiedBeacon", instances);
         
         BukkitRunnable saveTask = new LambdaRunnable(() -> {
             try {
                 config.save(f);
             } catch (IOException e) {
-                getPlugin().getLogger().log(Level.SEVERE, "Error while saving TransmutationStation: ", e);
+                getPlugin().getLogger().log(Level.SEVERE, "Error while saving Amplified Beacon: ", e);
             }
         });
         
@@ -62,28 +58,22 @@ public class TransmutationStationFeature extends BlueprintFeature<TransmutationS
     
     @Override
     public CommandHandler getCommandHandler() {
-        return new TransmutationStationCommandHandler(CLFeatures.getInstance(), this);
+        return null;
     }
     
     @Override
     public void remove(FeatureInstance instance) {
-        if (instance instanceof TransmutationStationFeatureInstance)
-            instances.remove(instance);
+        instances.remove(instance);
     }
     
     @Nonnull
     @Override
     protected String getName() {
-        return "TransmutationStation";
+        return "AmplifiedBeacon";
     }
     
     @Override
-    public List<TransmutationStationFeatureInstance> getFeatures() {
-        instances.removeIf(Objects::isNull);
+    public List<AmplifiedBeaconFeatureInstance> getFeatures() {
         return instances;
-    }
-    
-    public TransmutationStationGUI getGui() {
-        return gui;
     }
 }

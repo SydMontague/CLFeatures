@@ -1,10 +1,8 @@
 package de.craftlancer.clfeatures;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-
+import de.craftlancer.core.conversation.ClickableBooleanPrompt;
+import de.craftlancer.core.conversation.FormattedConversable;
+import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,25 +17,23 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
-import de.craftlancer.core.conversation.ClickableBooleanPrompt;
-import de.craftlancer.core.conversation.FormattedConversable;
-import de.craftlancer.core.structure.BlockStructure;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 //TODO transfer feature ownership
 public abstract class FeatureInstance implements Listener, ConfigurationSerializable {
     private UUID ownerId;
     private BlockStructure structure;
     private Location initialBlock;
-    private String usedSchematic;
     
     private ConversationFactory conversation = new ConversationFactory(CLFeatures.getInstance()).withLocalEcho(false).withModality(false).withTimeout(30)
-                                                                                                .withFirstPrompt(new DestroyPrompt());
+            .withFirstPrompt(new DestroyPrompt());
     
-    public FeatureInstance(UUID ownerId, BlockStructure blocks, Location location, String usedSchematic) {
+    public FeatureInstance(UUID ownerId, BlockStructure blocks, Location location) {
         this.ownerId = ownerId;
         this.structure = blocks;
         this.initialBlock = location;
-        this.usedSchematic = usedSchematic;
         
         Bukkit.getPluginManager().registerEvents(this, CLFeatures.getInstance());
     }
@@ -46,13 +42,8 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         this.ownerId = UUID.fromString(map.get("owner").toString());
         this.initialBlock = (Location) map.get("lecternLoc");
         this.structure = (BlockStructure) map.get("structure");
-        this.usedSchematic = Objects.toString(map.get("usedSchematic"), null);
         
         Bukkit.getPluginManager().registerEvents(this, CLFeatures.getInstance());
-    }
-    
-    public String getUsedSchematic() {
-        return usedSchematic;
     }
     
     @Override
@@ -62,8 +53,7 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         map.put("owner", ownerId.toString());
         map.put("structure", structure);
         map.put("lecternLoc", getInitialBlock()); // legacy name
-        map.put("usedSchematic", usedSchematic);
-
+        
         return map;
     }
     
@@ -122,8 +112,7 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
             if (input) {
                 destroy();
                 context.getForWhom().sendRawMessage(CLFeatures.CC_PREFIX + "§eYou destroyed this feature.");
-            }
-            else
+            } else
                 context.getForWhom().sendRawMessage(CLFeatures.CC_PREFIX + "§eYou didn't destroy this feature.");
             return END_OF_CONVERSATION;
         }

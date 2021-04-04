@@ -1,16 +1,15 @@
 package de.craftlancer.clfeatures.trophydepositor;
 
+import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.trophydepositor.command.TrophyDepositorCommandHandler;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import org.bukkit.Location;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -21,8 +20,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +29,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class TrophyDepositorFeature extends Feature<TrophyDepositorFeatureInstance> {
+public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeatureInstance> {
     private List<TrophyDepositorFeatureInstance> instances;
     private List<TrophyDepositorBoost> boosts;
     private Map<UUID, TrophyEntry> playerLookupTable;
@@ -55,24 +52,9 @@ public class TrophyDepositorFeature extends Feature<TrophyDepositorFeatureInstan
     }
     
     @Override
-    public boolean isFeatureItem(ItemStack item) {
-        return false;
-    }
-    
-    @Override
-    public Collection<Block> checkEnvironment(Block initialBlock) {
-        return Collections.emptyList();
-    }
-    
-    @Override
-    public boolean createInstance(Player creator, Block initialBlock) {
-        return createInstance(creator, initialBlock, Arrays.asList(initialBlock.getLocation()), null);
-    }
-    
-    @Override
-    public boolean createInstance(Player creator, Block initialBlock, List<Location> blocks, String usedSchematic) {
-        TrophyDepositorFeatureInstance instance = new TrophyDepositorFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks),
-                initialBlock.getLocation(), usedSchematic);
+    public boolean createInstance(Player creator, BlueprintPostPasteEvent e) {
+        TrophyDepositorFeatureInstance instance = new TrophyDepositorFeatureInstance(this, creator.getUniqueId(), new BlockStructure(e.getBlocksPasted()),
+                e.getFeatureLocation(), e.getSchematic());
         
         return instances.add(instance);
     }

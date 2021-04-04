@@ -1,11 +1,11 @@
 package de.craftlancer.clfeatures.portal;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import de.craftlancer.clfeatures.BlueprintFeatureInstance;
+import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.portal.addressbook.AddressBookUtils;
+import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
+import de.craftlancer.core.LambdaRunnable;
+import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,14 +23,13 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.BoundingBox;
 
-import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.clfeatures.portal.addressbook.AddressBookUtils;
-import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
-import de.craftlancer.core.LambdaRunnable;
-import de.craftlancer.core.structure.BlockStructure;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class PortalFeatureInstance extends FeatureInstance {
+public class PortalFeatureInstance extends BlueprintFeatureInstance {
     
     // technical
     private PortalFeature manager;
@@ -85,7 +84,7 @@ public class PortalFeatureInstance extends FeatureInstance {
             return Optional.empty();
         
         Optional<String> bookTarget = AddressBookUtils.getCurrentTarget(item);
-        if(bookTarget.isPresent())
+        if (bookTarget.isPresent())
             return bookTarget;
         
         BookMeta meta = ((BookMeta) item.getItemMeta());
@@ -109,7 +108,7 @@ public class PortalFeatureInstance extends FeatureInstance {
         */
         
         World w = getInitialBlock().getWorld();
-
+        
         if (++ticksWithoutBook > getManager().getBooklessTicks())
             currentTarget = null;
         
@@ -125,14 +124,14 @@ public class PortalFeatureInstance extends FeatureInstance {
         }
         
         // don't tick portals with a player more than 32 blocks away
-        if(Bukkit.getOnlinePlayers().stream().noneMatch(a -> a.getWorld().equals(w) && a.getLocation().distanceSquared(getInitialBlock()) < 1024))
-            return; 
+        if (Bukkit.getOnlinePlayers().stream().noneMatch(a -> a.getWorld().equals(w) && a.getLocation().distanceSquared(getInitialBlock()) < 1024))
+            return;
         
         Lectern l = (Lectern) getInitialBlock().getBlock().getState();
         ItemStack item = l.getInventory().getItem(0);
         
         // set target null if a book is put into the portal shortly after one got taken out
-        if(--newBookDelay > 0 && item != null)
+        if (--newBookDelay > 0 && item != null)
             currentTarget = null;
         else if (item != null && item.getType() == Material.WRITTEN_BOOK) {
             Optional<String> newTarget = getCurrentTarget(item);

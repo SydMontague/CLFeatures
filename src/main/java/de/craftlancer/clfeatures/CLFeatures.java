@@ -1,5 +1,8 @@
 package de.craftlancer.clfeatures;
 
+import de.craftlancer.clfeatures.amplifiedbeacon.AmplifiedBeaconFeatureInstance;
+import de.craftlancer.clfeatures.jukebox.JukeboxFeature;
+import de.craftlancer.clfeatures.jukebox.JukeboxFeatureInstance;
 import de.craftlancer.clfeatures.portal.PortalFeature;
 import de.craftlancer.clfeatures.portal.PortalFeatureInstance;
 import de.craftlancer.clfeatures.replicator.ReplicatorFeature;
@@ -17,12 +20,15 @@ import de.craftlancer.clfeatures.trophydepositor.TrophyDepositorFeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.conversation.ClickableBooleanPrompt;
 import de.craftlancer.core.conversation.FormattedConversable;
+import de.craftlancer.core.util.MessageUtil;
 import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import me.sizzlemcgrizzle.blueprints.api.BlueprintPrePasteEvent;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.conversations.Conversation;
@@ -53,6 +59,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
     private static final Material ERROR_BLOCK = Material.RED_CONCRETE;
     private static final long ERROR_TIMEOUT = 100L; // 5s
     
+    private NamespacedKey featureItemKey;
     private Map<String, Feature<?>> features = new HashMap<>();
     private Economy econ = null;
     private Permission perms = null;
@@ -76,11 +83,14 @@ public class CLFeatures extends JavaPlugin implements Listener {
         ConfigurationSerialization.registerClass(SpawnBlockerFeatureInstance.class);
         ConfigurationSerialization.registerClass(SpawnBlockGroup.class);
         ConfigurationSerialization.registerClass(TransmutationStationFeatureInstance.class);
+        ConfigurationSerialization.registerClass(AmplifiedBeaconFeatureInstance.class);
+        ConfigurationSerialization.registerClass(JukeboxFeatureInstance.class);
         
         saveDefaultConfig();
         instance = this;
         setupEconomy();
         setupPermissions();
+        featureItemKey = new NamespacedKey(this, "clfeature");
         
         getServer().getPluginManager().registerEvents(this, this);
         
@@ -91,6 +101,10 @@ public class CLFeatures extends JavaPlugin implements Listener {
         registerFeature("spawnBlocker", new SpawnBlockerFeature(this, getConfig().getConfigurationSection("spawnBlocker")));
         registerFeature("transmutationStation", new TransmutationStationFeature(this, getConfig().getConfigurationSection("transmutationStation")));
         registerFeature("trophyDepositor", new TrophyDepositorFeature(this, getConfig().getConfigurationSection("trophyDepositor")));
+        registerFeature("jukebox", new JukeboxFeature(this, getConfig().getConfigurationSection("jukebox")));
+        
+        MessageUtil.register(this, new TextComponent("§f[§4Craft§fCitizen]"), ChatColor.WHITE, ChatColor.YELLOW, ChatColor.RED,
+                ChatColor.DARK_RED, ChatColor.DARK_AQUA, ChatColor.GREEN);
         
         new LambdaRunnable(() -> features.forEach((a, b) -> b.save())).runTaskTimer(this, 18000L, 18000L);
     }
@@ -107,6 +121,10 @@ public class CLFeatures extends JavaPlugin implements Listener {
     
     public Permission getPermissions() {
         return perms;
+    }
+    
+    public NamespacedKey getFeatureItemKey() {
+        return featureItemKey;
     }
     
     @Nullable
@@ -131,15 +149,17 @@ public class CLFeatures extends JavaPlugin implements Listener {
     public void onBluePrintPaste(BlueprintPostPasteEvent event) {
         Optional<Feature<?>> feature = features.values().stream().filter(a -> a.getName().equalsIgnoreCase(event.getType())).findFirst();
         
-        if (!feature.isPresent())
+        if (!feature.isPresent() || !(feature.get() instanceof BlueprintFeature))
             return;
         
-        feature.get().createInstance(event.getPlayer(), event.getFeatureLocation().getBlock(), event.getBlocksPasted(), event.getSchematic());
+        ((BlueprintFeature) feature.get()).createInstance(event.getPlayer(), event);
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event) {
-        Optional<Feature<?>> feature = features.values().stream().filter(a -> a.isFeatureItem(event.getItemInHand())).findFirst();
+        Optional<Feature<?>> feature = features.values().stream().filter(a ->
+                a instanceof ManualPlacementFeature && ((ManualPlacementFeature) a).isFeatureItem(event.getItemInHand())).findFirst();
+        
         Player p = event.getPlayer();
         
         if (!feature.isPresent())
@@ -150,7 +170,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
             event.setCancelled(true);
         }
         
-        Collection<Block> blocks = feature.get().checkEnvironment(event.getBlock());
+        Collection<Block> blocks = ((ManualPlacementFeature) feature.get()).checkEnvironment(event.getBlock());
         
         if (!blocks.isEmpty()) {
             p.sendMessage(CC_PREFIX + ChatColor.DARK_RED + "This location isn't suited for this feature. Make sure you have enough space.");
@@ -162,18 +182,15 @@ public class CLFeatures extends JavaPlugin implements Listener {
         }
     }
     
-    /**
-     * @deprecated use blueprints instead
-     */
-    @Deprecated
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockPlaceFinal(BlockPlaceEvent event) {
-        Optional<Feature<?>> feature = features.values().stream().filter(a -> a.isFeatureItem(event.getItemInHand())).findFirst();
+        Optional<Feature<?>> feature = features.values().stream().filter(a ->
+                a instanceof ManualPlacementFeature && ((ManualPlacementFeature) a).isFeatureItem(event.getItemInHand())).findFirst();
         
         if (!feature.isPresent())
             return;
         
-        feature.get().createInstance(event.getPlayer(), event.getBlock());
+        ((ManualPlacementFeature) feature.get()).createInstance(event.getPlayer(), event.getBlock(), event.getItemInHand().clone());
     }
     
     @EventHandler(ignoreCancelled = false, priority = EventPriority.NORMAL)
@@ -252,4 +269,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         getCommand(name).setExecutor(feature.getCommandHandler());
     }
     
+    public Map<String, Feature<?>> getFeatures() {
+        return features;
+    }
 }

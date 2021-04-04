@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.trophydepositor;
 
+import de.craftlancer.clfeatures.BlueprintFeatureInstance;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.structure.BlockStructure;
 import net.md_5.bungee.api.ChatColor;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class TrophyDepositorFeatureInstance extends FeatureInstance {
+public class TrophyDepositorFeatureInstance extends BlueprintFeatureInstance {
     
     public static final String MOVE_METADATA = "trophyDepositor.move";
     private TrophyDepositorFeature manager;

@@ -1,9 +1,8 @@
 package de.craftlancer.clfeatures.stonecrusher;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import de.craftlancer.clfeatures.BlueprintFeatureInstance;
+import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,11 +18,11 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.structure.BlockStructure;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-public class StoneCrusherFeatureInstance extends FeatureInstance {
+public class StoneCrusherFeatureInstance extends BlueprintFeatureInstance {
     private StoneCrusherFeature manager;
     
     private Location inputChest;

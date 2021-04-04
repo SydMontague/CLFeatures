@@ -17,6 +17,8 @@ commands:
   #  trophyChest:
   #    description: "TrophyChest related commands"
   #    usage: /trophyChest [move]
+  jukebox:
+    description: "Jukebox related commands"
   replicator:
     description: "Replicator related commands"
     usage: /replicator [move|list]

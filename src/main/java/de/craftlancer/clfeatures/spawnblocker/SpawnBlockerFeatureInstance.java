@@ -1,13 +1,10 @@
 package de.craftlancer.clfeatures.spawnblocker;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
+import de.craftlancer.clfeatures.BlueprintFeatureInstance;
+import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.core.Utils;
+import de.craftlancer.core.gui.GUIInventory;
+import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -23,13 +20,15 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.Utils;
-import de.craftlancer.core.gui.GUIInventory;
-import de.craftlancer.core.structure.BlockStructure;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class SpawnBlockerFeatureInstance extends FeatureInstance {
+public class SpawnBlockerFeatureInstance extends BlueprintFeatureInstance {
     
     public static final String MOVE_METADATA = "spawnBlockerMove";
     private static final int GRID_SIZE = 5;
@@ -57,7 +56,6 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
         enabledGroups = manager.getBlockGroups().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, a -> a.getValue().getDefaultState()));
     }
     
-    @SuppressWarnings("unchecked")
     public SpawnBlockerFeatureInstance(Map<String, Object> map) {
         super(map);
         centerChunkX = getInitialBlock().getBlockX() >> 4;
@@ -65,8 +63,8 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
         interactLocation = getInitialBlock().clone().add(0, 1, 0);
         
         enabledGroups = ((Map<String, Boolean>) map.get("enabledGroups")).entrySet().stream()
-                                                                         .collect(Collectors.toMap(a -> SpawnBlockGroupSlot.valueOf(a.getKey()),
-                                                                                                   Map.Entry::getValue));
+                .collect(Collectors.toMap(a -> SpawnBlockGroupSlot.valueOf(a.getKey()),
+                        Map.Entry::getValue));
         
         List<Boolean> list = (List<Boolean>) map.get("enabledChunks");
         for (int i = 0; i < list.size(); i++)
@@ -139,7 +137,7 @@ public class SpawnBlockerFeatureInstance extends FeatureInstance {
         for (boolean b : enabledChunks)
             if (!b)
                 return true;
-            
+        
         return false;
     }
     
