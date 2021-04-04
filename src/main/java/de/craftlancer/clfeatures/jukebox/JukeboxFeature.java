@@ -57,7 +57,7 @@ public class JukeboxFeature extends ItemFrameFeature<JukeboxFeatureInstance> {
     
     @Override
     public long getTickFrequency() {
-        return 1;
+        return 2;
     }
     
     @Override
