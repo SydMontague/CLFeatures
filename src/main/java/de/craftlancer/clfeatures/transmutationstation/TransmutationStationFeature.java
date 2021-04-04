@@ -6,9 +6,8 @@ import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import org.bukkit.Location;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -36,8 +35,9 @@ public class TransmutationStationFeature extends BlueprintFeature<TransmutationS
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialBlock, List<Location> blocks, String schematic) {
-        return instances.add(new TransmutationStationFeatureInstance(creator.getUniqueId(), new BlockStructure(blocks), initialBlock.getLocation(), schematic));
+    public boolean createInstance(Player creator, BlueprintPostPasteEvent e) {
+        return instances.add(new TransmutationStationFeatureInstance(creator.getUniqueId(),
+                new BlockStructure(e.getBlocksPasted()), e.getFeatureLocation(), e.getSchematic()));
     }
     
     @Override

@@ -6,11 +6,10 @@ import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -68,9 +67,9 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks, String usedSchematic) {
-        return instances.add(new StoneCrusherFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation(),
-                usedSchematic));
+    public boolean createInstance(Player creator, BlueprintPostPasteEvent e) {
+        return instances.add(new StoneCrusherFeatureInstance(this, creator.getUniqueId(),
+                new BlockStructure(e.getBlocksPasted()), e.getFeatureLocation(), e.getSchematic()));
     }
     
     @Override

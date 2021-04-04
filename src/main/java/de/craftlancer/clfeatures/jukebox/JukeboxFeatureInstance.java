@@ -14,6 +14,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -49,8 +50,8 @@ public class JukeboxFeatureInstance extends ItemFrameFeatureInstance {
     private boolean repeat;
     private boolean hasPlayed;
     
-    public JukeboxFeatureInstance(UUID ownerId, BlockStructure blocks, Location location, ItemStack usedItem, UUID uuid) {
-        super(ownerId, blocks, location, usedItem, uuid);
+    public JukeboxFeatureInstance(UUID ownerId, BlockStructure blocks, Location location, String usedSchematic, List<Entity> entities) {
+        super(ownerId, blocks, location, usedSchematic, entities);
         
         this.songItem = new ItemStack(Material.AIR);
     }

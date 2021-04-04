@@ -6,10 +6,9 @@ import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import org.bukkit.Location;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -60,9 +59,9 @@ public class TrophyChestFeature extends BlueprintFeature<TrophyChestFeatureInsta
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialBlock, List<Location> blocks, String usedSchematic) {
-        TrophyChestFeatureInstance instance = new TrophyChestFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks),
-                initialBlock.getLocation(), usedSchematic);
+    public boolean createInstance(Player creator, BlueprintPostPasteEvent e) {
+        TrophyChestFeatureInstance instance = new TrophyChestFeatureInstance(this, creator.getUniqueId(), new BlockStructure(e.getBlocksPasted()),
+                e.getFeatureLocation(), e.getSchematic());
         
         if (instances.add(instance)) {
             playerLookupTable.put(creator.getUniqueId(), instance);

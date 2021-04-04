@@ -48,22 +48,22 @@ stonecrusher:
     Peasant: -1
   stonesPerTick: 1
   lootTable:
-  - input: STONE
-    output:
-    - item: lesserfragment
-      chance: 0.1
-    - item: GRAVEL
-      chance: 0.9
-  - input: COBBLESTONE
-    output:
-    - item: DIAMOND
-      chance: 0.1
-    - item: GRAVEL
-      chance: 0.9
-  - input: GRAVEL
-    output:
-    - item: DIAMOND
-      chance: 0.1
+    - input: STONE
+      output:
+        - item: lesserfragment
+          chance: 0.1
+        - item: GRAVEL
+          chance: 0.9
+    - input: COBBLESTONE
+      output:
+        - item: DIAMOND
+          chance: 0.1
+        - item: GRAVEL
+          chance: 0.9
+    - input: GRAVEL
+      output:
+        - item: DIAMOND
+          chance: 0.1
 trophyChest:
   featureItem: something
 replicator:
@@ -77,3 +77,5 @@ transmutationStation:
   featureItem: transmutationStation
 spawnBlocker:
   featureItem: spawnBlocker
+jukebox:
+  featureItem: jukebox

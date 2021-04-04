@@ -9,13 +9,13 @@ import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -122,13 +122,13 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialBlock, List<Location> blocksPasted, String schematic) {
-        blocksPasted.stream().map(Location::getBlock).filter(a -> a.getType() == Material.BARRIER).forEach(a -> a.setType(Material.AIR));
-        BlockStructure blocks = new BlockStructure(blocksPasted);
+    public boolean createInstance(Player creator, BlueprintPostPasteEvent e) {
+        e.getBlocksPasted().stream().map(Location::getBlock).filter(a -> a.getType() == Material.BARRIER).forEach(a -> a.setType(Material.AIR));
+        BlockStructure blocks = new BlockStructure(e.getBlocksPasted());
         
         creator.sendMessage("[§4Craft§fCitizen]" + ChatColor.YELLOW + "Portal placed, use " + ChatColor.GREEN + "/portal name <name>" + ChatColor.YELLOW
                 + " to give your portal an address!");
-        return instances.add(new PortalFeatureInstance(this, creator, blocks, initialBlock, schematic));
+        return instances.add(new PortalFeatureInstance(this, creator, blocks, e.getFeatureLocation().getBlock(), e.getSchematic()));
     }
     
     @Override

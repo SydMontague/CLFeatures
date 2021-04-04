@@ -7,10 +7,9 @@ import de.craftlancer.clfeatures.trophydepositor.command.TrophyDepositorCommandH
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import org.bukkit.Location;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -53,9 +52,9 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialBlock, List<Location> blocks, String usedSchematic) {
-        TrophyDepositorFeatureInstance instance = new TrophyDepositorFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks),
-                initialBlock.getLocation(), usedSchematic);
+    public boolean createInstance(Player creator, BlueprintPostPasteEvent e) {
+        TrophyDepositorFeatureInstance instance = new TrophyDepositorFeatureInstance(this, creator.getUniqueId(), new BlockStructure(e.getBlocksPasted()),
+                e.getFeatureLocation(), e.getSchematic());
         
         return instances.add(instance);
     }

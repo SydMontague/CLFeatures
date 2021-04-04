@@ -6,9 +6,8 @@ import de.craftlancer.clfeatures.ItemFrameFeature;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import org.bukkit.Material;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -27,8 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class JukeboxFeature extends ItemFrameFeature<JukeboxFeatureInstance> {
     
@@ -59,31 +56,15 @@ public class JukeboxFeature extends ItemFrameFeature<JukeboxFeatureInstance> {
     }
     
     @Override
-    public boolean isFeatureItem(ItemStack item) {
-        return item.getItemMeta().getPersistentDataContainer().getKeys().stream()
-                .anyMatch(k -> k.getKey().equals(getPlugin().getFeatureItemKey().getKey())
-                        && item.getItemMeta().getPersistentDataContainer().get(k, PersistentDataType.STRING).equals("jukebox"));
-    }
-    
-    //Unused with blueprints
-    @Override
-    public List<Block> checkEnvironment(Block initialBlock) {
-        return Stream.of(initialBlock.getRelative(0, 1, 0))
-                .filter(block -> !block.getType().isAir()).collect(Collectors.toList());
-    }
-    
-    @Override
     public long getTickFrequency() {
         return 1;
     }
     
     @Override
-    public void onInstanceCreate(Player creator, Block initialBlock, ItemStack hand, UUID itemFrame) {
-        initialBlock.getRelative(0, 1, 0).setType(Material.BARRIER);
-        
-        instances.add(new JukeboxFeatureInstance(creator.getUniqueId(),
-                new BlockStructure(initialBlock.getLocation(), initialBlock.getLocation().add(0, 1, 0)),
-                initialBlock.getLocation(), hand, itemFrame));
+    public boolean createInstance(Player creator, BlueprintPostPasteEvent event) {
+        return instances.add(new JukeboxFeatureInstance(creator.getUniqueId(),
+                new BlockStructure(event.getBlocksPasted()),
+                event.getFeatureLocation(), event.getSchematic(), event.getPastedEntities()));
     }
     
     @Override

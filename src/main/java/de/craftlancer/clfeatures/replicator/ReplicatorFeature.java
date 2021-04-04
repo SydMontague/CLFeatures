@@ -6,10 +6,9 @@ import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import org.bukkit.Location;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
@@ -94,8 +93,9 @@ public class ReplicatorFeature extends BlueprintFeature<ReplicatorFeatureInstanc
     }
     
     @Override
-    public boolean createInstance(Player creator, Block initialLocation, List<Location> blocks, String usedSchematic) {
-        return instances.add(new ReplicatorFeatureInstance(this, creator.getUniqueId(), new BlockStructure(blocks), initialLocation.getLocation(), usedSchematic));
+    public boolean createInstance(Player creator, BlueprintPostPasteEvent event) {
+        return instances.add(new ReplicatorFeatureInstance(this, creator.getUniqueId(),
+                new BlockStructure(event.getBlocksPasted()), event.getFeatureLocation(), event.getSchematic()));
     }
     
     /*

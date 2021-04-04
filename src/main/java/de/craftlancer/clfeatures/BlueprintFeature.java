@@ -1,11 +1,10 @@
 package de.craftlancer.clfeatures;
 
 import de.craftlancer.core.CLCore;
+import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import me.sizzlemcgrizzle.blueprints.util.SchematicUtil;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -19,7 +18,7 @@ public abstract class BlueprintFeature<T extends BlueprintFeatureInstance> exten
         super(plugin, config, limitKey);
     }
     
-    public abstract boolean createInstance(Player creator, Block initialBlock, List<Location> blocks, String schematic);
+    public abstract boolean createInstance(Player creator, BlueprintPostPasteEvent event);
     
     @Override
     public void giveFeatureItem(Player player, T instance) {
