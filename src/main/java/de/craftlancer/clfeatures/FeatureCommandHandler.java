@@ -5,10 +5,17 @@ import org.bukkit.plugin.Plugin;
 
 public class FeatureCommandHandler extends CommandHandler {
     
-    public FeatureCommandHandler(Plugin plugin, Feature feature) {
+    public FeatureCommandHandler(Plugin plugin, Feature<? extends FeatureInstance> feature) {
+        this(plugin, feature, true, true);
+    }
+    
+    public FeatureCommandHandler(Plugin plugin, Feature<? extends FeatureInstance> feature, boolean withMove, boolean withList) {
         super(plugin);
         
-        registerSubCommand("move", new FeatureMoveCommand(plugin, feature));
+        if (withMove)
+            registerSubCommand("move", new FeatureMoveCommand(plugin, feature));
+        if (withList)
+            registerSubCommand("list", new FeatureListCommand(plugin, feature));
     }
     
 }

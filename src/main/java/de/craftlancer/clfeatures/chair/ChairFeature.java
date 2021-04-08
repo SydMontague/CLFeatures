@@ -1,6 +1,7 @@
 package de.craftlancer.clfeatures.chair;
 
 import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.ItemFrameFeature;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
@@ -64,7 +65,7 @@ public class ChairFeature extends ItemFrameFeature<ChairFeatureInstance> {
     
     @Override
     public CommandHandler getCommandHandler() {
-        return new ChairCommandHandler(CLFeatures.getInstance(), this);
+        return new FeatureCommandHandler(CLFeatures.getInstance(), this);
     }
     
     @Nonnull

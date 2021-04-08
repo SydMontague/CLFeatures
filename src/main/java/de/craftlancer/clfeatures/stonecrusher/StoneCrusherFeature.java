@@ -2,6 +2,7 @@ package de.craftlancer.clfeatures.stonecrusher;
 
 import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
@@ -92,7 +93,7 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
     
     @Override
     public CommandHandler getCommandHandler() {
-        return new StoneCrusherCommandHandler(getPlugin(), this);
+        return new FeatureCommandHandler(getPlugin(), this);
     }
     
     @Override

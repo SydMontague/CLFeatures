@@ -1,5 +1,7 @@
-package de.craftlancer.clfeatures.stonecrusher;
+package de.craftlancer.clfeatures;
 
+import de.craftlancer.core.command.SubCommand;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -7,16 +9,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.Feature;
-import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.command.SubCommand;
-import net.md_5.bungee.api.ChatColor;
-
-public class StoneCrusherListCommand extends SubCommand {
-    private Feature<?> feature;
+public class FeatureListCommand extends SubCommand {
+    private Feature<? extends FeatureInstance> feature;
     
-    public StoneCrusherListCommand(Plugin plugin, Feature<?> feature) {
+    public FeatureListCommand(Plugin plugin, Feature<? extends FeatureInstance> feature) {
         super("", plugin, false);
         this.feature = feature;
     }
@@ -29,7 +25,7 @@ public class StoneCrusherListCommand extends SubCommand {
         Player p = (Player) sender;
         
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 1.2F);
-        p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + " Your placed stonecrusher:");
+        p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + " Your placed " + feature.getName() + "s :");
         p.sendMessage("      " + ChatColor.GOLD + "# | Location");
         
         int counter = 1;
@@ -39,12 +35,12 @@ public class StoneCrusherListCommand extends SubCommand {
             counter++;
         }
         
+        
         return null;
     }
     
     @Override
     public void help(CommandSender sender) {
-        // not implemented
-        
+        // not implemented        
     }
 }
