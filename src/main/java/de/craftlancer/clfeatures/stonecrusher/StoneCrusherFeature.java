@@ -71,11 +71,6 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
     }
     
     @Override
-    public String getMoveMetaData() {
-        return "stoneCrusherMove";
-    }
-    
-    @Override
     public void save() {
         File f = new File(getPlugin().getDataFolder(), "data/stonecrusher.yml");
         YamlConfiguration config = new YamlConfiguration();

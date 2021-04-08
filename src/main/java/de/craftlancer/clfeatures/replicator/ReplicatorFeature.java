@@ -49,11 +49,6 @@ public class ReplicatorFeature extends BlueprintFeature<ReplicatorFeatureInstanc
     }
     
     @Override
-    public String getMoveMetaData() {
-        return "replicatorMove";
-    }
-    
-    @Override
     public void save() {
         File f = new File(getPlugin().getDataFolder(), "data/replicator.yml");
         YamlConfiguration config = new YamlConfiguration();

@@ -47,11 +47,6 @@ public class SpawnBlockerFeature extends BlueprintFeature<SpawnBlockerFeatureIns
     }
     
     @Override
-    public String getMoveMetaData() {
-        return "spawnBlockerMove";
-    }
-    
-    @Override
     public void save() {
         File f = new File(getPlugin().getDataFolder(), "data/spawnBlocker.yml");
         YamlConfiguration config = new YamlConfiguration();

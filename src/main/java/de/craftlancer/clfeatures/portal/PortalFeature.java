@@ -139,11 +139,6 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
         }
     }
     
-    @Override
-    public String getMoveMetaData() {
-        return "portalMove";
-    }
-    
     public PortalFeatureInstance getPortal(String name) {
         if (name == null || name.isEmpty())
             return null;

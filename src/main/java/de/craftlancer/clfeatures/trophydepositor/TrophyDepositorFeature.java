@@ -95,11 +95,6 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
     }
     
     @Override
-    public String getMoveMetaData() {
-        return "trophyDepositorMove";
-    }
-    
-    @Override
     public CommandHandler getCommandHandler() {
         return new TrophyDepositorCommandHandler(getPlugin(), this);
     }

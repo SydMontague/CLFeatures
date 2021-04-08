@@ -67,11 +67,6 @@ public class ChairFeature extends ItemFrameFeature<ChairFeatureInstance> {
         return new ChairCommandHandler(CLFeatures.getInstance(), this);
     }
     
-    @Override
-    public String getMoveMetaData() {
-        return "chairMove";
-    }
-    
     @Nonnull
     @Override
     protected String getName() {

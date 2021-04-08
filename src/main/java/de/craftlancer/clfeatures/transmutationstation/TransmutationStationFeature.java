@@ -41,11 +41,6 @@ public class TransmutationStationFeature extends BlueprintFeature<TransmutationS
     }
     
     @Override
-    public String getMoveMetaData() {
-        return "transmutationStationMove";
-    }
-    
-    @Override
     public void save() {
         File f = new File(getPlugin().getDataFolder(), "data/transmutationStation.yml");
         YamlConfiguration config = new YamlConfiguration();
