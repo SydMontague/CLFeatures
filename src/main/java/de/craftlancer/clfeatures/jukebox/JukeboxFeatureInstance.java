@@ -206,8 +206,10 @@ public class JukeboxFeatureInstance extends ItemFrameFeatureInstance {
         
         if (!p.hasMetadata(MOVE_METADATA)) {
             if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
-                if (getStructure().containsBlock(event.getClickedBlock()))
+                if (getStructure().containsBlock(event.getClickedBlock())) {
                     display(p);
+                    event.setCancelled(true);
+                }
             return;
         }
         

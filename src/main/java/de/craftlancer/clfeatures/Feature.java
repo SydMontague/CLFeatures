@@ -63,6 +63,8 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         new LambdaRunnable(() -> getFeatures().forEach(FeatureInstance::tick)).runTaskTimer(getPlugin(), 10, getTickFrequency());
     }
     
+    public abstract String getMoveMetaData();
+    
     public int getLimit(Player player) {
         int groupLimit = limitMap.entrySet().stream().filter(a -> plugin.getPermissions().playerInGroup(player, a.getKey())).map(Entry::getValue)
                 .max(Integer::compare).orElseGet(() -> defaultLimit);

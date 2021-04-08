@@ -1,13 +1,12 @@
 package de.craftlancer.clfeatures.spawnblocker;
 
-import de.craftlancer.core.command.CommandHandler;
+import de.craftlancer.clfeatures.FeatureCommandHandler;
 import org.bukkit.plugin.Plugin;
 
-public class SpawnBlockerCommandHandler extends CommandHandler {
+public class SpawnBlockerCommandHandler extends FeatureCommandHandler {
     public SpawnBlockerCommandHandler(Plugin plugin, SpawnBlockerFeature replicatorFeature) {
-        super(plugin);
+        super(plugin, replicatorFeature);
         
-        registerSubCommand("move", new SpawnBlockerMoveCommand(plugin));
         registerSubCommand("list", new SpawnBlockerListCommand(plugin, replicatorFeature));
     }
 }

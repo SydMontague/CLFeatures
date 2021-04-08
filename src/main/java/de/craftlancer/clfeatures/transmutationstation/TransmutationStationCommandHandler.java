@@ -1,13 +1,12 @@
 package de.craftlancer.clfeatures.transmutationstation;
 
-import de.craftlancer.core.command.CommandHandler;
+import de.craftlancer.clfeatures.FeatureCommandHandler;
 import org.bukkit.plugin.Plugin;
 
-public class TransmutationStationCommandHandler extends CommandHandler {
+public class TransmutationStationCommandHandler extends FeatureCommandHandler {
     public TransmutationStationCommandHandler(Plugin plugin, TransmutationStationFeature transmutationStationFeature) {
-        super(plugin);
+        super(plugin, transmutationStationFeature);
         
-        registerSubCommand("move", new TransmutationStationMoveCommand(plugin));
         registerSubCommand("list", new TransmutationStationListCommand(plugin, transmutationStationFeature));
     }
 }

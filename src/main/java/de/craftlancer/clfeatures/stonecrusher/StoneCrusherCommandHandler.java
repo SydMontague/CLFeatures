@@ -1,15 +1,13 @@
 package de.craftlancer.clfeatures.stonecrusher;
 
+import de.craftlancer.clfeatures.FeatureCommandHandler;
 import org.bukkit.plugin.Plugin;
 
-import de.craftlancer.core.command.CommandHandler;
-
-public class StoneCrusherCommandHandler extends CommandHandler {
-
+public class StoneCrusherCommandHandler extends FeatureCommandHandler {
+    
     public StoneCrusherCommandHandler(Plugin plugin, StoneCrusherFeature feature) {
-        super(plugin);
+        super(plugin, feature);
         
-        registerSubCommand("move", new StoneCrusherMoveCommand(plugin));
         registerSubCommand("list", new StoneCrusherListCommand(plugin, feature));
     }
     

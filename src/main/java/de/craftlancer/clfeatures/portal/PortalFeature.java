@@ -48,7 +48,6 @@ import java.util.stream.Collectors;
 public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
     static final String LOOP_METADATA = "portalLoop";
     static final String RENAME_METADATA = "portalRename";
-    static final String MOVE_METADATA = "portalMove";
     private static final String COOLDOWN_METADATA = "hasPortalCooldown";
     
     private static final Material LECTERN_MATERIAL = Material.LECTERN;
@@ -140,6 +139,11 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
         }
     }
     
+    @Override
+    public String getMoveMetaData() {
+        return "portalMove";
+    }
+    
     public PortalFeatureInstance getPortal(String name) {
         if (name == null || name.isEmpty())
             return null;
@@ -229,7 +233,7 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
     public void onInteractMove(PlayerInteractEvent event) {
         Player p = event.getPlayer();
         
-        if (!event.hasBlock() || !p.hasMetadata(MOVE_METADATA))
+        if (!event.hasBlock() || !p.hasMetadata(getMoveMetaData()))
             return;
         
         Optional<PortalFeatureInstance> portal = getFeatures().stream().filter(a -> a.getStructure().containsBlock(event.getClickedBlock())).findAny();
@@ -249,7 +253,7 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
         } else
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to move this portal. You need 3 Lesser Fragments.");
         
-        p.removeMetadata(MOVE_METADATA, getPlugin());
+        p.removeMetadata(getMoveMetaData(), getPlugin());
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)

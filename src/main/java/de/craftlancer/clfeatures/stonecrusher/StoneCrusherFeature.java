@@ -29,8 +29,6 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureInstance> {
-    static final String MOVE_METADATA = "crusherMove";
-    
     private static final Material CRUSHER_MATERIAL = Material.CHEST;
     private static final String CRUSHER_NAME = ChatColor.DARK_PURPLE + "StoneCrusher";
     
@@ -70,6 +68,11 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
     public boolean createInstance(Player creator, BlueprintPostPasteEvent e) {
         return instances.add(new StoneCrusherFeatureInstance(this, creator.getUniqueId(),
                 new BlockStructure(e.getBlocksPasted()), e.getFeatureLocation(), e.getSchematic()));
+    }
+    
+    @Override
+    public String getMoveMetaData() {
+        return "stoneCrusherMove";
     }
     
     @Override
@@ -125,7 +128,7 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
     public void onInteractMove(PlayerInteractEvent event) {
         Player p = event.getPlayer();
         
-        if (!event.hasBlock() || !p.hasMetadata(MOVE_METADATA))
+        if (!event.hasBlock() || !p.hasMetadata(getMoveMetaData()))
             return;
         
         Optional<StoneCrusherFeatureInstance> feature = getFeatures().stream().filter(a -> a.getStructure().containsBlock(event.getClickedBlock())).findAny();
@@ -139,6 +142,6 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
         feature.get().destroy();
         giveFeatureItem(p, feature.get());
         p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "StoneCrusher successfully moved back to your inventory.");
-        p.removeMetadata(MOVE_METADATA, getPlugin());
+        p.removeMetadata(getMoveMetaData(), getPlugin());
     }
 }

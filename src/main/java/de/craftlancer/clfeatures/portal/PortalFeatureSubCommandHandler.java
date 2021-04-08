@@ -1,17 +1,15 @@
 package de.craftlancer.clfeatures.portal;
 
+import de.craftlancer.clfeatures.FeatureCommandHandler;
 import org.bukkit.plugin.Plugin;
 
-import de.craftlancer.core.command.CommandHandler;
-
-public class PortalFeatureSubCommandHandler extends CommandHandler {
+public class PortalFeatureSubCommandHandler extends FeatureCommandHandler {
     
     public PortalFeatureSubCommandHandler(Plugin plugin, PortalFeature feature) {
-        super(plugin);
+        super(plugin, feature);
         
         registerSubCommand("list", new PortalListCommand(getPlugin(), feature));
         registerSubCommand("name", new PortalNameCommand(getPlugin(), feature), "address");
-        registerSubCommand("move", new PortalMoveCommand(getPlugin()));
         registerSubCommand("help", new PortalHelpCommand(getPlugin(), getCommands()));
     }
 }

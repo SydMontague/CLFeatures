@@ -1,6 +1,5 @@
-package de.craftlancer.clfeatures.replicator;
+package de.craftlancer.clfeatures;
 
-import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.SubCommand;
 import net.md_5.bungee.api.ChatColor;
@@ -10,9 +9,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 
-public class ReplicatorMoveCommand extends SubCommand {
-    public ReplicatorMoveCommand(Plugin plugin) {
+public class FeatureMoveCommand extends SubCommand {
+    
+    private Feature feature;
+    
+    public FeatureMoveCommand(Plugin plugin, Feature feature) {
         super("", plugin, false);
+        
+        this.feature = feature;
     }
     
     @Override
@@ -21,21 +25,21 @@ public class ReplicatorMoveCommand extends SubCommand {
             return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't use this command.";
         
         Player p = (Player) sender;
-        p.setMetadata(ReplicatorFeatureInstance.MOVE_METADATA, new FixedMetadataValue(getPlugin(), ""));
+        p.setMetadata(feature.getMoveMetaData(), new FixedMetadataValue(getPlugin(), ""));
         
         new LambdaRunnable(() -> {
-            if (!p.hasMetadata(ReplicatorFeatureInstance.MOVE_METADATA))
+            if (!p.hasMetadata(feature.getMoveMetaData()))
                 return;
             
-            p.removeMetadata(ReplicatorFeatureInstance.MOVE_METADATA, getPlugin());
-            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Replicator move timed out.");
+            p.removeMetadata(feature.getMoveMetaData(), getPlugin());
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + feature.getName() + " move timed out.");
         }).runTaskLater(getPlugin(), 1200L);
         
-        return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Right click the replicator you want to move.";
+        return CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Right click the " + feature.getName() + " you want to move.";
     }
     
     @Override
-    public void help(CommandSender sender) {
-        // not implemented        
+    public void help(CommandSender commandSender) {
+    
     }
 }

@@ -37,6 +37,11 @@ public class AmplifiedBeaconFeature extends BlueprintFeature<AmplifiedBeaconFeat
     }
     
     @Override
+    public String getMoveMetaData() {
+        return "amplifiedBeaconMove";
+    }
+    
+    @Override
     public void save() {
         File f = new File(getPlugin().getDataFolder(), "data/amplifiedBeacon.yml");
         YamlConfiguration config = new YamlConfiguration();

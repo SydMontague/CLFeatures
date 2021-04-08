@@ -35,12 +35,6 @@ public class JukeboxSong implements ConfigurationSerializable {
         
         this.uuid = UUID.fromString((String) map.get("uuid"));
         this.notes = (Map<Integer, List<AbstractJukeboxNote>>) map.get("notes");
-        
-        /*map.remove("uuid");
-        map.remove("==");
-        
-        for (Map.Entry<String, Object> entry : map.entrySet())
-            notes.put(Integer.parseInt(entry.getKey()), (List<AbstractJukeboxNote>) entry.getValue());*/
     }
     
     @Override
@@ -49,7 +43,6 @@ public class JukeboxSong implements ConfigurationSerializable {
         
         map.put("uuid", uuid.toString());
         map.put("notes", notes);
-        //notes.forEach((tick, list) -> map.put(String.valueOf(tick), list));
         
         return map;
     }

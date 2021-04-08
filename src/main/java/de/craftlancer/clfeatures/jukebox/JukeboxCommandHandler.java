@@ -1,13 +1,12 @@
 package de.craftlancer.clfeatures.jukebox;
 
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.core.command.CommandHandler;
+import de.craftlancer.clfeatures.FeatureCommandHandler;
 
-public class JukeboxCommandHandler extends CommandHandler {
+public class JukeboxCommandHandler extends FeatureCommandHandler {
     public JukeboxCommandHandler(CLFeatures plugin, JukeboxFeature feature) {
-        super(plugin);
+        super(plugin, feature);
         
         registerSubCommand("song", new JukeboxSongCommand(plugin, feature));
-        registerSubCommand("move", new JukeboxMoveCommand(plugin));
     }
 }

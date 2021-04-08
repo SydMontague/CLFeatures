@@ -61,6 +61,11 @@ public class JukeboxFeature extends ItemFrameFeature<JukeboxFeatureInstance> {
     }
     
     @Override
+    public String getMoveMetaData() {
+        return "jukeboxMove";
+    }
+    
+    @Override
     public boolean createInstance(Player creator, BlueprintPostPasteEvent event) {
         return instances.add(new JukeboxFeatureInstance(creator.getUniqueId(),
                 new BlockStructure(event.getBlocksPasted()),

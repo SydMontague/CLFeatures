@@ -1,6 +1,8 @@
 package de.craftlancer.clfeatures;
 
 import de.craftlancer.clfeatures.amplifiedbeacon.AmplifiedBeaconFeatureInstance;
+import de.craftlancer.clfeatures.chair.ChairFeature;
+import de.craftlancer.clfeatures.chair.ChairFeatureInstance;
 import de.craftlancer.clfeatures.jukebox.JukeboxFeature;
 import de.craftlancer.clfeatures.jukebox.JukeboxFeatureInstance;
 import de.craftlancer.clfeatures.portal.PortalFeature;
@@ -85,6 +87,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         ConfigurationSerialization.registerClass(TransmutationStationFeatureInstance.class);
         ConfigurationSerialization.registerClass(AmplifiedBeaconFeatureInstance.class);
         ConfigurationSerialization.registerClass(JukeboxFeatureInstance.class);
+        ConfigurationSerialization.registerClass(ChairFeatureInstance.class);
         
         saveDefaultConfig();
         instance = this;
@@ -102,6 +105,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
         registerFeature("transmutationStation", new TransmutationStationFeature(this, getConfig().getConfigurationSection("transmutationStation")));
         registerFeature("trophyDepositor", new TrophyDepositorFeature(this, getConfig().getConfigurationSection("trophyDepositor")));
         registerFeature("jukebox", new JukeboxFeature(this, getConfig().getConfigurationSection("jukebox")));
+        registerFeature("chair", new ChairFeature(this, getConfig().getConfigurationSection("chair")));
         
         MessageUtil.register(this, new TextComponent("§f[§4Craft§fCitizen]"), ChatColor.WHITE, ChatColor.YELLOW, ChatColor.RED,
                 ChatColor.DARK_RED, ChatColor.DARK_AQUA, ChatColor.GREEN);

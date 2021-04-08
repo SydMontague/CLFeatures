@@ -44,7 +44,6 @@ public class JukeboxSongEditCommand extends SubCommand {
         
         feature.getSong(item).displayTickOverviewMenu(player);
         
-        MessageUtil.sendMessage(plugin, sender, MessageLevel.SUCCESS, "Successfully created a song with this music disc.");
         return null;
     }
     

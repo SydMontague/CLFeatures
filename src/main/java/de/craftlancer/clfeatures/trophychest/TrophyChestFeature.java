@@ -71,6 +71,11 @@ public class TrophyChestFeature extends BlueprintFeature<TrophyChestFeatureInsta
     }
     
     @Override
+    public String getMoveMetaData() {
+        return "trophyChestMove";
+    }
+    
+    @Override
     public void save() {
         File f = new File(getPlugin().getDataFolder(), "data/trophy.yml");
         YamlConfiguration config = new YamlConfiguration();
