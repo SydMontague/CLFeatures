@@ -2,6 +2,7 @@ package de.craftlancer.clfeatures.transmutationstation;
 
 import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
@@ -62,7 +63,7 @@ public class TransmutationStationFeature extends BlueprintFeature<TransmutationS
     
     @Override
     public CommandHandler getCommandHandler() {
-        return new TransmutationStationCommandHandler(CLFeatures.getInstance(), this);
+        return new FeatureCommandHandler(CLFeatures.getInstance(), this);
     }
     
     @Override
