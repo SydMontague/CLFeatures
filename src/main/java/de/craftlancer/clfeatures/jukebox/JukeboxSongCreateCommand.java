@@ -6,9 +6,6 @@ import de.craftlancer.core.util.MessageLevel;
 import de.craftlancer.core.util.MessageUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -34,23 +31,6 @@ public class JukeboxSongCreateCommand extends SubCommand {
         Player player = (Player) sender;
         ItemStack item = player.getInventory().getItemInMainHand();
         
-        player.getPassengers().forEach(Entity::remove);
-        
-        ArmorStand a = (ArmorStand) player.getWorld().spawnEntity(player.getLocation().add(0, 1, 0), EntityType.ARMOR_STAND);
-        ArmorStand temp = (ArmorStand) player.getWorld().spawnEntity(player.getLocation().add(0, 1, 0), EntityType.ARMOR_STAND);
-        
-        player.addPassenger(temp);
-        temp.addPassenger(a);
-        
-        temp.setSmall(true);
-        temp.setGravity(false);
-        temp.setAI(false);
-        temp.setCustomNameVisible(false);
-        a.setGravity(false);
-        a.setMarker(true);
-        a.setAI(false);
-        a.setCustomNameVisible(true);
-        a.setCustomName("\uE002");
         
         if (!item.getType().name().contains("MUSIC_DISC")) {
             MessageUtil.sendMessage(plugin, sender, MessageLevel.INFO, "You must hold a music disc.");
