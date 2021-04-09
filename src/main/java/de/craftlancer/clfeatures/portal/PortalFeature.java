@@ -4,7 +4,6 @@ import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookCommandHandler;
-import de.craftlancer.clfeatures.portal.addressbook.AddressBookUtils;
 import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
@@ -29,7 +28,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -37,17 +35,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
-    static final String LOOP_METADATA = "portalLoop";
     static final String RENAME_METADATA = "portalRename";
+    static final String LOOP_METADATA = "portalLoop";
     private static final String COOLDOWN_METADATA = "hasPortalCooldown";
     
     private static final Material LECTERN_MATERIAL = Material.LECTERN;
@@ -98,19 +94,14 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
         })).runTaskTimer(plugin, 5, 5);
     }
     
-    public boolean checkRenameCosts(Player player) {
-        boolean money = getPlugin().getEconomy() == null || getPlugin().getEconomy().has(player, renameMoney);
-        boolean items = renameItems.stream().allMatch(a -> player.getInventory().containsAtLeast(a, a.getAmount()));
-        
-        return money && items;
+    public List<ItemStack> getRenameItems() {
+        return renameItems;
     }
     
-    public boolean deductRenameCosts(Player player) {
-        boolean moneySuccess = getPlugin().getEconomy() == null || getPlugin().getEconomy().withdrawPlayer(player, renameMoney).transactionSuccess();
-        boolean itemSuccess = player.getInventory().removeItem(renameItems.toArray(new ItemStack[0])).isEmpty();
-        
-        return moneySuccess && itemSuccess;
+    public double getRenameMoney() {
+        return renameMoney;
     }
+    
     
     public boolean checkMoveCost(Player player) {
         return moveItems.stream().allMatch(a -> player.getInventory().containsAtLeast(a, a.getAmount()));
@@ -224,81 +215,25 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
                 .ifPresent(a -> a.setNewBookDelay(newBookDelay / 10));
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onInteractMove(PlayerInteractEvent event) {
+    @Override
+    protected boolean handleMove(PortalFeatureInstance portal, PlayerInteractEvent event) {
+        
         Player p = event.getPlayer();
         
-        if (!event.hasBlock() || !p.hasMetadata(getMoveMetaData()))
-            return;
+        if (!portal.getOwnerId().equals(p.getUniqueId()))
+            return false;
         
-        Optional<PortalFeatureInstance> portal = getFeatures().stream().filter(a -> a.getStructure().containsBlock(event.getClickedBlock())).findAny();
-        
-        if (!portal.isPresent())
-            return;
-        
-        if (!portal.get().getOwnerId().equals(p.getUniqueId()))
-            return;
-        
-        if (portal.get().getName() == null || checkMoveCost(p)) {
-            if (portal.get().getName() != null)
+        if (portal.getName() == null || checkMoveCost(p)) {
+            if (portal.getName() != null)
                 deductMoveCost(p);
-            portal.get().destroy();
-            giveFeatureItem(p, portal.get());
+            portal.destroy();
+            giveFeatureItem(p, portal);
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Portal successfully moved back to your inventory.");
         } else
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to move this portal. You need 3 Lesser Fragments.");
         
         p.removeMetadata(getMoveMetaData(), getPlugin());
-    }
-    
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onInteract(PlayerInteractEvent event) {
-        Player p = event.getPlayer();
-        
-        if (!event.hasBlock() || !p.hasMetadata(RENAME_METADATA))
-            return;
-        
-        Optional<PortalFeatureInstance> portal = getFeatures().stream().filter(a -> a.getStructure().containsBlock(event.getClickedBlock())).findAny();
-        
-        if (!portal.isPresent())
-            return;
-        
-        if (!portal.get().getOwnerId().equals(p.getUniqueId()))
-            return;
-        
-        String newName = p.getMetadata(RENAME_METADATA).get(0).asString();
-        
-        boolean isFirstName = portal.get().getName() == null || portal.get().getName().isEmpty();
-        
-        if (isFirstName || checkRenameCosts(p)) {
-            portal.get().setName(newName);
-            
-            if (!isFirstName)
-                deductRenameCosts(p);
-            else {
-                // give first time books
-                List<String> addressList = new ArrayList<>();
-                addressList.add(newName);
-                addressList.addAll(getDefaultPortals());
-                
-                ItemStack homeBook = AddressBookUtils.writeBook(new ItemStack(Material.WRITTEN_BOOK), getDefaultPortal(), addressList);
-                BookMeta homeMeta = (BookMeta) homeBook.getItemMeta();
-                homeMeta.setDisplayName(ChatColor.GREEN + p.getName() + "'s Portal Book");
-                homeMeta.setTitle("Address Book");
-                homeMeta.setAuthor("Server");
-                homeMeta.setLore(Arrays.asList(ChatColor.DARK_GREEN + "This book contains your portal names.",
-                        ChatColor.DARK_GREEN + "Use it to select your destination in a Portal Lectern.",
-                        ChatColor.DARK_GREEN + "Type " + ChatColor.GREEN + "/pbook [add|remove|select] <name>"));
-                homeBook.setItemMeta(homeMeta);
-                
-                p.getInventory().addItem(homeBook).forEach((a, b) -> p.getWorld().dropItem(p.getLocation(), b));
-            }
-            
-            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + String.format("Portal successfully renamed to %s.", newName));
-        } else
-            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to rename this portal. You need a Lesser Fragment.");
-        
-        p.removeMetadata(RENAME_METADATA, getPlugin());
+        return true;
     }
     
     /*
