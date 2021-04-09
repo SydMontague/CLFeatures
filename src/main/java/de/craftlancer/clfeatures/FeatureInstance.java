@@ -70,7 +70,10 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
     
     protected abstract Feature<? extends FeatureInstance> getManager();
     
-    public void onFeatureInteract(PlayerInteractEvent event) {
+    /**
+     * Validation & moving is done by manager
+     */
+    protected void interact(PlayerInteractEvent event) {
     
     }
     

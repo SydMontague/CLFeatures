@@ -195,7 +195,7 @@ public class JukeboxFeatureInstance extends ItemFrameFeatureInstance {
     }
     
     @Override
-    public void onFeatureInteract(PlayerInteractEvent event) {
+    public void interact(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             display(event.getPlayer());
             event.setCancelled(true);

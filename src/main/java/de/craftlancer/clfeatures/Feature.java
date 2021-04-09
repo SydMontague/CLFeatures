@@ -172,17 +172,25 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         Player p = event.getPlayer();
         T feature = optional.get();
         
-        if (p.hasMetadata(getMoveMetaData())) {
-            if (!feature.getOwnerId().equals(p.getUniqueId()))
-                return;
-            
-            feature.destroy();
-            giveFeatureItem(p, feature);
-            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + getName() + " successfully moved back to your inventory.");
-            p.removeMetadata(getMoveMetaData(), getPlugin());
-            event.setCancelled(true);
-        } else
-            feature.onFeatureInteract(event);
+        if (p.hasMetadata(getMoveMetaData()))
+            handleMove(feature, event);
+        else
+            feature.interact(event);
+    }
+    
+    protected boolean handleMove(T feature, PlayerInteractEvent event) {
+        Player p = event.getPlayer();
+        
+        if (!feature.getOwnerId().equals(p.getUniqueId()))
+            return false;
+        
+        feature.destroy();
+        giveFeatureItem(p, feature);
+        p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + getName() + " successfully moved back to your inventory.");
+        p.removeMetadata(getMoveMetaData(), getPlugin());
+        event.setCancelled(true);
+        
+        return true;
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
