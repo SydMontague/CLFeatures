@@ -7,6 +7,7 @@ import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -17,6 +18,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Lectern;
 import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -24,6 +26,8 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.BoundingBox;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,6 +60,51 @@ public class PortalFeatureInstance extends BlueprintFeatureInstance {
         this.lastUsage = Instant.now().getEpochSecond();
         
         calcInitialStuff();
+    }
+    
+    @Override
+    protected void interact(PlayerInteractEvent event) {
+        Player p = event.getPlayer();
+        
+        if (!p.hasMetadata(PortalFeature.RENAME_METADATA))
+            return;
+        
+        if (!getOwnerId().equals(p.getUniqueId()))
+            return;
+        
+        String newName = p.getMetadata(PortalFeature.RENAME_METADATA).get(0).asString();
+        
+        boolean isFirstName = getName() == null || getName().isEmpty();
+        
+        if (isFirstName || getManager().checkRenameCosts(p)) {
+            setName(newName);
+            
+            if (!isFirstName)
+                getManager().deductRenameCosts(p);
+            else {
+                // give first time books
+                List<String> addressList = new ArrayList<>();
+                addressList.add(newName);
+                addressList.addAll(getManager().getDefaultPortals());
+                
+                ItemStack homeBook = AddressBookUtils.writeBook(new ItemStack(Material.WRITTEN_BOOK), getManager().getDefaultPortal(), addressList);
+                BookMeta homeMeta = (BookMeta) homeBook.getItemMeta();
+                homeMeta.setDisplayName(ChatColor.GREEN + p.getName() + "'s Portal Book");
+                homeMeta.setTitle("Address Book");
+                homeMeta.setAuthor("Server");
+                homeMeta.setLore(Arrays.asList(ChatColor.DARK_GREEN + "This book contains your portal names.",
+                        ChatColor.DARK_GREEN + "Use it to select your destination in a Portal Lectern.",
+                        ChatColor.DARK_GREEN + "Type " + ChatColor.GREEN + "/pbook [add|remove|select] <name>"));
+                homeBook.setItemMeta(homeMeta);
+                
+                p.getInventory().addItem(homeBook).forEach((a, b) -> p.getWorld().dropItem(p.getLocation(), b));
+            }
+            
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + String.format("Portal successfully renamed to %s.", newName));
+        } else
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to rename this portal. You need a Lesser Fragment.");
+        
+        p.removeMetadata(PortalFeature.RENAME_METADATA, getManager().getPlugin());
     }
     
     private void calcInitialStuff() {

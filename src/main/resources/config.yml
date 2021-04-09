@@ -79,3 +79,5 @@ spawnBlocker:
   featureItem: spawnBlocker
 jukebox:
   featureItem: jukebox
+chair:
+  featureItem: chair

@@ -10,14 +10,11 @@ import de.craftlancer.core.resourcepack.TranslateSpaceFont;
 import de.craftlancer.core.structure.BlockStructure;
 import de.craftlancer.core.util.ItemBuilder;
 import de.craftlancer.core.util.Tuple;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -197,29 +194,11 @@ public class JukeboxFeatureInstance extends ItemFrameFeatureInstance {
         this.hasPlayed = false;
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onInteractMove(PlayerInteractEvent event) {
-        Player p = event.getPlayer();
-        
-        if (!event.hasBlock())
-            return;
-        
-        if (!p.hasMetadata(MOVE_METADATA)) {
-            if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
-                if (getStructure().containsBlock(event.getClickedBlock()))
-                    display(p);
-            return;
+    @Override
+    public void interact(PlayerInteractEvent event) {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            display(event.getPlayer());
+            event.setCancelled(true);
         }
-        
-        if (!getStructure().containsBlock(event.getClickedBlock()))
-            return;
-        
-        if (!getOwnerId().equals(p.getUniqueId()))
-            return;
-        
-        destroy();
-        getManager().giveFeatureItem(p, this);
-        p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Jukebox successfully moved back to your inventory.");
-        p.removeMetadata(MOVE_METADATA, getManager().getPlugin());
     }
 }

@@ -1,13 +1,10 @@
 package de.craftlancer.clfeatures.replicator;
 
-import de.craftlancer.core.command.CommandHandler;
+import de.craftlancer.clfeatures.FeatureCommandHandler;
 import org.bukkit.plugin.Plugin;
 
-public class ReplicatorCommandHandler extends CommandHandler {
+public class ReplicatorCommandHandler extends FeatureCommandHandler {
     public ReplicatorCommandHandler(Plugin plugin, ReplicatorFeature replicatorFeature) {
-        super(plugin);
-        
-        registerSubCommand("move", new ReplicatorMoveCommand(plugin));
-        registerSubCommand("list", new ReplicatorListCommand(plugin, replicatorFeature));
+        super(plugin, replicatorFeature);
     }
 }

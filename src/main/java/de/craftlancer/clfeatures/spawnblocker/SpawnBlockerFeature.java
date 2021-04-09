@@ -2,6 +2,7 @@ package de.craftlancer.clfeatures.spawnblocker;
 
 import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
@@ -68,7 +69,7 @@ public class SpawnBlockerFeature extends BlueprintFeature<SpawnBlockerFeatureIns
     
     @Override
     public CommandHandler getCommandHandler() {
-        return new SpawnBlockerCommandHandler(getPlugin(), this);
+        return new FeatureCommandHandler(getPlugin(), this);
     }
     
     @Override

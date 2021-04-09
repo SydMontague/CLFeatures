@@ -2,6 +2,7 @@ package de.craftlancer.clfeatures.stonecrusher;
 
 import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
@@ -29,8 +30,6 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureInstance> {
-    static final String MOVE_METADATA = "crusherMove";
-    
     private static final Material CRUSHER_MATERIAL = Material.CHEST;
     private static final String CRUSHER_NAME = ChatColor.DARK_PURPLE + "StoneCrusher";
     
@@ -94,7 +93,7 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
     
     @Override
     public CommandHandler getCommandHandler() {
-        return new StoneCrusherCommandHandler(getPlugin(), this);
+        return new FeatureCommandHandler(getPlugin(), this);
     }
     
     @Override
@@ -125,7 +124,7 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
     public void onInteractMove(PlayerInteractEvent event) {
         Player p = event.getPlayer();
         
-        if (!event.hasBlock() || !p.hasMetadata(MOVE_METADATA))
+        if (!event.hasBlock() || !p.hasMetadata(getMoveMetaData()))
             return;
         
         Optional<StoneCrusherFeatureInstance> feature = getFeatures().stream().filter(a -> a.getStructure().containsBlock(event.getClickedBlock())).findAny();
@@ -139,6 +138,6 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
         feature.get().destroy();
         giveFeatureItem(p, feature.get());
         p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "StoneCrusher successfully moved back to your inventory.");
-        p.removeMetadata(MOVE_METADATA, getPlugin());
+        p.removeMetadata(getMoveMetaData(), getPlugin());
     }
 }
