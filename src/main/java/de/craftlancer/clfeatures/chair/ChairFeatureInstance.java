@@ -97,12 +97,17 @@ public class ChairFeatureInstance extends ItemFrameFeatureInstance {
             return;
         }
         
-        ArmorStand armorStand = block.getWorld().spawn(block.getLocation().add(0.5, 0.25, 0.5), ArmorStand.class,
-                a -> {
-                    a.setVisible(false);
-                    a.setMarker(true);
-                    a.setGravity(false);
-                });
+        ArmorStand armorStand = block.getWorld().spawn(block.getLocation().add(0.5, 0.25, 0.5), ArmorStand.class
+//                , a -> {
+//                    a.setVisible(false);
+//                    a.setMarker(true);
+//                    a.setGravity(false);
+//                }
+        );
+        
+        armorStand.setVisible(false);
+        armorStand.setMarker(true);
+        armorStand.setGravity(false);
         
         armorStand.addPassenger(p);
         entities.put(block.getLocation(), armorStand.getUniqueId());
