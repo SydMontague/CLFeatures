@@ -2,6 +2,7 @@ package de.craftlancer.clfeatures.chair;
 
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureCommandHandler;
+import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.ItemFrameFeature;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
@@ -56,6 +57,14 @@ public class ChairFeature extends ItemFrameFeature<ChairFeatureInstance> {
             saveTask.runTaskAsynchronously(getPlugin());
         else
             saveTask.run();
+    }
+    
+    @Override
+    public void remove(FeatureInstance instance) {
+        super.remove(instance);
+        
+        if (instance instanceof ChairFeatureInstance)
+            instances.remove(instance);
     }
     
     @Override

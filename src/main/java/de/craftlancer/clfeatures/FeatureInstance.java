@@ -16,6 +16,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +69,10 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
     protected abstract void tick();
     
     protected abstract Feature<? extends FeatureInstance> getManager();
+    
+    public void onFeatureInteract(PlayerInteractEvent event) {
+    
+    }
     
     public void destroy() {
         HandlerList.unregisterAll(this);

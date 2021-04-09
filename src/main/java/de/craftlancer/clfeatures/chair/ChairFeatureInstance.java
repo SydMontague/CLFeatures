@@ -3,7 +3,6 @@ package de.craftlancer.clfeatures.chair;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.ItemFrameFeatureInstance;
 import de.craftlancer.core.structure.BlockStructure;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -49,7 +48,30 @@ public class ChairFeatureInstance extends ItemFrameFeatureInstance {
     
     @Override
     protected void tick() {
-        entities.entrySet().removeIf(a -> Bukkit.getEntity(a.getValue()) == null || Bukkit.getEntity(a.getValue()).getPassengers().isEmpty());
+        entities.entrySet().removeIf(a -> {
+            Entity e = Bukkit.getEntity(a.getValue());
+            if (e == null)
+                return true;
+            
+            if (!e.getPassengers().isEmpty())
+                return false;
+            
+            e.remove();
+            return true;
+        });
+    }
+    
+    @Override
+    public void destroy() {
+        super.destroy();
+        
+        entities.values().forEach(uuid -> {
+            Entity e = Bukkit.getEntity(uuid);
+            if (e == null)
+                return;
+            
+            e.remove();
+        });
     }
     
     @Override
@@ -60,25 +82,14 @@ public class ChairFeatureInstance extends ItemFrameFeatureInstance {
         return manager;
     }
     
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerInteract(PlayerInteractEvent event) {
+    @Override
+    public void onFeatureInteract(PlayerInteractEvent event) {
         
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
         
         Block block = event.getClickedBlock();
         Player p = event.getPlayer();
-        
-        if (!getStructure().containsBlock(block))
-            return;
-        
-        if (p.hasMetadata(getManager().getMoveMetaData()) && getOwnerId().equals(p.getUniqueId())) {
-            destroy();
-            getManager().giveFeatureItem(p, this);
-            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Chair successfully moved back to your inventory.");
-            p.removeMetadata(getManager().getMoveMetaData(), getManager().getPlugin());
-            return;
-        }
         
         if (entities.containsKey(block.getLocation()) && Bukkit.getEntity(entities.get(block.getLocation())) != null) {
             ArmorStand a = (ArmorStand) Bukkit.getEntity(entities.get(block.getLocation()));
@@ -89,8 +100,8 @@ public class ChairFeatureInstance extends ItemFrameFeatureInstance {
         
         ArmorStand armorStand = (ArmorStand) block.getWorld().spawnEntity(block.getLocation().add(0.5, 0.25, 0.5), EntityType.ARMOR_STAND);
         
-        armorStand.setMarker(true);
         armorStand.setVisible(false);
+        armorStand.setMarker(true);
         armorStand.setGravity(false);
         
         armorStand.addPassenger(p);

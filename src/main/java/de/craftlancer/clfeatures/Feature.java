@@ -4,6 +4,7 @@ import de.craftlancer.core.CLCore;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.Utils;
 import de.craftlancer.core.command.CommandHandler;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -22,6 +23,7 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.BoundingBox;
@@ -31,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -154,6 +157,32 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
                 .collect(Collectors.toSet());
         
         blockList.removeIf(a -> locs.contains(a.getLocation()));
+    }
+    
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (!event.hasBlock())
+            return;
+        
+        Optional<? extends T> optional = getFeatures().stream().filter(f -> f.getStructure().containsBlock(event.getClickedBlock())).findFirst();
+        
+        if (!optional.isPresent())
+            return;
+        
+        Player p = event.getPlayer();
+        T feature = optional.get();
+        
+        if (p.hasMetadata(getMoveMetaData())) {
+            if (!feature.getOwnerId().equals(p.getUniqueId()))
+                return;
+            
+            feature.destroy();
+            giveFeatureItem(p, feature);
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + getName() + " successfully moved back to your inventory.");
+            p.removeMetadata(getMoveMetaData(), getPlugin());
+            event.setCancelled(true);
+        } else
+            feature.onFeatureInteract(event);
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
