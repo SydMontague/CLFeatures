@@ -76,11 +76,11 @@ public class PortalFeatureInstance extends BlueprintFeatureInstance {
         
         boolean isFirstName = getName() == null || getName().isEmpty();
         
-        if (isFirstName || checkRenameCosts(p)) {
+        if (isFirstName || getManager().checkRenameCosts(p)) {
             setName(newName);
             
             if (!isFirstName)
-                deductRenameCosts(p);
+                getManager().deductRenameCosts(p);
             else {
                 // give first time books
                 List<String> addressList = new ArrayList<>();
@@ -105,20 +105,6 @@ public class PortalFeatureInstance extends BlueprintFeatureInstance {
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to rename this portal. You need a Lesser Fragment.");
         
         p.removeMetadata(PortalFeature.RENAME_METADATA, getManager().getPlugin());
-    }
-    
-    public boolean checkRenameCosts(Player player) {
-        boolean money = getManager().getPlugin().getEconomy() == null || getManager().getPlugin().getEconomy().has(player, getManager().getRenameMoney());
-        boolean items = getManager().getRenameItems().stream().allMatch(a -> player.getInventory().containsAtLeast(a, a.getAmount()));
-        
-        return money && items;
-    }
-    
-    public boolean deductRenameCosts(Player player) {
-        boolean moneySuccess = getManager().getPlugin().getEconomy() == null || getManager().getPlugin().getEconomy().withdrawPlayer(player, getManager().getRenameMoney()).transactionSuccess();
-        boolean itemSuccess = player.getInventory().removeItem(getManager().getRenameItems().toArray(new ItemStack[0])).isEmpty();
-        
-        return moneySuccess && itemSuccess;
     }
     
     private void calcInitialStuff() {

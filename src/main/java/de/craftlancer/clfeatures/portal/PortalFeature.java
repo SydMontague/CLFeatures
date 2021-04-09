@@ -94,6 +94,20 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
         })).runTaskTimer(plugin, 5, 5);
     }
     
+    public boolean checkRenameCosts(Player player) {
+        boolean money = getPlugin().getEconomy() == null || getPlugin().getEconomy().has(player, renameMoney);
+        boolean items = renameItems.stream().allMatch(a -> player.getInventory().containsAtLeast(a, a.getAmount()));
+        
+        return money && items;
+    }
+    
+    public boolean deductRenameCosts(Player player) {
+        boolean moneySuccess = getPlugin().getEconomy() == null || getPlugin().getEconomy().withdrawPlayer(player, renameMoney).transactionSuccess();
+        boolean itemSuccess = player.getInventory().removeItem(renameItems.toArray(new ItemStack[0])).isEmpty();
+        
+        return moneySuccess && itemSuccess;
+    }
+    
     public List<ItemStack> getRenameItems() {
         return renameItems;
     }
