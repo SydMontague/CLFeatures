@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
@@ -98,7 +97,13 @@ public class ChairFeatureInstance extends ItemFrameFeatureInstance {
             return;
         }
         
-        ArmorStand armorStand = (ArmorStand) block.getWorld().spawnEntity(block.getLocation().add(0.5, 0.25, 0.5), EntityType.ARMOR_STAND);
+        ArmorStand armorStand = block.getWorld().spawn(block.getLocation().add(0.5, 0.25, 0.5), ArmorStand.class
+//                , a -> {
+//                    a.setVisible(false);
+//                    a.setMarker(true);
+//                    a.setGravity(false);
+//                }
+        );
         
         armorStand.setVisible(false);
         armorStand.setMarker(true);
