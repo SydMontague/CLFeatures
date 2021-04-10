@@ -81,3 +81,5 @@ jukebox:
   featureItem: jukebox
 chair:
   featureItem: chair
+painter:
+  featureItem: painter

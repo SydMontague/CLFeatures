@@ -24,6 +24,8 @@ commands:
     usage: /replicator [move|list]
   chair:
     description: "Chair related commands"
+  painter:
+    description: "Painter related commands"
   spawnBlocker:
     description: "SpawnBlocker related commands"
     usage: /spawnblocker [move|list]
