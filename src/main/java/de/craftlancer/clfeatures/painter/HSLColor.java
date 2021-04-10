@@ -2,6 +2,10 @@ package de.craftlancer.clfeatures.painter;
 
 import java.awt.*;
 
+/**
+ * HSLColor class from
+ * https://tips4java.wordpress.com/2009/07/05/hsl-color/
+ */
 public class HSLColor {
     private Color rgb;
     private float[] hsl;
