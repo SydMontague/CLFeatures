@@ -82,7 +82,7 @@ public class ReplicatorFeature extends BlueprintFeature<ReplicatorFeatureInstanc
     
     @Nonnull
     @Override
-    protected String getName() {
+    public String getName() {
         return "Replicator";
     }
     

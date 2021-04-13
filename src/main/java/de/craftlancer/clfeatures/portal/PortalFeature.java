@@ -199,7 +199,7 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
     }
     
     @Override
-    protected String getName() {
+    public String getName() {
         return "Portal";
     }
     

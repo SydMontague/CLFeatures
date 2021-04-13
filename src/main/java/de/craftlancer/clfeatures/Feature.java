@@ -10,6 +10,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.conversations.ConversationContext;
@@ -20,6 +21,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
@@ -158,7 +160,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     }
     
     @Nonnull
-    protected abstract String getName();
+    public abstract String getName();
     
     public abstract List<T> getFeatures();
     
@@ -257,7 +259,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onBlockBreak(BlockBreakEvent event) {
-        Optional<T> optional = getFeatures().stream().filter(f -> event.getBlock().getLocation().equals(f.getInitialBlock())).findFirst();
+        Optional<T> optional = getFeatures().stream().filter(f -> f.getStructure().containsBlock(event.getBlock())).findFirst();
         
         if (!optional.isPresent())
             return;
@@ -288,6 +290,17 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
                 feature.destroy();
                 break;
         }
+    }
+    
+    @EventHandler(ignoreCancelled = true)
+    public void onBarrierDamage(BlockDamageEvent event) {
+        if (event.getBlock().getType() != Material.BARRIER)
+            return;
+        
+        getFeatures().stream().filter(f -> f.getStructure().containsBlock(event.getBlock())).findFirst().ifPresent(feature -> {
+            event.setInstaBreak(true);
+            event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 0.5F, 1F);
+        });
     }
     
     @EventHandler(ignoreCancelled = true)

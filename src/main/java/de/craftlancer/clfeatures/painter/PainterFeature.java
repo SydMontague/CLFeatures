@@ -69,7 +69,7 @@ public class PainterFeature extends ManualPlacementFeature<PainterFeatureInstanc
     
     @Nonnull
     @Override
-    protected String getName() {
+    public String getName() {
         return "Painter";
     }
     

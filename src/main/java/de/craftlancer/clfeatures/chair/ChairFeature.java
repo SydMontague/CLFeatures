@@ -79,7 +79,7 @@ public class ChairFeature extends ItemFrameFeature<ChairFeatureInstance> {
     
     @Nonnull
     @Override
-    protected String getName() {
+    public String getName() {
         return "Chair";
     }
     
