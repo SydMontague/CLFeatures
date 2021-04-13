@@ -21,6 +21,7 @@ import de.craftlancer.clfeatures.transmutationstation.TransmutationStationFeatur
 import de.craftlancer.clfeatures.trophydepositor.TrophyDepositorBoost;
 import de.craftlancer.clfeatures.trophydepositor.TrophyDepositorFeature;
 import de.craftlancer.clfeatures.trophydepositor.TrophyDepositorFeatureInstance;
+import de.craftlancer.clstuff.resourcepack.CustomBlockPlaceEvent;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.conversation.ClickableBooleanPrompt;
 import de.craftlancer.core.conversation.FormattedConversable;
@@ -199,6 +200,20 @@ public class CLFeatures extends JavaPlugin implements Listener {
             return;
         
         ((ManualPlacementFeature) feature.get()).createInstance(event.getPlayer(), event.getBlock(), event.getItemInHand().clone());
+    }
+    
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onCustomBlockPlace(CustomBlockPlaceEvent event) {
+        
+        BlockPlaceEvent e = event.getBlockPlaceEvent();
+        
+        Optional<Feature<?>> feature = features.values().stream().filter(a ->
+                a instanceof ManualPlacementFeature && a.getName().equalsIgnoreCase(event.getCustomBlockItem().getId())).findFirst();
+        
+        if (!feature.isPresent())
+            return;
+        
+        ((ManualPlacementFeature) feature.get()).createInstance(e.getPlayer(), e.getBlock(), e.getItemInHand().clone());
     }
     
     @EventHandler(ignoreCancelled = false, priority = EventPriority.NORMAL)

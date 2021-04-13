@@ -15,6 +15,7 @@ public abstract class ManualPlacementFeatureInstance extends FeatureInstance {
         super(ownerId, blocks, location);
         
         this.usedItem = usedItem.clone();
+        this.usedItem.setAmount(1);
     }
     
     public ManualPlacementFeatureInstance(Map<String, Object> map) {

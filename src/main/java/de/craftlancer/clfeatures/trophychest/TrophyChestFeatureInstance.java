@@ -11,7 +11,6 @@ import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -130,16 +129,5 @@ public class TrophyChestFeatureInstance extends BlueprintFeatureInstance {
         getManager().giveFeatureItem(p, this);
         p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "TrophyChest successfully moved back to your inventory.");
         p.removeMetadata(MOVE_METADATA, getManager().getPlugin());
-    }
-    
-    // override destroy listener
-    @Override
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    public void onInitialDestroy(BlockBreakEvent event) {
-        if (!event.getBlock().getLocation().equals(getInitialBlock()))
-            return;
-        
-        event.getPlayer().sendMessage("§f[§4Craft§fCitizen]§4The Trophychest cannot be destroyed! §eUse §2/trophychest move §e instead!");
-        event.setCancelled(true);
     }
 }

@@ -21,12 +21,8 @@ public abstract class BlueprintFeature<T extends BlueprintFeatureInstance> exten
     public abstract boolean createInstance(Player creator, BlueprintPostPasteEvent event);
     
     @Override
-    public void giveFeatureItem(Player player, T instance) {
+    public ItemStack getFeatureItem(Player player, T instance) {
         List<ItemStack> items = instance != null ? SchematicUtil.getBlueprint(instance.getUsedSchematic()) : Collections.emptyList();
-        ItemStack item = items.isEmpty() ? CLCore.getInstance().getItemRegistry().getItem(getFeatureItem()).orElseGet(() -> new ItemStack(Material.AIR)) : items.get(0);
-        
-        if (item != null)
-            player.getInventory().addItem(item).forEach((a, b) -> player.getWorld().dropItem(player.getLocation(), b));
-        
+        return items.isEmpty() ? CLCore.getInstance().getItemRegistry().getItem(getFeatureItemRegistryKey()).orElseGet(() -> new ItemStack(Material.AIR)) : items.get(0);
     }
 }

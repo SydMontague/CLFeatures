@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -102,17 +101,6 @@ public class TrophyDepositorFeatureInstance extends BlueprintFeatureInstance {
         p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1F);
         p.getInventory().setItemInMainHand(null);
         p.updateInventory();
-    }
-    
-    // override destroy listener
-    @Override
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    public void onInitialDestroy(BlockBreakEvent event) {
-        if (!event.getBlock().getLocation().equals(getInitialBlock()))
-            return;
-        
-        event.getPlayer().sendMessage(messagePrefix + "§4The TrophyDepositor cannot be destroyed! §eUse §2/trophydepositor move §einstead!");
-        event.setCancelled(true);
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
