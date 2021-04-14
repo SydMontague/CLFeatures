@@ -60,7 +60,10 @@ public class PaintMenu extends Menu {
                             ItemStack cursor = click.getCursor();
                             MenuItem item = click.getItem();
                             
-                            if (cursor != null && cursor.getType() != Material.AIR)
+                            if (cursor != null && cursor.getType().isAir())
+                                return;
+                            
+                            if (getMenuItem(10).getItem().getType().isAir())
                                 return;
                             
                             replace(10, new ItemStack(Material.AIR));

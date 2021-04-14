@@ -4,17 +4,24 @@ import de.craftlancer.core.CLCore;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.Utils;
 import de.craftlancer.core.command.CommandHandler;
+import de.craftlancer.core.conversation.ClickableBooleanPrompt;
+import de.craftlancer.core.conversation.FormattedConversable;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.conversations.ConversationContext;
+import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
@@ -114,7 +121,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return maxLimit;
     }
     
-    public String getFeatureItem() {
+    public String getFeatureItemRegistryKey() {
         return featureItem;
     }
     
@@ -122,10 +129,30 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return plugin;
     }
     
-    public abstract void giveFeatureItem(Player player, T instance);
+    public void giveFeatureItem(Player player, T instance) {
+        ItemStack item = getFeatureItem(instance);
+        if (item != null)
+            player.getInventory().addItem(item).forEach((a, b) -> player.getWorld().dropItem(player.getLocation(), b));
+    }
     
     public void giveFeatureItem(Player player) {
         giveFeatureItem(player, null);
+    }
+    
+    public void dropFeatureItem(Location location, T feature) {
+        ItemStack item = getFeatureItem(feature);
+        if (item != null)
+            location.getWorld().dropItemNaturally(location, item);
+    }
+    
+    public void dropFeatureItem(Location location) {
+        dropFeatureItem(location, null);
+    }
+    
+    public abstract ItemStack getFeatureItem(T instance);
+    
+    public ItemStack getFeatureItem() {
+        return getFeatureItem(null);
     }
     
     public abstract void save();
@@ -138,8 +165,12 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return 10;
     }
     
+    protected BreakAction getBreakAction() {
+        return BreakAction.PROMPT;
+    }
+    
     @Nonnull
-    protected abstract String getName();
+    public abstract String getName();
     
     public abstract List<T> getFeatures();
     
@@ -238,16 +269,86 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onBlockBreak(BlockBreakEvent event) {
-        if (getFeatures().stream().anyMatch(a -> event.getBlock().getLocation().equals(a.getInitialBlock())))
+        Optional<T> optional = getFeatures().stream().filter(f -> f.getStructure().containsBlock(event.getBlock())).findFirst();
+        
+        if (!optional.isPresent())
             return;
         
-        if (getFeatures().stream().anyMatch(a -> a.getStructure().containsBlock(event.getBlock())))
-            event.setCancelled(true);
+        T feature = optional.get();
+        
+        switch (getBreakAction()) {
+            case PROMPT:
+                sendDestroyPrompt(event.getPlayer(), feature);
+                event.setCancelled(true);
+                break;
+            case DROP_IF_ANY:
+                feature.destroy();
+                dropFeatureItem(feature.getInitialBlock(), feature);
+                break;
+            case DROP_IF_OWNER:
+                if (!event.getPlayer().getUniqueId().equals(feature.getOwnerId())) {
+                    sendDestroyPrompt(event.getPlayer(), feature);
+                    event.setCancelled(true);
+                    break;
+                }
+                feature.destroy();
+                dropFeatureItem(feature.getInitialBlock(), feature);
+                break;
+            case DESTROY:
+                feature.destroy();
+                break;
+        }
+    }
+    
+    @EventHandler(ignoreCancelled = true)
+    public void onBarrierDamage(BlockDamageEvent event) {
+        if (event.getBlock().getType() != Material.BARRIER)
+            return;
+        
+        getFeatures().stream().filter(f -> f.getStructure().containsBlock(event.getBlock())).findFirst().ifPresent(feature -> {
+            event.setInstaBreak(true);
+            event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 0.5F, 1F);
+        });
     }
     
     @EventHandler(ignoreCancelled = true)
     public void onBucketEmpty(PlayerBucketEmptyEvent event) {
         if (getFeatures().stream().anyMatch(a -> a.getStructure().containsBlock(event.getBlock())))
             event.setCancelled(true);
+    }
+    
+    protected boolean sendDestroyPrompt(Player p, T feature) {
+        new ConversationFactory(getPlugin()).withLocalEcho(false).withModality(false).withTimeout(30)
+                .withFirstPrompt(new DestroyPrompt(feature)).buildConversation(new FormattedConversable(p)).begin();
+        return true;
+    }
+    
+    private class DestroyPrompt extends ClickableBooleanPrompt {
+        
+        private T feature;
+        
+        public DestroyPrompt(T feature) {
+            super(CLFeatures.CC_PREFIX + "§eDo you really want to destroy this feature? It will be gone forever! Check the move command of the feature otherwise.");
+            
+            this.feature = feature;
+        }
+        
+        @Override
+        protected Prompt acceptValidatedInput(ConversationContext context, boolean input) {
+            if (input) {
+                feature.destroy();
+                context.getForWhom().sendRawMessage(CLFeatures.CC_PREFIX + "§eYou destroyed this feature.");
+            } else
+                context.getForWhom().sendRawMessage(CLFeatures.CC_PREFIX + "§eYou didn't destroy this feature.");
+            return END_OF_CONVERSATION;
+        }
+        
+    }
+    
+    public enum BreakAction {
+        DESTROY,
+        PROMPT,
+        DROP_IF_ANY,
+        DROP_IF_OWNER
     }
 }

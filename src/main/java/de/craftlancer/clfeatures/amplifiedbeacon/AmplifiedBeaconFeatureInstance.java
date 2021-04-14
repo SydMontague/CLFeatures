@@ -86,7 +86,7 @@ public class AmplifiedBeaconFeatureInstance extends BlueprintFeatureInstance {
     }
     
     @Override
-    protected Feature<? extends FeatureInstance> getManager() {
+    protected Feature<FeatureInstance> getManager() {
         return null;
     }
     

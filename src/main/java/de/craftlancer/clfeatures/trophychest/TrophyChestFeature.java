@@ -117,7 +117,7 @@ public class TrophyChestFeature extends BlueprintFeature<TrophyChestFeatureInsta
     }
     
     @Override
-    protected String getName() {
+    public String getName() {
         return "TrophyChest";
     }
     

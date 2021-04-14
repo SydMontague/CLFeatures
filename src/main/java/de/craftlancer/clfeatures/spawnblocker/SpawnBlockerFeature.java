@@ -80,7 +80,7 @@ public class SpawnBlockerFeature extends BlueprintFeature<SpawnBlockerFeatureIns
     }
     
     @Override
-    protected String getName() {
+    public String getName() {
         return "SpawnBlocker";
     }
     

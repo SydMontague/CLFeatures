@@ -68,7 +68,7 @@ public class AmplifiedBeaconFeature extends BlueprintFeature<AmplifiedBeaconFeat
     
     @Nonnull
     @Override
-    protected String getName() {
+    public String getName() {
         return "AmplifiedBeacon";
     }
     

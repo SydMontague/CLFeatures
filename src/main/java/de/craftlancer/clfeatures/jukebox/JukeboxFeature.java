@@ -102,7 +102,7 @@ public class JukeboxFeature extends ItemFrameFeature<JukeboxFeatureInstance> {
     
     @Nonnull
     @Override
-    protected String getName() {
+    public String getName() {
         return "Jukebox";
     }
     

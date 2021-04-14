@@ -74,7 +74,7 @@ public class TransmutationStationFeature extends BlueprintFeature<TransmutationS
     
     @Nonnull
     @Override
-    protected String getName() {
+    public String getName() {
         return "TransmutationStation";
     }
     

@@ -21,11 +21,7 @@ public abstract class ManualPlacementFeature<T extends ManualPlacementFeatureIns
     public abstract Collection<Block> checkEnvironment(Block initialBlock);
     
     @Override
-    public void giveFeatureItem(Player player, T instance) {
-        ItemStack item = instance.getUsedItem();
-        
-        if (item != null)
-            player.getInventory().addItem(item).forEach((a, b) -> player.getWorld().dropItem(player.getLocation(), b));
-        
+    public ItemStack getFeatureItem(T instance) {
+        return instance.getUsedItem();
     }
 }

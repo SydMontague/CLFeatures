@@ -111,7 +111,7 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
     }
     
     @Override
-    protected String getName() {
+    public String getName() {
         return "Stonecrusher";
     }
     

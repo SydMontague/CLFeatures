@@ -106,7 +106,7 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
     }
     
     @Override
-    protected String getName() {
+    public String getName() {
         return "TrophyDepositor";
     }
     
