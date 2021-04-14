@@ -267,7 +267,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
             event.setCancelled(true);
     }
     
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onBlockBreak(BlockBreakEvent event) {
         Optional<T> optional = getFeatures().stream().filter(f -> f.getStructure().containsBlock(event.getBlock())).findFirst();
         
