@@ -31,6 +31,7 @@ public class JukeboxSong implements ConfigurationSerializable {
         this.uuid = uuid;
     }
     
+    @SuppressWarnings("unchecked")
     public JukeboxSong(Map<String, Object> map) {
         
         this.uuid = UUID.fromString((String) map.get("uuid"));
@@ -56,7 +57,7 @@ public class JukeboxSong implements ConfigurationSerializable {
     }
     
     /**
-     * @return returns the next tick to be played
+     * @returns returns the next tick to be played
      */
     public void play(List<Player> players, int tick) {
         for (AbstractJukeboxNote note : notes.get(tick))
@@ -162,7 +163,7 @@ public class JukeboxSong implements ConfigurationSerializable {
         
         list.remove(note);
         
-        if (list.size() == 0)
+        if (list.isEmpty())
             for (int i = tick; i < notes.size(); i++) {
                 if (i == notes.size() - 1)
                     notes.remove(i);

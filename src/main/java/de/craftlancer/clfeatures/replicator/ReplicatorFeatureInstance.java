@@ -78,6 +78,7 @@ public class ReplicatorFeatureInstance extends BlueprintFeatureInstance {
         daylightSensor = (Location) map.get("daylightDetector");
         
         if (map.containsKey("recipe") && map.containsKey("product")) {
+            @SuppressWarnings("unchecked")
             List<ItemStack> list = (List<ItemStack>) map.get("recipe");
             list.forEach(item -> {
                 if (recipe.containsKey(item.getType()))

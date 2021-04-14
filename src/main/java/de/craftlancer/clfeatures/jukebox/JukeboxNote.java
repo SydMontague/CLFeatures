@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class JukeboxNote implements AbstractJukeboxNote {
     
-    private final ItemStack RETURN_BUTTON = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE)
+    private static final ItemStack RETURN_BUTTON = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE)
             .setDisplayName("§6§lGo back").setCustomModelData(100)
             .setLore("", "§7Click to go to previous page.").build();
     
@@ -115,7 +115,7 @@ public class JukeboxNote implements AbstractJukeboxNote {
                 .setLore("", "§7Click to change instrument", "", "§7Current instrument: §e" + instrument.name().replace("_", " ").toLowerCase()).build();
     }
     
-    private Material getByInstrument(Instrument instrument) {
+    private static Material getByInstrument(Instrument instrument) {
         switch (instrument) {
             case BANJO:
                 return Material.HAY_BLOCK;

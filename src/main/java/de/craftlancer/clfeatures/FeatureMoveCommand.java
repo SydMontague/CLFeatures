@@ -11,9 +11,9 @@ import org.bukkit.plugin.Plugin;
 
 public class FeatureMoveCommand extends SubCommand {
     
-    private Feature feature;
+    private Feature<?> feature;
     
-    public FeatureMoveCommand(Plugin plugin, Feature feature) {
+    public FeatureMoveCommand(Plugin plugin, Feature<?> feature) {
         super("", plugin, false);
         
         this.feature = feature;

@@ -29,13 +29,13 @@ public class JukeboxFeatureInstance extends ItemFrameFeatureInstance {
     
     public static final String MOVE_METADATA = "jukeboxMove";
     
-    private final ItemStack PLAY_BUTTON = new ItemBuilder(Material.EMERALD_BLOCK)
+    private static final ItemStack PLAY_BUTTON = new ItemBuilder(Material.EMERALD_BLOCK)
             .setDisplayName("§a§lPlay Song").setLore("", "§7Click to play song.").build();
-    private final ItemStack PAUSE_BUTTON = new ItemBuilder(Material.REDSTONE_BLOCK)
+    private static final ItemStack PAUSE_BUTTON = new ItemBuilder(Material.REDSTONE_BLOCK)
             .setDisplayName("§c§lPause Song").setLore("", "§7Click to pause song.").build();
-    private final ItemStack TURN_REPEAT_OFF_BUTTON = new ItemBuilder(Material.DIAMOND_BLOCK)
+    private static final ItemStack TURN_REPEAT_OFF_BUTTON = new ItemBuilder(Material.DIAMOND_BLOCK)
             .setDisplayName("§b§lRepeat Enabled").setLore("", "§7Click to §cdisable §7repeat mode.").build();
-    private final ItemStack TURN_REPEAT_ON_BUTTON = new ItemBuilder(Material.LIGHT_GRAY_CONCRETE)
+    private static final ItemStack TURN_REPEAT_ON_BUTTON = new ItemBuilder(Material.LIGHT_GRAY_CONCRETE)
             .setDisplayName("§8§lRepeat Disabled").setLore("", "§7Click to §benable §7repeat mode.").build();
     
     private JukeboxFeature manager;

@@ -23,7 +23,7 @@ public class PainterFeatureInstance extends ManualPlacementFeatureInstance {
     
     @Override
     protected void tick() {
-    
+        // not ticking feature
     }
     
     @Override

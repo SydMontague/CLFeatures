@@ -20,7 +20,7 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
     private BlockStructure structure;
     private Location initialBlock;
     
-    public FeatureInstance(UUID ownerId, BlockStructure blocks, Location location) {
+    protected FeatureInstance(UUID ownerId, BlockStructure blocks, Location location) {
         this.ownerId = ownerId;
         this.structure = blocks;
         this.initialBlock = location;
@@ -28,7 +28,7 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         Bukkit.getPluginManager().registerEvents(this, CLFeatures.getInstance());
     }
     
-    public FeatureInstance(Map<String, Object> map) {
+    protected FeatureInstance(Map<String, Object> map) {
         this.ownerId = UUID.fromString(map.get("owner").toString());
         this.initialBlock = (Location) map.get("lecternLoc");
         this.structure = (BlockStructure) map.get("structure");

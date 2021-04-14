@@ -11,13 +11,13 @@ public abstract class BlueprintFeatureInstance extends FeatureInstance {
     
     private String usedSchematic;
     
-    public BlueprintFeatureInstance(UUID ownerId, BlockStructure blocks, Location location, String usedSchematic) {
+    protected BlueprintFeatureInstance(UUID ownerId, BlockStructure blocks, Location location, String usedSchematic) {
         super(ownerId, blocks, location);
         
         this.usedSchematic = usedSchematic;
     }
     
-    public BlueprintFeatureInstance(Map<String, Object> map) {
+    protected BlueprintFeatureInstance(Map<String, Object> map) {
         super(map);
         
         this.usedSchematic = Objects.toString(map.get("usedSchematic"), null);

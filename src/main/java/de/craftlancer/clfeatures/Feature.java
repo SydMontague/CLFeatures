@@ -12,7 +12,9 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.conversations.Prompt;
@@ -33,13 +35,18 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 
 import javax.annotation.Nonnull;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -56,7 +63,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     private String featureItem;
     private final String limitToken;
     
-    public Feature(CLFeatures plugin, ConfigurationSection config, NamespacedKey limitKey) {
+    protected Feature(CLFeatures plugin, ConfigurationSection config, NamespacedKey limitKey) {
         this.plugin = plugin;
         this.limitKey = limitKey;
         this.limitToken = config.getString("limitToken", "");
@@ -70,7 +77,10 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
             limitConfig.getKeys(false).forEach(a -> limitMap.put(a, limitConfig.getInt(a)));
         
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        new LambdaRunnable(() -> getFeatures().forEach(FeatureInstance::tick)).runTaskTimer(getPlugin(), 10, getTickFrequency());
+        if(getTickFrequency() > 0)
+            new LambdaRunnable(() -> getFeatures().forEach(FeatureInstance::tick)).runTaskTimer(getPlugin(), getTickFrequency(), getTickFrequency());
+        
+        deserialize(YamlConfiguration.loadConfiguration(getDataStorageFile()));
     }
     
     public String getMoveMetaData() {
@@ -155,12 +165,43 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return getFeatureItem(null);
     }
     
-    public abstract void save();
+    public File getDataStorageFile() {
+        return new File(getPlugin().getDataFolder(), String.format("data/%s.yml", getName()));
+    }
+    
+    public void save() {
+        YamlConfiguration config = new YamlConfiguration();
+                
+        serialize().forEach(config::set);
+        
+        BukkitRunnable saveTask = new LambdaRunnable(() -> {
+            try {
+                config.save(getDataStorageFile());
+            } catch (IOException e) {
+                getPlugin().getLogger().log(Level.SEVERE, String.format("Error while saving %s: ", getName()), e);
+            }
+        });
+        
+        if (getPlugin().isEnabled())
+            saveTask.runTaskAsynchronously(getPlugin());
+        else
+            saveTask.run();
+    }
+    
+    protected abstract void deserialize(Configuration config);
+    
+    protected abstract Map<String, Object> serialize();
     
     public abstract CommandHandler getCommandHandler();
     
     public abstract void remove(FeatureInstance instance);
     
+    /**
+     * Returns how often the feature should tick in Minecraft ticks.
+     * Negative values and 0 indicate that the feature does not tick.
+     * 
+     * @return the tick frequency in Minecraft ticks
+     */
     public long getTickFrequency() {
         return 10;
     }

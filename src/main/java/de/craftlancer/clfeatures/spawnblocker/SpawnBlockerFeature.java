@@ -4,26 +4,24 @@ import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 public class SpawnBlockerFeature extends BlueprintFeature<SpawnBlockerFeatureInstance> {
-    private List<SpawnBlockerFeatureInstance> instances = new ArrayList<>();
+    private List<SpawnBlockerFeatureInstance> instances;
     private Map<SpawnBlockGroupSlot, SpawnBlockGroup> blockGroups = new EnumMap<>(SpawnBlockGroupSlot.class);
     
     public SpawnBlockerFeature(CLFeatures plugin, ConfigurationSection config) {
@@ -32,9 +30,6 @@ public class SpawnBlockerFeature extends BlueprintFeature<SpawnBlockerFeatureIns
         YamlConfiguration groupConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "spawnGroups.yml"));
         for (SpawnBlockGroupSlot a : SpawnBlockGroupSlot.values())
             blockGroups.put(a, (SpawnBlockGroup) groupConfig.get(a.name()));
-        
-        instances = (List<SpawnBlockerFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/spawnBlocker.yml"))
-                .getList("spawnBlocker", new ArrayList<>());
     }
     
     public Map<SpawnBlockGroupSlot, SpawnBlockGroup> getBlockGroups() {
@@ -47,24 +42,17 @@ public class SpawnBlockerFeature extends BlueprintFeature<SpawnBlockerFeatureIns
                 new BlockStructure(e.getBlocksPasted()), e.getFeatureLocation(), e.getSchematic()));
     }
     
+    @SuppressWarnings("unchecked")
     @Override
-    public void save() {
-        File f = new File(getPlugin().getDataFolder(), "data/spawnBlocker.yml");
-        YamlConfiguration config = new YamlConfiguration();
-        config.set("spawnBlocker", getFeatures());
-        
-        BukkitRunnable saveTask = new LambdaRunnable(() -> {
-            try {
-                config.save(f);
-            } catch (IOException e) {
-                getPlugin().getLogger().log(Level.SEVERE, "Error while saving SpawnBlockers: ", e);
-            }
-        });
-        
-        if (getPlugin().isEnabled())
-            saveTask.runTaskAsynchronously(getPlugin());
-        else
-            saveTask.run();
+    protected void deserialize(Configuration config) {
+        instances = (List<SpawnBlockerFeatureInstance>) config.getList("spawnBlocker", new ArrayList<>());
+    }
+
+    @Override
+    protected Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("spawnBlocker", instances);
+        return map;
     }
     
     @Override

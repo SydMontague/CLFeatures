@@ -4,25 +4,22 @@ import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.ManualPlacementFeature;
-import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Map;
 
 public class PainterFeature extends ManualPlacementFeature<PainterFeatureInstance> {
     
@@ -30,30 +27,19 @@ public class PainterFeature extends ManualPlacementFeature<PainterFeatureInstanc
     
     public PainterFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "painter.limit"));
-        
-        YamlConfiguration painterConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/painter.yml"));
-        
-        instances = (List<PainterFeatureInstance>) painterConfig.getList("painters", new ArrayList<>());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void deserialize(Configuration config) {
+        instances = (List<PainterFeatureInstance>) config.getList("painters", new ArrayList<>());        
     }
     
     @Override
-    public void save() {
-        File f = new File(getPlugin().getDataFolder(), "data/painter.yml");
-        YamlConfiguration config = new YamlConfiguration();
-        config.set("painters", instances);
-        
-        BukkitRunnable saveTask = new LambdaRunnable(() -> {
-            try {
-                config.save(f);
-            } catch (IOException e) {
-                getPlugin().getLogger().log(Level.SEVERE, "Error while saving Painter: ", e);
-            }
-        });
-        
-        if (getPlugin().isEnabled())
-            saveTask.runTaskAsynchronously(getPlugin());
-        else
-            saveTask.run();
+    protected Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("painters", instances);
+        return map;
     }
     
     @Override
@@ -96,5 +82,10 @@ public class PainterFeature extends ManualPlacementFeature<PainterFeatureInstanc
     @Override
     protected BreakAction getBreakAction() {
         return BreakAction.DROP_IF_ANY;
+    }
+    
+    @Override
+    public long getTickFrequency() {
+        return -1;
     }
 }

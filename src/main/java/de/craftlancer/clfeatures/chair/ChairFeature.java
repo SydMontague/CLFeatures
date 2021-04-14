@@ -1,25 +1,24 @@
 package de.craftlancer.clfeatures.chair;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+
+import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.ItemFrameFeature;
-import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
-import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
 
 public class ChairFeature extends ItemFrameFeature<ChairFeatureInstance> {
     
@@ -27,10 +26,6 @@ public class ChairFeature extends ItemFrameFeature<ChairFeatureInstance> {
     
     public ChairFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "chair.limit"));
-        
-        YamlConfiguration jukeboxConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/chair.yml"));
-        
-        instances = (List<ChairFeatureInstance>) jukeboxConfig.getList("chairs", new ArrayList<>());
     }
     
     @Override
@@ -39,24 +34,17 @@ public class ChairFeature extends ItemFrameFeature<ChairFeatureInstance> {
                 event.getFeatureLocation(), event.getSchematic(), event.getPastedEntities()));
     }
     
+    @SuppressWarnings("unchecked")
     @Override
-    public void save() {
-        File f = new File(getPlugin().getDataFolder(), "data/chair.yml");
-        YamlConfiguration config = new YamlConfiguration();
-        config.set("chairs", instances);
-        
-        BukkitRunnable saveTask = new LambdaRunnable(() -> {
-            try {
-                config.save(f);
-            } catch (IOException e) {
-                getPlugin().getLogger().log(Level.SEVERE, "Error while saving Chair: ", e);
-            }
-        });
-        
-        if (getPlugin().isEnabled())
-            saveTask.runTaskAsynchronously(getPlugin());
-        else
-            saveTask.run();
+    protected void deserialize(Configuration config) {
+        instances = (List<ChairFeatureInstance>) config.getList("chairs", new ArrayList<>());
+    }
+    
+    @Override
+    protected Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("chairs", instances);
+        return map;
     }
     
     @Override

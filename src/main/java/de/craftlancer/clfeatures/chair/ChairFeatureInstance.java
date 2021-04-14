@@ -30,6 +30,7 @@ public class ChairFeatureInstance extends ItemFrameFeatureInstance {
         super(ownerId, blocks, location, usedSchematic, entities);
     }
     
+    @SuppressWarnings("unchecked")
     public ChairFeatureInstance(Map<String, Object> map) {
         super(map);
         

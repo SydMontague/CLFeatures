@@ -79,7 +79,6 @@ public class CLFeatures extends JavaPlugin implements Listener {
     public void onEnable() {
         ConfigurationSerialization.registerClass(PortalFeatureInstance.class);
         ConfigurationSerialization.registerClass(StoneCrusherFeatureInstance.class);
-        //ConfigurationSerialization.registerClass(TrophyChestFeatureInstance.class);
         ConfigurationSerialization.registerClass(TrophyDepositorFeatureInstance.class);
         ConfigurationSerialization.registerClass(TrophyDepositorFeature.TrophyEntry.class);
         ConfigurationSerialization.registerClass(TrophyDepositorBoost.class);
@@ -102,7 +101,6 @@ public class CLFeatures extends JavaPlugin implements Listener {
         
         registerFeature("portal", new PortalFeature(this, getConfig().getConfigurationSection("portal")));
         registerFeature("stonecrusher", new StoneCrusherFeature(this, getConfig().getConfigurationSection("stonecrusher")));
-        //registerFeature("trophyChest", new TrophyChestFeature(this, getConfig().getConfigurationSection("trophyChest")));
         registerFeature("replicator", new ReplicatorFeature(this, getConfig().getConfigurationSection("replicator")));
         registerFeature("spawnBlocker", new SpawnBlockerFeature(this, getConfig().getConfigurationSection("spawnBlocker")));
         registerFeature("transmutationStation", new TransmutationStationFeature(this, getConfig().getConfigurationSection("transmutationStation")));
@@ -160,13 +158,13 @@ public class CLFeatures extends JavaPlugin implements Listener {
         if (!feature.isPresent() || !(feature.get() instanceof BlueprintFeature))
             return;
         
-        ((BlueprintFeature) feature.get()).createInstance(event.getPlayer(), event);
+        ((BlueprintFeature<?>) feature.get()).createInstance(event.getPlayer(), event);
     }
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event) {
         Optional<Feature<?>> feature = features.values().stream().filter(a ->
-                a instanceof ManualPlacementFeature && ((ManualPlacementFeature) a).isFeatureItem(event.getItemInHand())).findFirst();
+                a instanceof ManualPlacementFeature && ((ManualPlacementFeature<?>) a).isFeatureItem(event.getItemInHand())).findFirst();
         
         Player p = event.getPlayer();
         
@@ -178,7 +176,7 @@ public class CLFeatures extends JavaPlugin implements Listener {
             event.setCancelled(true);
         }
         
-        Collection<Block> blocks = ((ManualPlacementFeature) feature.get()).checkEnvironment(event.getBlock());
+        Collection<Block> blocks = ((ManualPlacementFeature<?>) feature.get()).checkEnvironment(event.getBlock());
         
         if (!blocks.isEmpty()) {
             p.sendMessage(CC_PREFIX + ChatColor.DARK_RED + "This location isn't suited for this feature. Make sure you have enough space.");
@@ -193,12 +191,12 @@ public class CLFeatures extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockPlaceFinal(BlockPlaceEvent event) {
         Optional<Feature<?>> feature = features.values().stream().filter(a ->
-                a instanceof ManualPlacementFeature && ((ManualPlacementFeature) a).isFeatureItem(event.getItemInHand())).findFirst();
+                a instanceof ManualPlacementFeature && ((ManualPlacementFeature<?>) a).isFeatureItem(event.getItemInHand())).findFirst();
         
         if (!feature.isPresent())
             return;
         
-        ((ManualPlacementFeature) feature.get()).createInstance(event.getPlayer(), event.getBlock(), event.getItemInHand().clone());
+        ((ManualPlacementFeature<?>) feature.get()).createInstance(event.getPlayer(), event.getBlock(), event.getItemInHand().clone());
     }
     
     @EventHandler(ignoreCancelled = false, priority = EventPriority.NORMAL)

@@ -3,14 +3,13 @@ package de.craftlancer.clfeatures.replicator;
 import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,15 +18,13 @@ import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class ReplicatorFeature extends BlueprintFeature<ReplicatorFeatureInstance> {
@@ -39,33 +36,23 @@ public class ReplicatorFeature extends BlueprintFeature<ReplicatorFeatureInstanc
         super(plugin, config, new NamespacedKey(plugin, "replicator.limit"));
         
         blockedProducts = config.getStringList("excludedProducts").stream().map(Material::getMaterial).collect(Collectors.toList());
-        
-        instances = (List<ReplicatorFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/replicator.yml"))
-                .getList("replicator", new ArrayList<>());
     }
     
     public List<Material> getBlockedProducts() {
         return blockedProducts;
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void deserialize(Configuration config) {
+        instances = (List<ReplicatorFeatureInstance>) config.getList("replicator", new ArrayList<>());
+    }
     
     @Override
-    public void save() {
-        File f = new File(getPlugin().getDataFolder(), "data/replicator.yml");
-        YamlConfiguration config = new YamlConfiguration();
-        config.set("replicator", instances);
-        
-        BukkitRunnable saveTask = new LambdaRunnable(() -> {
-            try {
-                config.save(f);
-            } catch (IOException e) {
-                getPlugin().getLogger().log(Level.SEVERE, "Error while saving Replicator: ", e);
-            }
-        });
-        
-        if (getPlugin().isEnabled())
-            saveTask.runTaskAsynchronously(getPlugin());
-        else
-            saveTask.run();
+    protected Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("replicator", instances);
+        return map;
     }
     
     @Override

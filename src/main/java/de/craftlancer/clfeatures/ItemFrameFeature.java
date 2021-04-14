@@ -6,7 +6,7 @@ import org.bukkit.entity.Entity;
 
 public abstract class ItemFrameFeature<T extends ItemFrameFeatureInstance> extends BlueprintFeature<T> {
     
-    public ItemFrameFeature(CLFeatures plugin, ConfigurationSection config, NamespacedKey limitKey) {
+    protected ItemFrameFeature(CLFeatures plugin, ConfigurationSection config, NamespacedKey limitKey) {
         super(plugin, config, limitKey);
     }
     

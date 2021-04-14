@@ -15,13 +15,14 @@ public abstract class ItemFrameFeatureInstance extends BlueprintFeatureInstance 
     
     private List<UUID> entities;
     
-    public ItemFrameFeatureInstance(UUID ownerId, BlockStructure blocks, Location location, String usedSchematic, List<Entity> entities) {
+    protected ItemFrameFeatureInstance(UUID ownerId, BlockStructure blocks, Location location, String usedSchematic, List<Entity> entities) {
         super(ownerId, blocks, location, usedSchematic);
         
         this.entities = entities.stream().filter(e -> e instanceof ItemFrame).map(Entity::getUniqueId).collect(Collectors.toList());
     }
     
-    public ItemFrameFeatureInstance(Map<String, Object> map) {
+    @SuppressWarnings("unchecked")
+    protected ItemFrameFeatureInstance(Map<String, Object> map) {
         super(map);
         
         this.entities = ((List<String>) map.get("itemFrame")).stream().map(UUID::fromString).collect(Collectors.toList());

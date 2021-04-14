@@ -10,7 +10,7 @@ import java.util.Collection;
 
 public abstract class ManualPlacementFeature<T extends ManualPlacementFeatureInstance> extends Feature<T> {
     
-    public ManualPlacementFeature(CLFeatures plugin, ConfigurationSection config, NamespacedKey limitKey) {
+    protected ManualPlacementFeature(CLFeatures plugin, ConfigurationSection config, NamespacedKey limitKey) {
         super(plugin, config, limitKey);
     }
     

@@ -4,36 +4,29 @@ import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureInstance> {
-    private static final Material CRUSHER_MATERIAL = Material.CHEST;
-    private static final String CRUSHER_NAME = ChatColor.DARK_PURPLE + "StoneCrusher";
-    
-    private List<StoneCrusherFeatureInstance> instances = new ArrayList<>();
+    private List<StoneCrusherFeatureInstance> instances;
     
     private Map<Material, List<StoneCrusherResult>> lootTable = new EnumMap<>(Material.class);
     private int crushesPerTick = 1;
@@ -50,6 +43,7 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
             if (input == null || input == Material.AIR)
                 return;
             
+            @SuppressWarnings("unchecked")
             List<Map<?, ?>> output = (List<Map<?, ?>>) a.get("output");
             
             if (output == null)
@@ -61,8 +55,6 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
             lootTable.put(input, result);
         });
         
-        instances = (List<StoneCrusherFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/stonecrusher.yml"))
-                .getList("stonecrusher", new ArrayList<>());
     }
     
     @Override
@@ -71,24 +63,17 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
                 new BlockStructure(e.getBlocksPasted()), e.getFeatureLocation(), e.getSchematic()));
     }
     
+    @SuppressWarnings("unchecked")
     @Override
-    public void save() {
-        File f = new File(getPlugin().getDataFolder(), "data/stonecrusher.yml");
-        YamlConfiguration config = new YamlConfiguration();
-        config.set("stonecrusher", instances);
-        
-        BukkitRunnable saveTask = new LambdaRunnable(() -> {
-            try {
-                config.save(f);
-            } catch (IOException e) {
-                getPlugin().getLogger().log(Level.SEVERE, "Error while saving Stonecrusher: ", e);
-            }
-        });
-        
-        if (getPlugin().isEnabled())
-            saveTask.runTaskAsynchronously(getPlugin());
-        else
-            saveTask.run();
+    protected void deserialize(Configuration config) {
+        instances = (List<StoneCrusherFeatureInstance>) config.getList("stonecrusher", new ArrayList<>());
+    }
+    
+    @Override
+    protected Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("stonecrusher", instances);
+        return map;
     }
     
     @Override

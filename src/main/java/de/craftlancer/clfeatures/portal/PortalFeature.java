@@ -18,8 +18,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -32,13 +32,10 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
@@ -46,12 +43,8 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
     static final String LOOP_METADATA = "portalLoop";
     private static final String COOLDOWN_METADATA = "hasPortalCooldown";
     
-    private static final Material LECTERN_MATERIAL = Material.LECTERN;
-    private static final String LECTERN_NAME = ChatColor.DARK_PURPLE + "Portal";
-    private static final Material PORTAL_MATERIAL = Material.CHISELED_QUARTZ_BLOCK;
-    
-    private Map<String, PortalFeatureInstance> lookupTable = new HashMap<>();
-    private List<PortalFeatureInstance> instances = new ArrayList<>();
+    private Map<String, PortalFeatureInstance> lookupTable;
+    private List<PortalFeatureInstance> instances;
     
     private long inactivityTimeout;
     private long booklessTicks;
@@ -64,6 +57,7 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
     private List<String> defaultPortals;
     private String defaultPortal;
     
+    @SuppressWarnings("unchecked")
     public PortalFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "portal.limit"));
         
@@ -79,11 +73,6 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
         newBookDelay = config.getLong("newBookDelay", 100L);
         
         plugin.getCommand("pbook").setExecutor(new AddressBookCommandHandler(plugin));
-        
-        instances = (List<PortalFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/portals.yml"))
-                .getList("portals", new ArrayList<>());
-        
-        instances.stream().filter(a -> a.getName() != null && !a.getName().isEmpty()).forEach(a -> lookupTable.put(a.getName().toLowerCase(), a));
         
         new LambdaRunnable(() -> Bukkit.getOnlinePlayers().forEach(a -> {
             if (a.hasMetadata(LOOP_METADATA)) {
@@ -115,7 +104,6 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
     public double getRenameMoney() {
         return renameMoney;
     }
-    
     
     public boolean checkMoveCost(Player player) {
         return moveItems.stream().allMatch(a -> player.getInventory().containsAtLeast(a, a.getAmount()));
@@ -150,25 +138,19 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
         
         return lookupTable.get(name.toLowerCase());
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void deserialize(Configuration config) {
+        instances = (List<PortalFeatureInstance>) config.getList("portals", new ArrayList<>());
+        lookupTable = instances.stream().filter(a -> a.getName() != null && !a.getName().isEmpty()).collect(Collectors.toMap(a -> a.getName().toLowerCase(), a -> a));
+    }
     
     @Override
-    public void save() {
-        File f = new File(getPlugin().getDataFolder(), "data/portals.yml");
-        YamlConfiguration config = new YamlConfiguration();
-        config.set("portals", instances);
-        
-        BukkitRunnable saveTask = new LambdaRunnable(() -> {
-            try {
-                config.save(f);
-            } catch (IOException e) {
-                getPlugin().getLogger().log(Level.SEVERE, "Error while saving Portals: ", e);
-            }
-        });
-        
-        if (getPlugin().isEnabled())
-            saveTask.runTaskAsynchronously(getPlugin());
-        else
-            saveTask.run();
+    protected Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("portals", instances);
+        return map;
     }
     
     public List<PortalFeatureInstance> getPortalsByPlayer(OfflinePlayer p) {

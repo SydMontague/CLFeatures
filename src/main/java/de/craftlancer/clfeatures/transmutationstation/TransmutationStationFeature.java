@@ -4,23 +4,20 @@ import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
-import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
 import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.logging.Level;
 
 public class TransmutationStationFeature extends BlueprintFeature<TransmutationStationFeatureInstance> {
     private List<TransmutationStationFeatureInstance> instances;
@@ -28,9 +25,6 @@ public class TransmutationStationFeature extends BlueprintFeature<TransmutationS
     
     public TransmutationStationFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "transmutationStation.limit"));
-        
-        instances = (List<TransmutationStationFeatureInstance>) YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/transmutationStation.yml"))
-                .getList("transmutationStation", new ArrayList<>());
         
         gui = new TransmutationStationGUI();
     }
@@ -40,25 +34,18 @@ public class TransmutationStationFeature extends BlueprintFeature<TransmutationS
         return instances.add(new TransmutationStationFeatureInstance(creator.getUniqueId(),
                 new BlockStructure(e.getBlocksPasted()), e.getFeatureLocation(), e.getSchematic()));
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void deserialize(Configuration config) {
+        instances = (List<TransmutationStationFeatureInstance>) config.getList("transmutationStation", new ArrayList<>());
+    }
     
     @Override
-    public void save() {
-        File f = new File(getPlugin().getDataFolder(), "data/transmutationStation.yml");
-        YamlConfiguration config = new YamlConfiguration();
-        config.set("transmutationStation", instances);
-        
-        BukkitRunnable saveTask = new LambdaRunnable(() -> {
-            try {
-                config.save(f);
-            } catch (IOException e) {
-                getPlugin().getLogger().log(Level.SEVERE, "Error while saving TransmutationStation: ", e);
-            }
-        });
-        
-        if (getPlugin().isEnabled())
-            saveTask.runTaskAsynchronously(getPlugin());
-        else
-            saveTask.run();
+    protected Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("transmutationStation", instances);
+        return map;
     }
     
     @Override

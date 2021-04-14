@@ -10,6 +10,7 @@ import de.craftlancer.core.structure.BlockStructure;
 import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -42,13 +43,6 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
         
         trophies = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "trophyItems.yml")).getMapList("trophyItems").stream()
                 .collect(Collectors.toMap(a -> (ItemStack) a.get("item"), a -> (Integer) a.get("value")));
-        
-        YamlConfiguration trophyDepositorConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data/trophyDepositor.yml"));
-        
-        instances = (List<TrophyDepositorFeatureInstance>) trophyDepositorConfig.getList("trophies", new ArrayList<>());
-        playerLookupTable = ((List<TrophyEntry>) trophyDepositorConfig.getList("trophyEntries", new ArrayList<>()))
-                .stream().collect(Collectors.toMap(TrophyEntry::getPlayer, e -> e));
-        boosts = (List<TrophyDepositorBoost>) trophyDepositorConfig.getList("boosts", new ArrayList<>());
     }
     
     @Override
@@ -59,13 +53,27 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
         return instances.add(instance);
     }
     
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void deserialize(Configuration config) {
+        instances = (List<TrophyDepositorFeatureInstance>) config.getList("trophies", new ArrayList<>());
+        playerLookupTable = ((List<TrophyEntry>) config.getList("trophyEntries", new ArrayList<>()))
+                .stream().collect(Collectors.toMap(TrophyEntry::getPlayer, e -> e));
+        boosts = (List<TrophyDepositorBoost>) config.getList("boosts", new ArrayList<>());
+    }
+
+    @Override
+    protected Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("trophies", instances);
+        map.put("trophyEntries", new ArrayList<>(playerLookupTable.values()));
+        map.put("boosts", boosts);
+        return map;
+    }
+    
     @Override
     public void save() {
-        File f = new File(getPlugin().getDataFolder(), "data/trophyDepositor.yml");
-        YamlConfiguration config = new YamlConfiguration();
-        config.set("trophies", instances);
-        config.set("trophyEntries", new ArrayList<>(playerLookupTable.values()));
-        config.set("boosts", boosts);
+        super.save();
         
         File trophyFile = new File(getPlugin().getDataFolder(), "trophyItems.yml");
         YamlConfiguration config2 = new YamlConfiguration();
@@ -81,7 +89,6 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
         
         BukkitRunnable saveTask = new LambdaRunnable(() -> {
             try {
-                config.save(f);
                 config2.save(trophyFile);
             } catch (IOException e) {
                 getPlugin().getLogger().log(Level.SEVERE, "Error while saving Trophies: ", e);
@@ -122,7 +129,7 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
     public double getBaseItemValue(ItemStack a) {
         ItemStack e = a.clone();
         e.setAmount(1);
-        return trophies.getOrDefault(e, 0) * a.getAmount();
+        return (double) trophies.getOrDefault(e, 0) * a.getAmount();
     }
     
     private double getBoostedItemValue(ItemStack a) {
@@ -232,8 +239,8 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
             this.score = score;
         }
         
-        public void deposit(double score) {
-            this.score += score;
+        public void deposit(double value) {
+            this.score += value;
         }
     }
 }

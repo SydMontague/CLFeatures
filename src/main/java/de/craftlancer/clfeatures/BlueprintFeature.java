@@ -14,7 +14,7 @@ import java.util.List;
 
 public abstract class BlueprintFeature<T extends BlueprintFeatureInstance> extends Feature<T> {
     
-    public BlueprintFeature(CLFeatures plugin, ConfigurationSection config, NamespacedKey limitKey) {
+    protected BlueprintFeature(CLFeatures plugin, ConfigurationSection config, NamespacedKey limitKey) {
         super(plugin, config, limitKey);
     }
     
