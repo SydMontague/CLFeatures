@@ -60,15 +60,16 @@ public class PaintMenu extends Menu {
                             ItemStack cursor = click.getCursor();
                             MenuItem item = click.getItem();
                             
-                            if (cursor != null && cursor.getType().isAir())
+                            if (cursor != null && !cursor.getType().isAir())
                                 return;
                             
-                            if (getMenuItem(10).getItem().getType().isAir())
+                            if (getMenuItem(37).getItem().getType().isAir())
                                 return;
                             
                             replace(10, new ItemStack(Material.AIR));
                             replace(37, new ItemStack(Material.AIR));
                             click.getPlayer().setItemOnCursor(item.getItem().clone());
+                            click.getPlayer().playSound(click.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 0.5F, 1F);
                         }));
     }
     
@@ -96,7 +97,7 @@ public class PaintMenu extends Menu {
     private void setColor(Color color) {
         if (!getInventory().getViewers().isEmpty()) {
             Player player = (Player) getInventory().getViewers().get(0);
-            player.playSound(player.getLocation(), Sound.ENTITY_TURTLE_EGG_HATCH, 0.5F, 1F);
+            player.playSound(player.getLocation(), Sound.UI_LOOM_SELECT_PATTERN, 0.5F, 1F);
         }
         
         replace(12, new ItemBuilder(SELECTED_COLOR_ITEM).dye(color).build());
