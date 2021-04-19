@@ -133,7 +133,7 @@ public class FragmentExtractorFeatureInstance extends ManualPlacementFeatureInst
         createInventory();
         
         player.playSound(player.getLocation(), Sound.UI_STONECUTTER_TAKE_RESULT, 0.5F, 1F);
-        player.openInventory(menu.getMenu(!ResourcePackManager.getInstance().isFullyAccepted(player) ? "resource" : "default").getInventory());
+        player.openInventory(menu.getMenu(ResourcePackManager.getInstance().isFullyAccepted(player) ? "resource" : "default").getInventory());
     }
     
     private void createInventory() {
