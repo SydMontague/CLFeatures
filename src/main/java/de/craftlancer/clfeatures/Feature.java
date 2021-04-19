@@ -39,17 +39,16 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 
 import javax.annotation.Nonnull;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public abstract class Feature<T extends FeatureInstance> implements Listener {
@@ -77,10 +76,11 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
             limitConfig.getKeys(false).forEach(a -> limitMap.put(a, limitConfig.getInt(a)));
         
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        if(getTickFrequency() > 0)
-            new LambdaRunnable(() -> getFeatures().forEach(FeatureInstance::tick)).runTaskTimer(getPlugin(), getTickFrequency(), getTickFrequency());
         
         deserialize(YamlConfiguration.loadConfiguration(getDataStorageFile()));
+        
+        if (getTickFrequency() > 0)
+            new LambdaRunnable(() -> getFeatures().forEach(FeatureInstance::tick)).runTaskTimer(getPlugin(), getTickFrequency(), getTickFrequency());
     }
     
     public String getMoveMetaData() {
@@ -171,7 +171,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     
     public void save() {
         YamlConfiguration config = new YamlConfiguration();
-                
+        
         serialize().forEach(config::set);
         
         BukkitRunnable saveTask = new LambdaRunnable(() -> {
@@ -199,7 +199,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     /**
      * Returns how often the feature should tick in Minecraft ticks.
      * Negative values and 0 indicate that the feature does not tick.
-     * 
+     *
      * @return the tick frequency in Minecraft ticks
      */
     public long getTickFrequency() {

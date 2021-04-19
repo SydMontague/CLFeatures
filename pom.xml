@@ -47,13 +47,8 @@
         <dependency>
             <groupId>me.sizzlemcgrizzle</groupId>
             <artifactId>blueprints</artifactId>
-            <version>1.6.16</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>1.7.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

@@ -3,6 +3,10 @@ package de.craftlancer.clfeatures;
 import de.craftlancer.clfeatures.amplifiedbeacon.AmplifiedBeaconFeatureInstance;
 import de.craftlancer.clfeatures.chair.ChairFeature;
 import de.craftlancer.clfeatures.chair.ChairFeatureInstance;
+import de.craftlancer.clfeatures.fragmentextractor.FragmentExtractorFeature;
+import de.craftlancer.clfeatures.fragmentextractor.FragmentExtractorFeatureInstance;
+import de.craftlancer.clfeatures.furniture.FurnitureFeature;
+import de.craftlancer.clfeatures.furniture.FurnitureFeatureInstance;
 import de.craftlancer.clfeatures.jukebox.JukeboxFeature;
 import de.craftlancer.clfeatures.jukebox.JukeboxFeatureInstance;
 import de.craftlancer.clfeatures.painter.PainterFeature;
@@ -90,6 +94,8 @@ public class CLFeatures extends JavaPlugin implements Listener {
         ConfigurationSerialization.registerClass(JukeboxFeatureInstance.class);
         ConfigurationSerialization.registerClass(ChairFeatureInstance.class);
         ConfigurationSerialization.registerClass(PainterFeatureInstance.class);
+        ConfigurationSerialization.registerClass(FragmentExtractorFeatureInstance.class);
+        ConfigurationSerialization.registerClass(FurnitureFeatureInstance.class);
         
         saveDefaultConfig();
         instance = this;
@@ -108,6 +114,8 @@ public class CLFeatures extends JavaPlugin implements Listener {
         registerFeature("jukebox", new JukeboxFeature(this, getConfig().getConfigurationSection("jukebox")));
         registerFeature("chair", new ChairFeature(this, getConfig().getConfigurationSection("chair")));
         registerFeature("painter", new PainterFeature(this, getConfig().getConfigurationSection("painter")));
+        registerFeature("furniture", new FurnitureFeature(this, getConfig().getConfigurationSection("furniture")));
+        registerFeature("fragmentExtractor", new FragmentExtractorFeature(this, getConfig().getConfigurationSection("fragmentExtractor")));
         
         MessageUtil.register(this, new TextComponent("§f[§4Craft§fCitizen]"), ChatColor.WHITE, ChatColor.YELLOW, ChatColor.RED,
                 ChatColor.DARK_RED, ChatColor.DARK_AQUA, ChatColor.GREEN);
