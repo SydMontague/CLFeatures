@@ -40,6 +40,7 @@ public class FurnitureFeature extends ItemFrameFeature<FurnitureFeatureInstance>
             instances.remove(instance);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     protected void deserialize(Configuration config) {
         this.instances = (List<FurnitureFeatureInstance>) config.getList("instances", new ArrayList<>());

@@ -32,7 +32,7 @@ import java.util.UUID;
 
 public class FragmentExtractorFeatureInstance extends ManualPlacementFeatureInstance {
     
-    private static final long COOLDOWN = 1000 * 20;//1000 * 30 * 60;
+    private static final long COOLDOWN = 1000L * 30 * 60;
     
     private ConditionalMenu menu;
     private Map<Integer, ItemStack> inventory;
@@ -45,6 +45,7 @@ public class FragmentExtractorFeatureInstance extends ManualPlacementFeatureInst
         this.lastPickupTime = new HashMap<>();
     }
     
+    @SuppressWarnings("unchecked")
     public FragmentExtractorFeatureInstance(Map<String, Object> map) {
         super(map);
         

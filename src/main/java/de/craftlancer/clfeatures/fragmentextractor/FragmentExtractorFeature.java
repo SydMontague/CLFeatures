@@ -45,13 +45,9 @@ public class FragmentExtractorFeature extends ManualPlacementFeature<FragmentExt
         return Collections.emptyList();
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     protected void deserialize(Configuration config) {
-        System.out.println(config.getKeys(false));
-        config.getKeys(false).forEach(key -> {
-            if (config.getList(key) != null)
-                System.out.println(config.getList(key));
-        });
         instances = (List<FragmentExtractorFeatureInstance>) config.getList("instances", new ArrayList<>());
     }
     
