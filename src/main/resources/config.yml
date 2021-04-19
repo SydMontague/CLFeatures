@@ -83,3 +83,9 @@ chair:
   featureItem: chair
 painter:
   featureItem: painter
+furniture:
+  featureItem: furniture
+fragmentExtractor:
+  featureItem: fragmentExtractor
+  defaultLimit: 1
+  maxLimit: 1

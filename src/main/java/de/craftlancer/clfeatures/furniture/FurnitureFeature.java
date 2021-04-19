@@ -1,4 +1,4 @@
-package de.craftlancer.clfeatures.chair;
+package de.craftlancer.clfeatures.furniture;
 
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureCommandHandler;
@@ -18,63 +18,65 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ChairFeature extends ItemFrameFeature<ChairFeatureInstance> {
+public class FurnitureFeature extends ItemFrameFeature<FurnitureFeatureInstance> {
     
-    private List<ChairFeatureInstance> instances;
+    private List<FurnitureFeatureInstance> instances;
     
-    public ChairFeature(CLFeatures plugin, ConfigurationSection config) {
-        super(plugin, config, new NamespacedKey(plugin, "chair.limit"));
+    public FurnitureFeature(CLFeatures plugin, ConfigurationSection config) {
+        super(plugin, config, new NamespacedKey(plugin, "furniture.limit"));
     }
     
     @Override
     public boolean createInstance(Player creator, BlueprintPostPasteEvent event) {
-        return instances.add(new ChairFeatureInstance(creator.getUniqueId(), new BlockStructure(event.getBlocksPasted()),
-                event.getFeatureLocation(), event.getSchematic(), event.getPastedEntities()));
-    }
-    
-    @Override
-    protected void deserialize(Configuration config) {
-        instances = (List<ChairFeatureInstance>) config.getList("chairs", new ArrayList<>());
-    }
-    
-    @Override
-    protected Map<String, Object> serialize() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("chairs", instances);
-        return map;
+        return instances.add(new FurnitureFeatureInstance(creator.getUniqueId(), new BlockStructure(event.getBlocksPasted()), event.getFeatureLocation(),
+                event.getSchematic(), event.getPastedEntities()));
     }
     
     @Override
     public void remove(FeatureInstance instance) {
         super.remove(instance);
         
-        if (instance instanceof ChairFeatureInstance)
+        if (instance instanceof FurnitureFeatureInstance)
             instances.remove(instance);
     }
     
     @Override
-    public long getTickFrequency() {
-        return 80;
+    protected void deserialize(Configuration config) {
+        this.instances = (List<FurnitureFeatureInstance>) config.getList("instances", new ArrayList<>());
+    }
+    
+    @Override
+    protected Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        
+        map.put("instances", instances);
+        
+        return map;
     }
     
     @Override
     public CommandHandler getCommandHandler() {
-        return new FeatureCommandHandler(CLFeatures.getInstance(), this);
+        return new FeatureCommandHandler(getPlugin(), this);
     }
     
     @Nonnull
     @Override
     public String getName() {
-        return "Chair";
+        return "Furniture";
     }
     
     @Override
-    public List<ChairFeatureInstance> getFeatures() {
+    public List<FurnitureFeatureInstance> getFeatures() {
         return instances;
     }
     
     @Override
     protected BreakAction getBreakAction() {
         return BreakAction.DROP_IF_ANY;
+    }
+    
+    @Override
+    public long getTickFrequency() {
+        return -1;
     }
 }
