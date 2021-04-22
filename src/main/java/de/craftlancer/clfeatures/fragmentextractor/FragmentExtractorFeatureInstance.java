@@ -24,42 +24,61 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class FragmentExtractorFeatureInstance extends ManualPlacementFeatureInstance {
     
-    private static final long COOLDOWN = 1000 * 20;//1000 * 30 * 60;
+    private static final long COOLDOWN = 1000 * 10 * 60;
     
     private ConditionalMenu menu;
-    private Map<Integer, ItemStack> inventory;
-    private Map<Integer, Long> lastPickupTime;
+    private ItemStack[] inventory;
+    private long lastGenerateTime;
+    private boolean notify;
     
-    protected FragmentExtractorFeatureInstance(UUID ownerId, BlockStructure blocks, Location location, ItemStack usedItem) {
-        super(ownerId, blocks, location, usedItem);
+    protected FragmentExtractorFeatureInstance(Player player, BlockStructure blocks, Location location, ItemStack usedItem) {
+        super(player.getUniqueId(), blocks, location, usedItem);
         
-        this.inventory = new HashMap<>();
-        this.lastPickupTime = new HashMap<>();
+        notify = true;
+        lastGenerateTime = System.currentTimeMillis();
+        inventory = new ItemStack[getSlots(player)];
+        Arrays.fill(inventory, new ItemStack(Material.AIR));
     }
     
     public FragmentExtractorFeatureInstance(Map<String, Object> map) {
         super(map);
         
-        this.inventory = (Map<Integer, ItemStack>) map.getOrDefault("inventory", new HashMap<>());
-        this.lastPickupTime = (Map<Integer, Long>) map.getOrDefault("lastTimes", new HashMap<>());
+        List<ItemStack> items = (List<ItemStack>) map.getOrDefault("inventory", new ArrayList<>());
+        
+        inventory = new ItemStack[items.size()];
+        for (int i = 0; i < items.size(); i++)
+            inventory[i] = items.get(i);
+        
+        this.notify = (boolean) map.getOrDefault("notify", true);
+        this.lastGenerateTime = (long) map.getOrDefault("lastGenerateTime", System.currentTimeMillis());
     }
     
     @Override
     public Map<String, Object> serialize() {
         Map<String, Object> map = super.serialize();
         
-        map.put("inventory", inventory);
-        map.put("lastTimes", lastPickupTime);
+        map.put("inventory", Arrays.asList(inventory));
+        map.put("lastGenerateTime", lastGenerateTime);
+        map.put("notify", notify);
         
         return map;
+    }
+    
+    @Override
+    public void destroy() {
+        super.destroy();
+        
+        for (ItemStack i : inventory)
+            if (!i.getType().isAir())
+                getInitialBlock().getWorld().dropItemNaturally(getInitialBlock(), i);
     }
     
     @Override
@@ -67,7 +86,7 @@ public class FragmentExtractorFeatureInstance extends ManualPlacementFeatureInst
         if (!Utils.isChunkLoaded(getInitialBlock()))
             return;
         
-        if (inventory.values().stream().anyMatch(i -> !i.getType().isAir()))
+        if (Arrays.stream(inventory).anyMatch(i -> !i.getType().isAir()))
             getInitialBlock().getWorld().spawnParticle(Particle.CRIT_MAGIC, getInitialBlock().add(0.5, 2, 0.5), 5);
         
         Player player = Bukkit.getPlayer(getOwnerId());
@@ -75,19 +94,25 @@ public class FragmentExtractorFeatureInstance extends ManualPlacementFeatureInst
         if (player == null)
             return;
         
+        lastGenerateTime += 20;
+        
         int slots = getSlots(player);
         
-        if (inventory.size() < slots)
-            for (int i = inventory.size() + 1; i < slots + 1; i++)
-                addFragment(i);
+        if (inventory.length < slots) {
+            ItemStack[] temp = new ItemStack[slots];
+            for (int i = 0; i < temp.length; i++)
+                if (inventory.length > i)
+                    temp[i] = inventory[i];
+                else
+                    temp[i] = new ItemStack(Material.AIR);
+            inventory = temp;
+        }
         
-        if (inventory.values().stream().noneMatch(i -> i.getType().isAir()))
-            return;
+        if (lastGenerateTime + COOLDOWN <= System.currentTimeMillis()) {
+            lastGenerateTime = System.currentTimeMillis();
+            addFragment(player);
+        }
         
-        inventory.entrySet().stream().filter(e -> e.getValue().getType().isAir()).forEach(e -> {
-            if (!lastPickupTime.containsKey(e.getKey()) || lastPickupTime.get(e.getKey()) + (COOLDOWN) <= System.currentTimeMillis())
-                addFragment(e.getKey());
-        });
     }
     
     @Override
@@ -107,21 +132,38 @@ public class FragmentExtractorFeatureInstance extends ManualPlacementFeatureInst
         return CLFeatures.getInstance().getFeature("fragmentExtractor");
     }
     
-    private void addFragment(int key) {
+    private void addFragment(Player player) {
         getInitialBlock().getWorld().playSound(getInitialBlock(), Sound.BLOCK_GRINDSTONE_USE, 1F, 1F);
-        inventory.put(key, CLCore.getInstance().getItemRegistry().getItem("lesserfragment").orElse(new ItemStack(Material.AIR)));
-        lastPickupTime.put(key, System.currentTimeMillis());
+        for (int i = 0; i < inventory.length; i++)
+            if (inventory[i].getType().isAir()) {
+                if (notify)
+                    player.sendMessage(CLFeatures.CC_PREFIX + "§aA fragment has been extracted at your fragment extractor!");
+                inventory[i] = getCurrency();
+                break;
+            }
         
-        Player player = Bukkit.getPlayer(getOwnerId());
-        
-        if (player == null)
-            return;
-        
-        player.sendMessage(CLFeatures.CC_PREFIX + "§aA fragment has been extracted at your fragment extractor!");
-        
+        if (menu == null)
+            createInventory();
         for (Menu m : menu.getMenus().values())
             if (!m.getInventory().getViewers().isEmpty())
                 display((Player) m.getInventory().getViewers().get(0));
+    }
+    
+    private ItemStack getCurrency() {
+        double random = Math.random();
+        
+        if (random < 0.02)
+            return CLCore.getInstance().getItemRegistry().getItem("greaterfragment").orElse(new ItemStack(Material.AIR));
+        else if (random < 0.1)
+            return CLCore.getInstance().getItemRegistry().getItem("commonfragment").orElse(new ItemStack(Material.AIR));
+        else if (random < 0.4)
+            return CLCore.getInstance().getItemRegistry().getItem("pettyfragment").orElse(new ItemStack(Material.AIR));
+        else
+            return CLCore.getInstance().getItemRegistry().getItem("lesserfragment").orElse(new ItemStack(Material.AIR));
+    }
+    
+    public void setNotify(boolean notify) {
+        this.notify = notify;
     }
     
     private int getSlots(Player player) {
@@ -140,24 +182,27 @@ public class FragmentExtractorFeatureInstance extends ManualPlacementFeatureInst
         menu = new ConditionalMenu(getManager().getPlugin(), 3, Arrays.asList(new Tuple<>("default", "Fragment Extractor"),
                 new Tuple<>("resource", "§f" + TranslateSpaceFont.TRANSLATE_NEGATIVE_8 + "\uE306" + TranslateSpaceFont.getSpecificAmount(-169) + "§8Fragment Extractor")));
         
-        for (int i = inventory.size() + 9; i < 18; i++)
+        for (int i = inventory.length + 9; i < 18; i++)
             menu.set(i, new MenuItem(new ItemBuilder(Material.STONE).setDisplayName("§6§lLOCKED").setLore("", "§e§lYou must rank up §7to", "§7unlock this slot.")
                     .setCustomModelData(19).build()), "resource");
         
-        inventory.forEach((key, value) -> menu.set(key + 8, new MenuItem(value)
-                .addClickAction(c -> {
-                    Player player = c.getPlayer();
-                    
-                    if (!c.getCursor().getType().isAir())
-                        return;
-                    
-                    if (c.getItem().getItem().getType().isAir())
-                        return;
-                    
-                    player.setItemOnCursor(c.getItem().getItem().clone());
-                    inventory.put(key, new ItemStack(Material.AIR));
-                    lastPickupTime.put(key, System.currentTimeMillis());
-                    menu.replace(key + 8, new ItemStack(Material.AIR));
-                })));
+        for (int i = 0; i < inventory.length; i++) {
+            final int key = i;
+            ItemStack value = inventory[key];
+            menu.set(key + 9, new MenuItem(value)
+                    .addClickAction(c -> {
+                        Player player = c.getPlayer();
+                        
+                        if (!c.getCursor().getType().isAir())
+                            return;
+                        
+                        if (c.getItem().getItem().getType().isAir())
+                            return;
+                        
+                        player.setItemOnCursor(c.getItem().getItem().clone());
+                        inventory[key] = new ItemStack(Material.AIR);
+                        menu.replace(key + 9, new ItemStack(Material.AIR));
+                    }));
+        }
     }
 }
