@@ -1,7 +1,6 @@
 package de.craftlancer.clfeatures.fragmentextractor;
 
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.ManualPlacementFeature;
 import de.craftlancer.core.command.CommandHandler;
@@ -31,7 +30,7 @@ public class FragmentExtractorFeature extends ManualPlacementFeature<FragmentExt
     
     @Override
     public boolean createInstance(Player creator, Block initialBlock, ItemStack hand) {
-        return instances.add(new FragmentExtractorFeatureInstance(creator.getUniqueId(),
+        return instances.add(new FragmentExtractorFeatureInstance(creator,
                 new BlockStructure(initialBlock.getLocation()), initialBlock.getLocation(), hand));
     }
     
@@ -62,7 +61,7 @@ public class FragmentExtractorFeature extends ManualPlacementFeature<FragmentExt
     
     @Override
     public CommandHandler getCommandHandler() {
-        return new FeatureCommandHandler(getPlugin(), this);
+        return new FragmentExtractorCommandHandler(getPlugin(), this);
     }
     
     @Override
@@ -90,5 +89,15 @@ public class FragmentExtractorFeature extends ManualPlacementFeature<FragmentExt
     @Override
     public long getTickFrequency() {
         return 20;
+    }
+    
+    protected boolean setNotifications(Player player, boolean notify) {
+        List<FragmentExtractorFeatureInstance> list = getFeaturesByUUID(player.getUniqueId());
+        
+        if (list.isEmpty())
+            return false;
+        
+        list.forEach(f -> f.setNotify(notify));
+        return true;
     }
 }
