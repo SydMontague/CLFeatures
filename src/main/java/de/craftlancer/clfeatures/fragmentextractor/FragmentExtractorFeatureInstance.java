@@ -32,7 +32,7 @@ import java.util.Map;
 
 public class FragmentExtractorFeatureInstance extends ManualPlacementFeatureInstance {
     
-    private static final long COOLDOWN = 1000 * 10 * 60;
+    private static final long COOLDOWN = 1000L * 10 * 60;
     
     private ConditionalMenu menu;
     private ItemStack[] inventory;
@@ -48,6 +48,7 @@ public class FragmentExtractorFeatureInstance extends ManualPlacementFeatureInst
         Arrays.fill(inventory, new ItemStack(Material.AIR));
     }
     
+    @SuppressWarnings("unchecked")
     public FragmentExtractorFeatureInstance(Map<String, Object> map) {
         super(map);
         
