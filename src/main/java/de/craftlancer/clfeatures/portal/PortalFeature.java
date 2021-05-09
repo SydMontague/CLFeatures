@@ -268,7 +268,7 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
         
         @Override
         public void run() {
-            bar.setProgress(1D - (double) currentTimer / timer);
+            bar.setProgress(Math.max(0D, 1D - (double) currentTimer / timer));
             bar.setTitle(ChatColor.YELLOW + "Portal Cooldown " + ChatColor.GRAY + " - " + ChatColor.GOLD + " " + (timer - currentTimer) + " " + ChatColor.YELLOW
                     + "seconds");
             
