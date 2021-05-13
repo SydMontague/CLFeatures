@@ -17,4 +17,9 @@ public class JukeboxSkipTick implements AbstractJukeboxNote {
     public Map<String, Object> serialize() {
         return new HashMap<>();
     }
+    
+    @Override
+    public AbstractJukeboxNote clone() {
+        return new JukeboxSkipTick();
+    }
 }

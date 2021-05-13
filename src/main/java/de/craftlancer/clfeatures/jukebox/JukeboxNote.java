@@ -50,6 +50,10 @@ public class JukeboxNote implements AbstractJukeboxNote {
         return map;
     }
     
+    public int getNoteNumber() {
+        return note;
+    }
+    
     public Note getNote() {
         return new Note(note);
     }
@@ -67,6 +71,13 @@ public class JukeboxNote implements AbstractJukeboxNote {
         player.openInventory(menu.getMenu(ResourcePackManager.getInstance().isFullyAccepted(player) ? "resource" : "default").getInventory());
     }
     
+    @Override
+    public JukeboxNote clone() {
+        JukeboxNote note = new JukeboxNote();
+        note.setNote(this.note);
+        return note;
+    }
+    
     private void createMenu(JukeboxSong song, int page) {
         menu = new ConditionalMenu(CLFeatures.getInstance(), 3, Arrays.asList(new Tuple<>("default", "§8Note Editor"),
                 new Tuple<>("resource", TranslateSpaceFont.TRANSLATE_NEGATIVE_8 + "§f\uE303" +
@@ -82,8 +93,16 @@ public class JukeboxNote implements AbstractJukeboxNote {
                             menu.replace(12, getInstrumentButton());
                             click.getPlayer().playNote(click.getPlayer().getLocation(), i, getNote());
                             
-                            instrumentIndex = instrumentIndex + 1 == 16 ? 0 : instrumentIndex + 1;
-                        }));
+                            instrumentIndex = instrumentIndex + 1 > 15 ? 0 : instrumentIndex + 1;
+                        }, ClickType.RIGHT)
+                        .addClickAction(click -> {
+                            Instrument i = Instrument.values()[instrumentIndex];
+                            setInstrument(i);
+                            menu.replace(12, getInstrumentButton());
+                            click.getPlayer().playNote(click.getPlayer().getLocation(), i, getNote());
+                            
+                            instrumentIndex = instrumentIndex - 1 < 0 ? 15 : instrumentIndex - 1;
+                        }, ClickType.LEFT));
         
         menu.set(13, new MenuItem(RETURN_BUTTON.clone()).addClickAction(click -> song.displayTickOverviewMenu(click.getPlayer(), page)));
         
@@ -107,12 +126,12 @@ public class JukeboxNote implements AbstractJukeboxNote {
     
     private ItemStack getNoteButton() {
         return new ItemBuilder(Material.FEATHER).setDisplayName("§6§lChange note...")
-                .setLore("", "§e§lLEFT CLICK §7to decrease.", "§e§lRIGHT CLICK §7 to increase.", "", "§7Current: §e" + note).build();
+                .setLore("", "§e§lLEFT CLICK §7to decrease.", "§e§lRIGHT CLICK §7to increase.", "", "§7Current: §e" + note).build();
     }
     
     private ItemStack getInstrumentButton() {
         return new ItemBuilder(getByInstrument(instrument)).setDisplayName("§6§lChange instrument...")
-                .setLore("", "§7Click to change instrument", "", "§7Current instrument: §e" + instrument.name().replace("_", " ").toLowerCase()).build();
+                .setLore("", "§e§lLEFT CLICK §7to decrease.", "§e§lRIGHT CLICK §7to increase.", "", "§7Current instrument: §e" + instrument.name().replace("_", " ").toLowerCase()).build();
     }
     
     private static Material getByInstrument(Instrument instrument) {
