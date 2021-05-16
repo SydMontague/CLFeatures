@@ -61,13 +61,17 @@ public class JukeboxSong implements ConfigurationSerializable {
     }
     
     /**
-     * @returns returns the next tick to be played
+     * @returns returns true if a note was played, false if a delay is present
      */
-    public void play(List<Player> players, int tick) {
+    public boolean play(List<Player> players, int tick) {
+        boolean hasNote = false;
         for (AbstractJukeboxNote note : notes.get(tick))
-            if (note instanceof JukeboxNote)
+            if (note instanceof JukeboxNote) {
                 for (Player player : players)
                     player.playNote(player.getLocation(), ((JukeboxNote) note).getInstrument(), ((JukeboxNote) note).getNote());
+                hasNote = true;
+            }
+        return hasNote;
     }
     
     public boolean isComplete(int tick) {
