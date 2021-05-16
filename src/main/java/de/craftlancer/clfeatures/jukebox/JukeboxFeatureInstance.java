@@ -42,6 +42,7 @@ public class JukeboxFeatureInstance extends ItemFrameFeatureInstance {
     private ConditionalMenu menu;
     
     private ItemStack songItem;
+    private JukeboxSong song;
     private int songTick = 0;
     private boolean paused;
     private boolean repeat;
@@ -75,24 +76,19 @@ public class JukeboxFeatureInstance extends ItemFrameFeatureInstance {
     @Override
     protected void tick() {
         
+        if (song == null)
+            if (getManager().isSongItem(getSongItem()))
+                song = getManager().getSong(getSongItem());
+            else
+                return;
+        
         if (isPaused())
             return;
         
         if (!isRepeat() && hasPlayed)
             return;
         
-        if (songItem == null || songItem.getType() == Material.AIR)
-            return;
-        
         if (!Utils.isChunkLoaded(getInitialBlock()))
-            return;
-        
-        if (!getManager().isSongItem(songItem))
-            return;
-        
-        JukeboxSong song = getManager().getSong(songItem);
-        
-        if (song == null)
             return;
         
         if (song.isComplete(songTick)) {
@@ -107,9 +103,7 @@ public class JukeboxFeatureInstance extends ItemFrameFeatureInstance {
         
         getInitialBlock().getWorld().spawnParticle(Particle.NOTE, getInitialBlock().add(Math.random(), 1 + Math.random(), Math.random()), 1);
         
-        song.play(nearby, songTick);
-        
-        songTick++;
+        songTick += song.play(nearby, songTick) ? 2 : 1;
     }
     
     @Override
@@ -142,14 +136,12 @@ public class JukeboxFeatureInstance extends ItemFrameFeatureInstance {
                 new MenuItem(getSongItem())
                         .addClickAction(click -> {
                             ItemStack cursor = click.getCursor();
-                            MenuItem item = click.getItem();
                             
-                            if (cursor == null || (cursor.getType() != Material.AIR && !getManager().isSongItem(cursor)))
+                            if (cursor == null || cursor.getType().isAir() || (cursor.getType() != Material.AIR && !getManager().isSongItem(cursor)))
                                 return;
                             
                             setSongItem(cursor.clone());
                             menu.replace(31, cursor.clone());
-                            click.getPlayer().setItemOnCursor(new ItemStack(item.getItem()));
                         }));
         
         menu.set(34,
@@ -172,7 +164,8 @@ public class JukeboxFeatureInstance extends ItemFrameFeatureInstance {
     }
     
     public void setSongItem(ItemStack songItem) {
-        this.songItem = songItem;
+        this.songItem = songItem.clone();
+        this.song = getManager().getSong(songItem);
         this.songTick = 0;
         this.hasPlayed = false;
     }
