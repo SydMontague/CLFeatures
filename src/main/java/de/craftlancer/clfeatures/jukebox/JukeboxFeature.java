@@ -55,8 +55,7 @@ public class JukeboxFeature extends ItemFrameFeature<JukeboxFeatureInstance> {
                 new BlockStructure(event.getBlocksPasted()),
                 event.getFeatureLocation(), event.getSchematic(), event.getPastedEntities()));
     }
-
-    @SuppressWarnings("unchecked")
+    
     @Override
     protected void deserialize(Configuration config) {
         instances = (List<JukeboxFeatureInstance>) config.getList("jukebox", new ArrayList<>());
@@ -95,7 +94,9 @@ public class JukeboxFeature extends ItemFrameFeature<JukeboxFeatureInstance> {
     }
     
     public boolean isSongItem(ItemStack item) {
-        return item.getItemMeta().getPersistentDataContainer().has(SONG_KEY, PersistentDataType.STRING);
+        return item != null &&
+                item.hasItemMeta() &&
+                item.getItemMeta().getPersistentDataContainer().has(SONG_KEY, PersistentDataType.STRING);
     }
     
     public JukeboxSong getSong(ItemStack item) {
