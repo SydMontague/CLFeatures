@@ -75,6 +75,7 @@ public class JukeboxNote implements AbstractJukeboxNote {
     public JukeboxNote clone() {
         JukeboxNote note = new JukeboxNote();
         note.setNote(this.note);
+        note.setInstrument(this.instrument);
         return note;
     }
     
