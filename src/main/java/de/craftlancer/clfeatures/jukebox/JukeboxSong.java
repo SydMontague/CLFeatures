@@ -31,13 +31,14 @@ public class JukeboxSong implements ConfigurationSerializable {
     private UUID uuid;
     private EditMode mode = EditMode.NORMAL;
     private AbstractJukeboxNote clipboard;
+    private boolean legacyTiming = false;
     
     public JukeboxSong(UUID uuid) {
         this.uuid = uuid;
     }
     
     public JukeboxSong(Map<String, Object> map) {
-        
+        this.legacyTiming = (boolean) map.getOrDefault("legacyTiming", false);
         this.uuid = UUID.fromString((String) map.get("uuid"));
         this.notes = (Map<Integer, List<AbstractJukeboxNote>>) map.get("notes");
     }
@@ -48,6 +49,7 @@ public class JukeboxSong implements ConfigurationSerializable {
         
         map.put("uuid", uuid.toString());
         map.put("notes", notes);
+        map.put("legacyTiming", legacyTiming);
         
         return map;
     }
@@ -71,7 +73,7 @@ public class JukeboxSong implements ConfigurationSerializable {
                     player.playNote(player.getLocation(), ((JukeboxNote) note).getInstrument(), ((JukeboxNote) note).getNote());
                 hasNote = true;
             }
-        return hasNote;
+        return !legacyTiming && hasNote;
     }
     
     public boolean isComplete(int tick) {
@@ -127,7 +129,10 @@ public class JukeboxSong implements ConfigurationSerializable {
         });
         
         tickOverviewMenu.setInfoItem(new MenuItem(new ItemBuilder(Material.DIAMOND_BLOCK).setDisplayName("§6§lEdit ticks...")
-                .setLore("", "§e§lLEFT CLICK §7to add a note.", "§e§lRIGHT CLICK §7to add a delay.", "§e§lSHIFT RIGHT CLICK §7to clear all ticks.").build())
+                .setLore("", "§e§lLEFT CLICK §7to add a note.",
+                        "§e§lRIGHT CLICK §7to add a delay.",
+                        "§e§lSHIFT LEFT CLICK §7to change timing to legacy.",
+                        "§e§lSHIFT RIGHT CLICK §7to clear all ticks.").build())
                 .addClickAction(click -> {
                     addJukeboxNote(new JukeboxNote());
                     displayTickOverviewMenu(click.getPlayer(), getNumNotesUpToTick(notes.size() - 2) / tickOverviewMenu.getItemsPerPage());
@@ -136,6 +141,10 @@ public class JukeboxSong implements ConfigurationSerializable {
                     addJukeboxNote(new JukeboxSkipTick());
                     displayTickOverviewMenu(click.getPlayer(), getNumNotesUpToTick(notes.size() - 2) / tickOverviewMenu.getItemsPerPage());
                 }, ClickType.RIGHT)
+                .addClickAction(click -> {
+                    legacyTiming = !legacyTiming;
+                    displayTickOverviewMenu(click.getPlayer(), 0);
+                })
                 .addClickAction(click -> {
                     notes.clear();
                     displayTickOverviewMenu(click.getPlayer(), getNumNotesUpToTick(notes.size() - 2) / tickOverviewMenu.getItemsPerPage());
