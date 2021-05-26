@@ -5,7 +5,7 @@ import org.bukkit.plugin.Plugin;
 
 public class FragmentExtractorCommandHandler extends FeatureCommandHandler {
     public FragmentExtractorCommandHandler(Plugin plugin, FragmentExtractorFeature feature) {
-        super(plugin, feature);
+        super(plugin, feature, true, true, true);
         
         registerSubCommand("notifications", new FragmentExtractorNotificationsCommand(plugin, feature));
     }

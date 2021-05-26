@@ -6,7 +6,7 @@ import org.bukkit.plugin.Plugin;
 public class PortalFeatureSubCommandHandler extends FeatureCommandHandler {
     
     public PortalFeatureSubCommandHandler(Plugin plugin, PortalFeature feature) {
-        super(plugin, feature, true, false);
+        super(plugin, feature, true, false, true);
         
         registerSubCommand("list", new PortalListCommand(getPlugin(), feature));
         registerSubCommand("name", new PortalNameCommand(getPlugin(), feature), "address");
