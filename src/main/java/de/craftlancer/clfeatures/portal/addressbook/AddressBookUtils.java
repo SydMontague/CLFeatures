@@ -14,14 +14,15 @@ import org.bukkit.inventory.meta.BookMeta;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class AddressBookUtils {
     public AddressBookUtils() {
     }
     
-    private static final int ADDRESSBOOK_MODEL_DATA = 1;
+    private static final List<Integer> ADDRESSBOOK_MODEL_DATA = Arrays.asList(1, 2, 3, 4, 5);
+    private static final int DEFAULT_ADDRESSBOOK_MODEL_DATA = 1;
     
     public static boolean isAddressBook(ItemStack item) {
         if (item.getType() != Material.WRITTEN_BOOK)
@@ -29,7 +30,7 @@ public class AddressBookUtils {
         
         BookMeta meta = (BookMeta) item.getItemMeta();
         
-        return meta.hasCustomModelData() && meta.getCustomModelData() == ADDRESSBOOK_MODEL_DATA;
+        return meta.hasCustomModelData() && ADDRESSBOOK_MODEL_DATA.contains(meta.getCustomModelData());
     }
     
     public static Optional<String> getCurrentTarget(ItemStack item) {
@@ -38,7 +39,7 @@ public class AddressBookUtils {
         
         BookMeta meta = (BookMeta) item.getItemMeta();
         
-        if(!meta.hasCustomModelData() || meta.getCustomModelData() != ADDRESSBOOK_MODEL_DATA)
+        if(!meta.hasCustomModelData() || !ADDRESSBOOK_MODEL_DATA.contains(meta.getCustomModelData()))
             return Optional.empty();
         
         return Optional.of(ChatColor.stripColor(meta.getPage(1).split("\n")[1].trim()));
@@ -98,7 +99,8 @@ public class AddressBookUtils {
         }
         
         BookMeta meta = (BookMeta) item.getItemMeta();
-        meta.setCustomModelData(ADDRESSBOOK_MODEL_DATA);
+        if(!meta.hasCustomModelData() || !ADDRESSBOOK_MODEL_DATA.contains(meta.getCustomModelData()))
+            meta.setCustomModelData(DEFAULT_ADDRESSBOOK_MODEL_DATA);
         meta.spigot().setPages(pages);
         item.setItemMeta(meta);
         
