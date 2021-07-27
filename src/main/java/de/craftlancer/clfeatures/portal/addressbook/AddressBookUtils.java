@@ -18,7 +18,7 @@ import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class AddressBookUtils {
-    public AddressBookUtils() {
+    private AddressBookUtils() {
     }
     
     private static final List<Integer> ADDRESSBOOK_MODEL_DATA = Arrays.asList(1, 2, 3, 4, 5);

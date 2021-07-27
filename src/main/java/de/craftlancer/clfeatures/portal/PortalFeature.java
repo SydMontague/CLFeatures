@@ -5,6 +5,7 @@ import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookCommandHandler;
 import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
+import de.craftlancer.core.CLCore;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
@@ -84,14 +85,14 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
     }
     
     public boolean checkRenameCosts(Player player) {
-        boolean money = getPlugin().getEconomy() == null || getPlugin().getEconomy().has(player, renameMoney);
+        boolean money = CLCore.getInstance().getEconomy() == null || CLCore.getInstance().getEconomy().has(player, renameMoney);
         boolean items = renameItems.stream().allMatch(a -> player.getInventory().containsAtLeast(a, a.getAmount()));
         
         return money && items;
     }
     
     public boolean deductRenameCosts(Player player) {
-        boolean moneySuccess = getPlugin().getEconomy() == null || getPlugin().getEconomy().withdrawPlayer(player, renameMoney).transactionSuccess();
+        boolean moneySuccess = CLCore.getInstance().getEconomy() == null || CLCore.getInstance().getEconomy().withdrawPlayer(player, renameMoney).transactionSuccess();
         boolean itemSuccess = player.getInventory().removeItem(renameItems.toArray(new ItemStack[0])).isEmpty();
         
         return moneySuccess && itemSuccess;

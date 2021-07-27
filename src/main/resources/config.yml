@@ -64,8 +64,6 @@ stonecrusher:
       output:
         - item: DIAMOND
           chance: 0.1
-trophyChest:
-  featureItem: something
 replicator:
   featureItem: replicator
   defaultLimit: -1

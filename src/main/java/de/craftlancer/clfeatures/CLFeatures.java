@@ -1,5 +1,32 @@
 package de.craftlancer.clfeatures;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.conversations.Conversation;
+import org.bukkit.conversations.ConversationContext;
+import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.conversations.Prompt;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import de.craftlancer.clfeatures.amplifiedbeacon.AmplifiedBeaconFeatureInstance;
 import de.craftlancer.clfeatures.chair.ChairFeature;
 import de.craftlancer.clfeatures.chair.ChairFeatureInstance;
@@ -33,32 +60,6 @@ import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import me.sizzlemcgrizzle.blueprints.api.BlueprintPrePasteEvent;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.conversations.Conversation;
-import org.bukkit.conversations.ConversationContext;
-import org.bukkit.conversations.ConversationFactory;
-import org.bukkit.conversations.Prompt;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 public class CLFeatures extends JavaPlugin implements Listener {
     public static final String CC_PREFIX = "§f[§4Craft§fCitizen]§e ";
@@ -69,8 +70,6 @@ public class CLFeatures extends JavaPlugin implements Listener {
     
     private NamespacedKey featureItemKey;
     private Map<String, Feature<?>> features = new HashMap<>();
-    private Economy econ = null;
-    private Permission perms = null;
     
     private ConversationFactory conversation = new ConversationFactory(this).withLocalEcho(false).withModality(false).withTimeout(30)
             .withFirstPrompt(new UseLimitTokenPrompt());
@@ -81,6 +80,8 @@ public class CLFeatures extends JavaPlugin implements Listener {
     
     @Override
     public void onEnable() {
+        instance = this;
+        
         ConfigurationSerialization.registerClass(PortalFeatureInstance.class);
         ConfigurationSerialization.registerClass(StoneCrusherFeatureInstance.class);
         ConfigurationSerialization.registerClass(TrophyDepositorFeatureInstance.class);
@@ -98,24 +99,21 @@ public class CLFeatures extends JavaPlugin implements Listener {
         ConfigurationSerialization.registerClass(FurnitureFeatureInstance.class);
         
         saveDefaultConfig();
-        instance = this;
-        setupEconomy();
-        setupPermissions();
         featureItemKey = new NamespacedKey(this, "clfeature");
         
         getServer().getPluginManager().registerEvents(this, this);
         
-        registerFeature("portal", new PortalFeature(this, getConfig().getConfigurationSection("portal")));
-        registerFeature("stonecrusher", new StoneCrusherFeature(this, getConfig().getConfigurationSection("stonecrusher")));
-        registerFeature("replicator", new ReplicatorFeature(this, getConfig().getConfigurationSection("replicator")));
-        registerFeature("spawnBlocker", new SpawnBlockerFeature(this, getConfig().getConfigurationSection("spawnBlocker")));
-        registerFeature("transmutationStation", new TransmutationStationFeature(this, getConfig().getConfigurationSection("transmutationStation")));
-        registerFeature("trophyDepositor", new TrophyDepositorFeature(this, getConfig().getConfigurationSection("trophyDepositor")));
-        registerFeature("jukebox", new JukeboxFeature(this, getConfig().getConfigurationSection("jukebox")));
-        registerFeature("chair", new ChairFeature(this, getConfig().getConfigurationSection("chair")));
-        registerFeature("painter", new PainterFeature(this, getConfig().getConfigurationSection("painter")));
-        registerFeature("furniture", new FurnitureFeature(this, getConfig().getConfigurationSection("furniture")));
-        registerFeature("fragmentExtractor", new FragmentExtractorFeature(this, getConfig().getConfigurationSection("fragmentExtractor")));
+        registerFeature("portal", PortalFeature::new);
+        registerFeature("stonecrusher", StoneCrusherFeature::new);
+        registerFeature("replicator", ReplicatorFeature::new);
+        registerFeature("spawnBlocker", SpawnBlockerFeature::new);
+        registerFeature("transmutationStation", TransmutationStationFeature::new);
+        registerFeature("trophyDepositor", TrophyDepositorFeature::new);
+        registerFeature("jukebox", JukeboxFeature::new);
+        registerFeature("chair", ChairFeature::new);
+        registerFeature("painter", PainterFeature::new);
+        registerFeature("furniture", FurnitureFeature::new);
+        registerFeature("fragmentExtractor", FragmentExtractorFeature::new);
         
         MessageUtil.register(this, new TextComponent("§f[§4Craft§fCitizen]"), ChatColor.WHITE, ChatColor.YELLOW, ChatColor.RED,
                 ChatColor.DARK_RED, ChatColor.DARK_AQUA, ChatColor.GREEN);
@@ -123,18 +121,23 @@ public class CLFeatures extends JavaPlugin implements Listener {
         new LambdaRunnable(() -> features.forEach((a, b) -> b.save())).runTaskTimer(this, 18000L, 18000L);
     }
     
+    private void registerFeature(String name, BiFunction<CLFeatures, ConfigurationSection, Feature<?>> constructor) {
+        if(!getConfig().isConfigurationSection(name))
+            getConfig().createSection(name);
+        
+        Feature<?> feature = constructor.apply(this, getConfig().getConfigurationSection(name));
+        features.put(name, feature);
+        getCommand(name).setExecutor(feature.getCommandHandler());
+    }
+
     @Override
     public void onDisable() {
         getServer().getScheduler().cancelTasks(this);
         features.forEach((a, b) -> b.save());
     }
     
-    public Economy getEconomy() {
-        return econ;
-    }
-    
-    public Permission getPermissions() {
-        return perms;
+    public Map<String, Feature<?>> getFeatures() {
+        return features;
     }
     
     public NamespacedKey getFeatureItemKey() {
@@ -258,32 +261,5 @@ public class CLFeatures extends JavaPlugin implements Listener {
             
             return Prompt.END_OF_CONVERSATION;
         }
-    }
-    
-    private boolean setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            return false;
-        }
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
-        econ = rsp.getProvider();
-        return econ != null;
-    }
-    
-    private boolean setupPermissions() {
-        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-        perms = rsp.getProvider();
-        return perms != null;
-    }
-    
-    private void registerFeature(String name, Feature<?> feature) {
-        features.put(name, feature);
-        getCommand(name).setExecutor(feature.getCommandHandler());
-    }
-    
-    public Map<String, Feature<?>> getFeatures() {
-        return features;
     }
 }

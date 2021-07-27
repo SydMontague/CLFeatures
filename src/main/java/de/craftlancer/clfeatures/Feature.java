@@ -66,11 +66,10 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         this.plugin = plugin;
         this.limitKey = limitKey;
         this.limitToken = config.getString("limitToken", "");
+        this.featureItem = config.getString("featureItem");
+        this.defaultLimit = config.getInt("defaultLimit", -1);
+        this.maxLimit = config.getInt("maxLimit", -1);
         
-        featureItem = config.getString("featureItem");
-        
-        defaultLimit = config.getInt("defaultLimit", -1);
-        maxLimit = config.getInt("maxLimit", -1);
         ConfigurationSection limitConfig = config.getConfigurationSection("limits");
         if (limitConfig != null)
             limitConfig.getKeys(false).forEach(a -> limitMap.put(a, limitConfig.getInt(a)));
@@ -88,7 +87,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     }
     
     public int getLimit(Player player) {
-        int groupLimit = limitMap.entrySet().stream().filter(a -> plugin.getPermissions().playerInGroup(player, a.getKey())).map(Entry::getValue)
+        int groupLimit = limitMap.entrySet().stream().filter(a -> CLCore.getInstance().getPermissions().playerInGroup(player, a.getKey())).map(Entry::getValue)
                 .max(Integer::compare).orElseGet(() -> defaultLimit);
         int individualLimit = player.getPersistentDataContainer().getOrDefault(limitKey, PersistentDataType.INTEGER, 0).intValue();
         

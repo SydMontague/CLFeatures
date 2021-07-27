@@ -3,7 +3,7 @@ main: de.craftlancer.clfeatures.CLFeatures
 api-version: 1.14
 author: Syd Montague
 version: ${project.version}
-depend: [CLCore, Blueprints]
+depend: [CLCore, Blueprints, CLClans]
 commands:
   portal:
     description: "Portal related commands"
@@ -14,9 +14,6 @@ commands:
   stonecrusher:
     description: "Stonecrusher related commands"
     usage: /stonecrusher [move]
-  #  trophyChest:
-  #    description: "TrophyChest related commands"
-  #    usage: /trophyChest [move]
   jukebox:
     description: "Jukebox related commands"
   replicator:
