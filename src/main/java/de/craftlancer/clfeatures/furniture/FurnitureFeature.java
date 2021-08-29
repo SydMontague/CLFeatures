@@ -1,12 +1,12 @@
 package de.craftlancer.clfeatures.furniture;
 
+import de.craftlancer.clapi.blueprints.event.BlueprintPostPasteEvent;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.ItemFrameFeature;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
@@ -40,7 +40,6 @@ public class FurnitureFeature extends ItemFrameFeature<FurnitureFeatureInstance>
             instances.remove(instance);
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     protected void deserialize(Configuration config) {
         this.instances = (List<FurnitureFeatureInstance>) config.getList("instances", new ArrayList<>());

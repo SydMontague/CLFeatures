@@ -1,11 +1,12 @@
 package de.craftlancer.clfeatures.trophydepositor;
 
+import de.craftlancer.clapi.clfeatures.trophydepositor.AbstractTrophyDepositorBoost;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TrophyDepositorBoost implements ConfigurationSerializable {
+public class TrophyDepositorBoost implements ConfigurationSerializable, AbstractTrophyDepositorBoost {
     
     private double boost;
     private int trophiesLeft;
@@ -30,19 +31,23 @@ public class TrophyDepositorBoost implements ConfigurationSerializable {
         return map;
     }
     
+    @Override
     public double apply(double trophy) {
         trophiesLeft--;
         return boost * trophy - trophy;
     }
     
+    @Override
     public int getTrophiesLeft() {
         return trophiesLeft;
     }
     
+    @Override
     public double getBoost() {
         return boost;
     }
     
+    @Override
     public void addTrophiesLeft(int size) {
         this.trophiesLeft += size;
     }

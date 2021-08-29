@@ -1,32 +1,9 @@
 package de.craftlancer.clfeatures;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.BiFunction;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.conversations.Conversation;
-import org.bukkit.conversations.ConversationContext;
-import org.bukkit.conversations.ConversationFactory;
-import org.bukkit.conversations.Prompt;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
-
+import de.craftlancer.clapi.blueprints.event.BlueprintPostPasteEvent;
+import de.craftlancer.clapi.blueprints.event.BlueprintPrePasteEvent;
+import de.craftlancer.clapi.clfeatures.AbstractFeatureInstance;
+import de.craftlancer.clapi.clfeatures.PluginCLFeatures;
 import de.craftlancer.clfeatures.amplifiedbeacon.AmplifiedBeaconFeatureInstance;
 import de.craftlancer.clfeatures.chair.ChairFeature;
 import de.craftlancer.clfeatures.chair.ChairFeatureInstance;
@@ -56,12 +33,37 @@ import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.conversation.ClickableBooleanPrompt;
 import de.craftlancer.core.conversation.FormattedConversable;
 import de.craftlancer.core.util.MessageUtil;
-import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
-import me.sizzlemcgrizzle.blueprints.api.BlueprintPrePasteEvent;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.conversations.Conversation;
+import org.bukkit.conversations.ConversationContext;
+import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.conversations.Prompt;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.ServicePriority;
+import org.bukkit.plugin.java.JavaPlugin;
 
-public class CLFeatures extends JavaPlugin implements Listener {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
+
+public class CLFeatures extends JavaPlugin implements Listener, PluginCLFeatures {
     public static final String CC_PREFIX = "§f[§4Craft§fCitizen]§e ";
     
     private static CLFeatures instance;
@@ -98,6 +100,8 @@ public class CLFeatures extends JavaPlugin implements Listener {
         ConfigurationSerialization.registerClass(FragmentExtractorFeatureInstance.class);
         ConfigurationSerialization.registerClass(FurnitureFeatureInstance.class);
         
+        Bukkit.getServicesManager().register(PluginCLFeatures.class, this, this, ServicePriority.Highest);
+        
         saveDefaultConfig();
         featureItemKey = new NamespacedKey(this, "clfeature");
         
@@ -122,20 +126,21 @@ public class CLFeatures extends JavaPlugin implements Listener {
     }
     
     private void registerFeature(String name, BiFunction<CLFeatures, ConfigurationSection, Feature<?>> constructor) {
-        if(!getConfig().isConfigurationSection(name))
+        if (!getConfig().isConfigurationSection(name))
             getConfig().createSection(name);
         
         Feature<?> feature = constructor.apply(this, getConfig().getConfigurationSection(name));
         features.put(name, feature);
         getCommand(name).setExecutor(feature.getCommandHandler());
     }
-
+    
     @Override
     public void onDisable() {
         getServer().getScheduler().cancelTasks(this);
         features.forEach((a, b) -> b.save());
     }
     
+    @Override
     public Map<String, Feature<?>> getFeatures() {
         return features;
     }
@@ -144,8 +149,9 @@ public class CLFeatures extends JavaPlugin implements Listener {
         return featureItemKey;
     }
     
+    @Override
     @Nullable
-    public Feature<?> getFeature(@Nonnull String string) {
+    public Feature<? extends AbstractFeatureInstance> getFeature(@Nonnull String string) {
         return features.get(string);
     }
     

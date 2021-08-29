@@ -1,15 +1,15 @@
 package de.craftlancer.clfeatures.portal;
 
+import de.craftlancer.clapi.blueprints.event.BlueprintPostPasteEvent;
+import de.craftlancer.clapi.clfeatures.portal.event.PortalTeleportEvent;
 import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookCommandHandler;
-import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
 import de.craftlancer.core.CLCore;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -58,7 +58,6 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
     private List<String> defaultPortals;
     private String defaultPortal;
     
-    @SuppressWarnings("unchecked")
     public PortalFeature(CLFeatures plugin, ConfigurationSection config) {
         super(plugin, config, new NamespacedKey(plugin, "portal.limit"));
         
@@ -139,8 +138,7 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
         
         return lookupTable.get(name.toLowerCase());
     }
-
-    @SuppressWarnings("unchecked")
+    
     @Override
     protected void deserialize(Configuration config) {
         instances = (List<PortalFeatureInstance>) config.getList("portals", new ArrayList<>());

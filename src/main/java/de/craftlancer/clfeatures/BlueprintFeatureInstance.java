@@ -1,5 +1,6 @@
 package de.craftlancer.clfeatures;
 
+import de.craftlancer.clapi.clfeatures.AbstractBlueprintFeatureInstance;
 import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.Location;
 
@@ -7,7 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class BlueprintFeatureInstance extends FeatureInstance {
+public abstract class BlueprintFeatureInstance extends FeatureInstance implements AbstractBlueprintFeatureInstance {
     
     private String usedSchematic;
     
@@ -32,6 +33,7 @@ public abstract class BlueprintFeatureInstance extends FeatureInstance {
         return map;
     }
     
+    @Override
     public String getUsedSchematic() {
         return usedSchematic;
     }

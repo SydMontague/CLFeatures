@@ -1,7 +1,7 @@
 package de.craftlancer.clfeatures.trophydepositor.command;
 
+import de.craftlancer.clapi.clfeatures.trophydepositor.AbstractTrophyDepositorBoost;
 import de.craftlancer.clfeatures.CLFeatures;
-import de.craftlancer.clfeatures.trophydepositor.TrophyDepositorBoost;
 import de.craftlancer.clfeatures.trophydepositor.TrophyDepositorFeature;
 import de.craftlancer.core.command.SubCommand;
 import org.bukkit.command.Command;
@@ -27,7 +27,7 @@ public class TrophyDepositorBoostsCommand extends SubCommand {
             commandSender.sendMessage(" §7Current trophy boosts:");
         else
             commandSender.sendMessage(" §7There are currently no trophy boosts.");
-        for (TrophyDepositorBoost boost : feature.getBoosts())
+        for (AbstractTrophyDepositorBoost boost : feature.getBoosts())
             commandSender.sendMessage("  §7- §dx" + boost.getBoost() + " §7| §5" + boost.getTrophiesLeft() + " §dtrophies remaining.");
         commandSender.sendMessage("§8§m-----------------------------");
         

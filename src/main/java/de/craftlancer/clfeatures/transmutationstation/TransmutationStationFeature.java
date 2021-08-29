@@ -1,12 +1,12 @@
 package de.craftlancer.clfeatures.transmutationstation;
 
+import de.craftlancer.clapi.blueprints.event.BlueprintPostPasteEvent;
 import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
@@ -34,8 +34,7 @@ public class TransmutationStationFeature extends BlueprintFeature<TransmutationS
         return instances.add(new TransmutationStationFeatureInstance(creator.getUniqueId(),
                 new BlockStructure(e.getBlocksPasted()), e.getFeatureLocation(), e.getSchematic()));
     }
-
-    @SuppressWarnings("unchecked")
+    
     @Override
     protected void deserialize(Configuration config) {
         instances = (List<TransmutationStationFeatureInstance>) config.getList("transmutationStation", new ArrayList<>());

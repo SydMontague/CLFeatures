@@ -1,5 +1,6 @@
 package de.craftlancer.clfeatures;
 
+import de.craftlancer.clapi.clfeatures.AbstractFeature;
 import de.craftlancer.core.CLCore;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.Utils;
@@ -51,7 +52,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public abstract class Feature<T extends FeatureInstance> implements Listener {
+public abstract class Feature<T extends FeatureInstance> implements Listener, AbstractFeature {
     
     private final CLFeatures plugin;
     private int defaultLimit;
@@ -86,6 +87,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return getName() + "Move";
     }
     
+    @Override
     public int getLimit(Player player) {
         int groupLimit = limitMap.entrySet().stream().filter(a -> CLCore.getInstance().getPermissions().playerInGroup(player, a.getKey())).map(Entry::getValue)
                 .max(Integer::compare).orElseGet(() -> defaultLimit);
@@ -94,6 +96,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return groupLimit < 0 ? -1 : groupLimit + individualLimit;
     }
     
+    @Override
     public boolean checkFeatureLimit(Player player) {
         if (player.hasPermission(String.format("clfeature.%s.ignoreLimit", getName())))
             return true;
@@ -114,6 +117,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     }
     
     
+    @Override
     public void addFeatureLimit(Player player, int amount) {
         int individualLimit = player.getPersistentDataContainer().getOrDefault(limitKey, PersistentDataType.INTEGER, 0).intValue();
         player.getPersistentDataContainer().set(limitKey, PersistentDataType.INTEGER, individualLimit + amount);
@@ -126,6 +130,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         return item.isSimilar(CLCore.getInstance().getItemRegistry().getItem(limitToken).orElseGet(() -> new ItemStack(Material.AIR)));
     }
     
+    @Override
     public int getMaxLimit() {
         return maxLimit;
     }
@@ -212,6 +217,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
     @Nonnull
     public abstract String getName();
     
+    @Override
     public abstract List<T> getFeatures();
     
     private boolean handlePiston(List<Block> blockList) {
@@ -246,7 +252,7 @@ public abstract class Feature<T extends FeatureInstance> implements Listener {
         if (p.hasMetadata(getMoveMetaData()))
             handleMove(feature, event);
         else
-            feature.interact(event);
+            ((FeatureInstance) feature).interact(event);
     }
     
     protected boolean handleMove(T feature, PlayerInteractEvent event) {
