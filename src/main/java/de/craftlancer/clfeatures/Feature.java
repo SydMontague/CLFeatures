@@ -392,9 +392,32 @@ public abstract class Feature<T extends FeatureInstance> implements Listener, Ab
     }
     
     public enum BreakAction {
+        /**
+         * Destroys the feature with no prompt.
+         *
+         * Does not drop an item.
+         */
         DESTROY,
+
+        /**
+         * Prompts the player who destroys it before destroying it completely.
+         *
+         * Does not drop an item.
+         */
         PROMPT,
+
+        /**
+         * Destroys the feature with no prompt.
+         *
+         * Drops an item for anyone who breaks it.
+         */
         DROP_IF_ANY,
+
+        /**
+         * Destroys the feature with no prompt.
+         *
+         * Drops an item for only the owner and no item for anyone else.
+         */
         DROP_IF_OWNER
     }
 }
