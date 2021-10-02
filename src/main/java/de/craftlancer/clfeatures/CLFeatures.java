@@ -5,6 +5,8 @@ import de.craftlancer.clapi.blueprints.event.BlueprintPrePasteEvent;
 import de.craftlancer.clapi.clfeatures.AbstractFeatureInstance;
 import de.craftlancer.clapi.clfeatures.PluginCLFeatures;
 import de.craftlancer.clfeatures.amplifiedbeacon.AmplifiedBeaconFeatureInstance;
+import de.craftlancer.clfeatures.atm.ATMFeature;
+import de.craftlancer.clfeatures.atm.ATMFeatureInstance;
 import de.craftlancer.clfeatures.chair.ChairFeature;
 import de.craftlancer.clfeatures.chair.ChairFeatureInstance;
 import de.craftlancer.clfeatures.fragmentextractor.FragmentExtractorFeature;
@@ -99,6 +101,7 @@ public class CLFeatures extends JavaPlugin implements Listener, PluginCLFeatures
         ConfigurationSerialization.registerClass(PainterFeatureInstance.class);
         ConfigurationSerialization.registerClass(FragmentExtractorFeatureInstance.class);
         ConfigurationSerialization.registerClass(FurnitureFeatureInstance.class);
+        ConfigurationSerialization.registerClass(ATMFeatureInstance.class);
         
         Bukkit.getServicesManager().register(PluginCLFeatures.class, this, this, ServicePriority.Highest);
         
@@ -118,6 +121,7 @@ public class CLFeatures extends JavaPlugin implements Listener, PluginCLFeatures
         registerFeature("painter", PainterFeature::new);
         registerFeature("furniture", FurnitureFeature::new);
         registerFeature("fragmentExtractor", FragmentExtractorFeature::new);
+        registerFeature("atm", ATMFeature::new);
         
         MessageUtil.register(this, new TextComponent("§f[§4Craft§fCitizen]"), ChatColor.WHITE, ChatColor.YELLOW, ChatColor.RED,
                 ChatColor.DARK_RED, ChatColor.DARK_AQUA, ChatColor.GREEN);
