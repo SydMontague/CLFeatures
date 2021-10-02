@@ -1,5 +1,6 @@
 package de.craftlancer.clfeatures.amplifiedbeacon;
 
+import de.craftlancer.clapi.LazyService;
 import de.craftlancer.clapi.clclans.PluginClans;
 import de.craftlancer.clfeatures.BlueprintFeatureInstance;
 import de.craftlancer.clfeatures.Feature;
@@ -17,6 +18,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AmplifiedBeaconFeatureInstance extends BlueprintFeatureInstance {
+    
+    private static final LazyService<PluginClans> CLANS = new LazyService<>(PluginClans.class);
     
     private PotionEffect buff1;
     private PotionEffect buff2;
@@ -63,15 +66,14 @@ public class AmplifiedBeaconFeatureInstance extends BlueprintFeatureInstance {
     }
     
     private boolean isClanMember(UUID uuid, UUID playerUUID) {
-        PluginClans clans = Bukkit.getServicesManager().load(PluginClans.class);
-        
-        if (clans == null)
+        if (!CLANS.isPresent())
             return false;
+        
         if (uuid.equals(playerUUID))
             return true;
-        if (clans.getClan(Bukkit.getOfflinePlayer(playerUUID)) == null || clans.getClan(Bukkit.getOfflinePlayer(uuid)) == null)
+        if (CLANS.get().getClan(Bukkit.getOfflinePlayer(playerUUID)) == null || CLANS.get().getClan(Bukkit.getOfflinePlayer(uuid)) == null)
             return false;
-        return clans.getClan(Bukkit.getOfflinePlayer(uuid)).equals(clans.getClan(Bukkit.getOfflinePlayer(playerUUID)));
+        return CLANS.get().getClan(Bukkit.getOfflinePlayer(uuid)).equals(CLANS.get().getClan(Bukkit.getOfflinePlayer(playerUUID)));
     }
     
     private boolean isEnemy(UUID uuid, UUID playerUUID) {
