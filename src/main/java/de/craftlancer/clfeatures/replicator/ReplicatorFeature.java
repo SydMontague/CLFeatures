@@ -1,11 +1,11 @@
 package de.craftlancer.clfeatures.replicator;
 
+import de.craftlancer.clapi.blueprints.event.BlueprintPostPasteEvent;
 import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.Configuration;
@@ -41,8 +41,7 @@ public class ReplicatorFeature extends BlueprintFeature<ReplicatorFeatureInstanc
     public List<Material> getBlockedProducts() {
         return blockedProducts;
     }
-
-    @SuppressWarnings("unchecked")
+    
     @Override
     protected void deserialize(Configuration config) {
         instances = (List<ReplicatorFeatureInstance>) config.getList("replicator", new ArrayList<>());

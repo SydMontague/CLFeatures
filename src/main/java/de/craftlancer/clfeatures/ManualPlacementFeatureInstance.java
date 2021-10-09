@@ -1,5 +1,6 @@
 package de.craftlancer.clfeatures;
 
+import de.craftlancer.clapi.clfeatures.AbstractManualPlacementFeatureInstance;
 import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
@@ -7,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class ManualPlacementFeatureInstance extends FeatureInstance {
+public abstract class ManualPlacementFeatureInstance extends FeatureInstance implements AbstractManualPlacementFeatureInstance {
     
     private ItemStack usedItem;
     
@@ -33,6 +34,7 @@ public abstract class ManualPlacementFeatureInstance extends FeatureInstance {
         return map;
     }
     
+    @Override
     public ItemStack getUsedItem() {
         return usedItem;
     }

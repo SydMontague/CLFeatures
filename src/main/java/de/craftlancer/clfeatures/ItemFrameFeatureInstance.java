@@ -1,5 +1,6 @@
 package de.craftlancer.clfeatures;
 
+import de.craftlancer.clapi.clfeatures.AbstractItemFrameFeatureInstance;
 import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -11,7 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public abstract class ItemFrameFeatureInstance extends BlueprintFeatureInstance {
+public abstract class ItemFrameFeatureInstance extends BlueprintFeatureInstance implements AbstractItemFrameFeatureInstance {
     
     private List<UUID> entities;
     
@@ -21,7 +22,6 @@ public abstract class ItemFrameFeatureInstance extends BlueprintFeatureInstance 
         this.entities = entities.stream().filter(e -> e instanceof ItemFrame).map(Entity::getUniqueId).collect(Collectors.toList());
     }
     
-    @SuppressWarnings("unchecked")
     protected ItemFrameFeatureInstance(Map<String, Object> map) {
         super(map);
         
@@ -37,6 +37,7 @@ public abstract class ItemFrameFeatureInstance extends BlueprintFeatureInstance 
         return map;
     }
     
+    @Override
     public List<Entity> getEntities() {
         return entities.stream().filter(e -> Bukkit.getEntity(e) != null).map(Bukkit::getEntity).collect(Collectors.toList());
     }

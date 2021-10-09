@@ -1,5 +1,6 @@
 package de.craftlancer.clfeatures;
 
+import de.craftlancer.clapi.clfeatures.AbstractFeatureInstance;
 import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,7 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 //TODO transfer feature ownership
-public abstract class FeatureInstance implements Listener, ConfigurationSerializable {
+public abstract class FeatureInstance implements Listener, ConfigurationSerializable, AbstractFeatureInstance {
     private UUID ownerId;
     private BlockStructure structure;
     private Location initialBlock;
@@ -47,10 +48,12 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         return map;
     }
     
+    @Override
     public boolean isOwner(OfflinePlayer player) {
         return isOwner(player.getUniqueId());
     }
     
+    @Override
     public boolean isOwner(UUID uuid) {
         return ownerId.equals(uuid);
     }
@@ -66,6 +69,7 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
     
     }
     
+    @Override
     public void destroy() {
         HandlerList.unregisterAll(this);
         getManager().remove(this);
@@ -73,18 +77,22 @@ public abstract class FeatureInstance implements Listener, ConfigurationSerializ
         structure.forEach(a -> a.getBlock().setType(Material.AIR));
     }
     
+    @Override
     public Location getInitialBlock() {
         return initialBlock.clone();
     }
     
+    @Override
     public void setOwnerId(UUID ownerId) {
         this.ownerId = ownerId;
     }
     
+    @Override
     public UUID getOwnerId() {
         return ownerId;
     }
     
+    @Override
     public BlockStructure getStructure() {
         return structure;
     }

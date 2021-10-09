@@ -1,5 +1,8 @@
 package de.craftlancer.clfeatures.trophydepositor;
 
+import de.craftlancer.clapi.blueprints.event.BlueprintPostPasteEvent;
+import de.craftlancer.clapi.clfeatures.trophydepositor.AbstractTrophyDepositorBoost;
+import de.craftlancer.clapi.clfeatures.trophydepositor.AbstractTrophyDepositorFeature;
 import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureInstance;
@@ -7,7 +10,6 @@ import de.craftlancer.clfeatures.trophydepositor.command.TrophyDepositorCommandH
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.Configuration;
@@ -30,7 +32,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeatureInstance> {
+public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeatureInstance> implements AbstractTrophyDepositorFeature {
     private List<TrophyDepositorFeatureInstance> instances;
     private List<TrophyDepositorBoost> boosts;
     private Map<UUID, TrophyEntry> playerLookupTable;
@@ -53,7 +55,6 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
         return instances.add(instance);
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     protected void deserialize(Configuration config) {
         instances = (List<TrophyDepositorFeatureInstance>) config.getList("trophies", new ArrayList<>());
@@ -61,7 +62,7 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
                 .stream().collect(Collectors.toMap(TrophyEntry::getPlayer, e -> e));
         boosts = (List<TrophyDepositorBoost>) config.getList("boosts", new ArrayList<>());
     }
-
+    
     @Override
     protected Map<String, Object> serialize() {
         Map<String, Object> map = new HashMap<>();
@@ -117,6 +118,7 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
         return "TrophyDepositor";
     }
     
+    @Override
     public void addBoost(double boost, int size) {
         Optional<TrophyDepositorBoost> optional = boosts.stream().filter(b -> b.getBoost() == boost).findFirst();
         
@@ -126,6 +128,7 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
             boosts.add(new TrophyDepositorBoost(boost, size));
     }
     
+    @Override
     public double getBaseItemValue(ItemStack a) {
         ItemStack e = a.clone();
         e.setAmount(1);
@@ -152,26 +155,32 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
         return a.getAmount() * originalValue + boostedValue;
     }
     
+    @Override
     public boolean addTrophyItem(ItemStack item, int value) {
         return trophies.put(item, value) != null;
     }
     
+    @Override
     public Map<ItemStack, Integer> getTrophyItems() {
         return Collections.unmodifiableMap(trophies);
     }
     
-    public List<TrophyDepositorBoost> getBoosts() {
+    @Override
+    public List<? extends AbstractTrophyDepositorBoost> getBoosts() {
         return boosts;
     }
     
+    @Override
     public void clearScores() {
         playerLookupTable.values().forEach(v -> v.setScore(0));
     }
     
+    @Override
     public boolean removeTrophyByHash(int hash) {
         return trophies.entrySet().removeIf(a -> a.getKey().hashCode() == hash);
     }
     
+    @Override
     public double deposit(UUID uuid, ItemStack item) {
         TrophyEntry entry;
         if (playerLookupTable.containsKey(uuid))
@@ -186,14 +195,17 @@ public class TrophyDepositorFeature extends BlueprintFeature<TrophyDepositorFeat
         return value;
     }
     
+    @Override
     public void setScore(UUID uuid, double score) {
         playerLookupTable.get(uuid).setScore(score);
     }
     
+    @Override
     public double getScore(OfflinePlayer player) {
         return getScore(player.getUniqueId());
     }
     
+    @Override
     public double getScore(UUID uuid) {
         return playerLookupTable.containsKey(uuid) ? playerLookupTable.get(uuid).getScore() : 0;
     }

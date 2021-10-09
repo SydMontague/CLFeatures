@@ -1,12 +1,12 @@
 package de.craftlancer.clfeatures.stonecrusher;
 
+import de.craftlancer.clapi.blueprints.event.BlueprintPostPasteEvent;
 import de.craftlancer.clfeatures.BlueprintFeature;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.FeatureCommandHandler;
 import de.craftlancer.clfeatures.FeatureInstance;
 import de.craftlancer.core.command.CommandHandler;
 import de.craftlancer.core.structure.BlockStructure;
-import me.sizzlemcgrizzle.blueprints.api.BlueprintPostPasteEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -43,7 +43,6 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
             if (input == null || input == Material.AIR)
                 return;
             
-            @SuppressWarnings("unchecked")
             List<Map<?, ?>> output = (List<Map<?, ?>>) a.get("output");
             
             if (output == null)
@@ -63,7 +62,6 @@ public class StoneCrusherFeature extends BlueprintFeature<StoneCrusherFeatureIns
                 new BlockStructure(e.getBlocksPasted()), e.getFeatureLocation(), e.getSchematic()));
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     protected void deserialize(Configuration config) {
         instances = (List<StoneCrusherFeatureInstance>) config.getList("stonecrusher", new ArrayList<>());

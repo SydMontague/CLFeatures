@@ -1,6 +1,7 @@
 package de.craftlancer.clfeatures.amplifiedbeacon;
 
-import de.craftlancer.clclans.CLClans;
+import de.craftlancer.clapi.LazyService;
+import de.craftlancer.clapi.clclans.PluginClans;
 import de.craftlancer.clfeatures.BlueprintFeatureInstance;
 import de.craftlancer.clfeatures.Feature;
 import de.craftlancer.clfeatures.FeatureInstance;
@@ -18,7 +19,8 @@ import java.util.UUID;
 
 public class AmplifiedBeaconFeatureInstance extends BlueprintFeatureInstance {
     
-    private final CLClans clans = (CLClans) Bukkit.getPluginManager().getPlugin("CLClans");
+    private static final LazyService<PluginClans> CLANS = new LazyService<>(PluginClans.class);
+    
     private PotionEffect buff1;
     private PotionEffect buff2;
     private PotionEffect debuff;
@@ -64,21 +66,24 @@ public class AmplifiedBeaconFeatureInstance extends BlueprintFeatureInstance {
     }
     
     private boolean isClanMember(UUID uuid, UUID playerUUID) {
-        if (clans == null)
+        if (!CLANS.isPresent())
             return false;
+        
         if (uuid.equals(playerUUID))
             return true;
-        if (clans.getClan(Bukkit.getOfflinePlayer(playerUUID)) == null || CLClans.getInstance().getClan(Bukkit.getOfflinePlayer(uuid)) == null)
+        if (CLANS.get().getClan(Bukkit.getOfflinePlayer(playerUUID)) == null || CLANS.get().getClan(Bukkit.getOfflinePlayer(uuid)) == null)
             return false;
-        return clans.getClan(Bukkit.getOfflinePlayer(uuid)).equals(CLClans.getInstance().getClan(Bukkit.getOfflinePlayer(playerUUID)));
+        return CLANS.get().getClan(Bukkit.getOfflinePlayer(uuid)).equals(CLANS.get().getClan(Bukkit.getOfflinePlayer(playerUUID)));
     }
     
     private boolean isEnemy(UUID uuid, UUID playerUUID) {
+        PluginClans clans = Bukkit.getServicesManager().load(PluginClans.class);
+        
         if (clans == null)
             return false;
-        if (clans.getClan(Bukkit.getOfflinePlayer(playerUUID)) == null || CLClans.getInstance().getClan(Bukkit.getOfflinePlayer(uuid)) == null)
+        if (clans.getClan(Bukkit.getOfflinePlayer(playerUUID)) == null || clans.getClan(Bukkit.getOfflinePlayer(uuid)) == null)
             return false;
-        return clans.getClan(Bukkit.getOfflinePlayer(uuid)).hasRival(CLClans.getInstance().getClan(Bukkit.getOfflinePlayer(playerUUID)));
+        return clans.getClan(Bukkit.getOfflinePlayer(uuid)).hasRival(clans.getClan(Bukkit.getOfflinePlayer(playerUUID)));
     }
     
     private double getHorizontalDistanceSquared(Location loc1, Location loc2) {

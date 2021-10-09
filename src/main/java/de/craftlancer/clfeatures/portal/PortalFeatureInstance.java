@@ -1,9 +1,10 @@
 package de.craftlancer.clfeatures.portal;
 
+import de.craftlancer.clapi.clfeatures.portal.AbstractPortalFeatureInstance;
+import de.craftlancer.clapi.clfeatures.portal.event.PortalTeleportEvent;
 import de.craftlancer.clfeatures.BlueprintFeatureInstance;
 import de.craftlancer.clfeatures.CLFeatures;
 import de.craftlancer.clfeatures.portal.addressbook.AddressBookUtils;
-import de.craftlancer.clfeatures.portal.event.PortalTeleportEvent;
 import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.structure.BlockStructure;
 import org.bukkit.Bukkit;
@@ -33,7 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class PortalFeatureInstance extends BlueprintFeatureInstance {
+public class PortalFeatureInstance extends BlueprintFeatureInstance implements AbstractPortalFeatureInstance {
     
     // technical
     private PortalFeature manager;
@@ -215,14 +216,17 @@ public class PortalFeatureInstance extends BlueprintFeatureInstance {
         }
     }
     
+    @Override
     public long getNewBookDelay() {
         return newBookDelay;
     }
     
+    @Override
     public void setNewBookDelay(long newBookDelay) {
         this.newBookDelay = newBookDelay;
     }
     
+    @Override
     public boolean isValid() {
         return isValid;
     }
@@ -231,10 +235,12 @@ public class PortalFeatureInstance extends BlueprintFeatureInstance {
         return targetLocation;
     }
     
+    @Override
     public String getName() {
         return name;
     }
     
+    @Override
     public void setName(String name) {
         manager.updatedName(this, this.name, name);
         this.name = name;
