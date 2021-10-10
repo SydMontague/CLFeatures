@@ -36,6 +36,8 @@ commands:
   trophyDepositor:
     description: "TrophyDepositor related commands"
     usage: /trophyDepositor [move]
+  atm:
+    usage: /atm
 permissions:
   clfeature.portal.ignoreLimit:
     default: op
