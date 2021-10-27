@@ -3,7 +3,7 @@ main: de.craftlancer.clfeatures.CLFeatures
 api-version: 1.14
 author: Syd Montague
 version: ${project.version}
-depend: [CLCore, Blueprints, CLClans]
+depend: [CLCore, CLAPI]
 commands:
   portal:
     description: "Portal related commands"
