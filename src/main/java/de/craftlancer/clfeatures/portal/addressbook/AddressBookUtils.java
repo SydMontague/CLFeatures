@@ -21,7 +21,7 @@ public class AddressBookUtils {
     private AddressBookUtils() {
     }
     
-    private static final List<Integer> ADDRESSBOOK_MODEL_DATA = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    private static final List<Integer> ADDRESSBOOK_MODEL_DATA = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
     private static final int DEFAULT_ADDRESSBOOK_MODEL_DATA = 1;
     
     public static boolean isAddressBook(ItemStack item) {
