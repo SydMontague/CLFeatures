@@ -51,6 +51,7 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
     private long booklessTicks;
     private long newBookDelay;
     private double renameMoney;
+    private double moveMoney;
     private int portalCooldown;
     private List<ItemStack> renameItems;
     private List<ItemStack> moveItems;
@@ -64,6 +65,7 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
         // local stuff
         renameMoney = config.getDouble("renameMoney", 0D);
         renameItems = (List<ItemStack>) config.getList("renameItems", new ArrayList<>());
+        moveMoney = config.getDouble("moveMoney", 0D);
         moveItems = (List<ItemStack>) config.getList("moveItems", new ArrayList<>());
         inactivityTimeout = config.getLong("inactivityTimeout", 155520000L);
         booklessTicks = config.getLong("booklessTicks", 30L);
@@ -106,11 +108,17 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
     }
     
     public boolean checkMoveCost(Player player) {
-        return moveItems.stream().allMatch(a -> player.getInventory().containsAtLeast(a, a.getAmount()));
+        boolean money = CLCore.getInstance().getEconomy() == null || CLCore.getInstance().getEconomy().has(player, moveMoney);
+        boolean items = moveItems.stream().allMatch(a -> player.getInventory().containsAtLeast(a, a.getAmount()));
+        
+        return money && items;
     }
     
     public boolean deductMoveCost(Player player) {
-        return player.getInventory().removeItem(moveItems.toArray(new ItemStack[0])).isEmpty();
+        boolean moneySuccess = CLCore.getInstance().getEconomy() == null || CLCore.getInstance().getEconomy().withdrawPlayer(player, moveMoney).transactionSuccess();
+        boolean itemSuccess = player.getInventory().removeItem(moveItems.toArray(new ItemStack[0])).isEmpty();
+        
+        return moneySuccess && itemSuccess;
     }
     
     @Override

@@ -151,16 +151,7 @@ public class FragmentExtractorFeatureInstance extends ManualPlacementFeatureInst
     }
     
     private ItemStack getCurrency() {
-        double random = Math.random();
-        
-        if (random < 0.02)
-            return CLCore.getInstance().getItemRegistry().getItem("greaterfragment").orElse(new ItemStack(Material.AIR));
-        else if (random < 0.1)
-            return CLCore.getInstance().getItemRegistry().getItem("commonfragment").orElse(new ItemStack(Material.AIR));
-        else if (random < 0.4)
-            return CLCore.getInstance().getItemRegistry().getItem("pettyfragment").orElse(new ItemStack(Material.AIR));
-        else
-            return CLCore.getInstance().getItemRegistry().getItem("lesserfragment").orElse(new ItemStack(Material.AIR));
+        return CLCore.getInstance().getItemRegistry().getItem("aethercurrency1").orElse(new ItemStack(Material.AIR));
     }
     
     public void setNotify(boolean notify) {
