@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class PortalFeatureInstance extends BlueprintFeatureInstance implements AbstractPortalFeatureInstance {
     
@@ -48,7 +47,6 @@ public class PortalFeatureInstance extends BlueprintFeatureInstance implements A
     private int ticksWithoutBook = 0;
     private long newBookDelay = 0;
     
-    private List<Location> airBlocks;
     private BoundingBox box;
     private Location targetLocation;
     
@@ -60,7 +58,35 @@ public class PortalFeatureInstance extends BlueprintFeatureInstance implements A
         this.manager = manager;
         this.lastUsage = Instant.now().getEpochSecond();
         
-        calcInitialStuff();
+        this.box = calculateBoundingBox(blocks);
+        if(this.box == null)
+            this.isValid = false;
+        else
+            this.targetLocation = calculateTargetLocation(initialBlock, this.box);
+
+        if(!this.isValid)
+            CLFeatures.getInstance().getLogger().warning("Invalid portal detected: " + this.getName() + " " + getInitialBlock());
+    }
+    
+    private static Location calculateTargetLocation(Block block, BoundingBox box) {
+        BlockFace facing = block.getType() == Material.LECTERN ? ((Directional) block.getBlockData()).getFacing().getOppositeFace() : BlockFace.NORTH;
+        return new Location(block.getWorld(), box.getCenterX(), box.getMinY(), box.getCenterZ()).setDirection(facing.getOppositeFace().getDirection());
+    }
+    
+    private static BoundingBox calculateBoundingBox(BlockStructure blocks) {
+        List<Location> airBlocks = blocks.getBlocks().stream().filter(a -> a.getBlock().getType().isAir()).toList();
+        int minX = airBlocks.stream().map(Location::getBlockX).min(Integer::compare).orElseGet(() -> 0);
+        int minY = airBlocks.stream().map(Location::getBlockY).min(Integer::compare).orElseGet(() -> 0);
+        int minZ = airBlocks.stream().map(Location::getBlockZ).min(Integer::compare).orElseGet(() -> 0);
+        int maxX = airBlocks.stream().map(Location::getBlockX).max(Integer::compare).orElseGet(() -> 0);
+        int maxY = airBlocks.stream().map(Location::getBlockY).max(Integer::compare).orElseGet(() -> 0);
+        int maxZ = airBlocks.stream().map(Location::getBlockZ).max(Integer::compare).orElseGet(() -> 0);
+        
+        if (minX == 0 && minY == 0 && minZ == 0 && maxX == 0 && maxY == 0 && maxZ == 0) {
+            return null;
+        }
+        
+        return new BoundingBox(minX, minY, minZ, maxX + 1D, maxY + 1D, maxZ + 1D);
     }
     
     @Override
@@ -106,27 +132,6 @@ public class PortalFeatureInstance extends BlueprintFeatureInstance implements A
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to rename this portal. You need a Lesser Fragment.");
         
         p.removeMetadata(PortalFeature.RENAME_METADATA, getManager().getPlugin());
-    }
-    
-    private void calcInitialStuff() {
-        airBlocks = getStructure().getBlocks().stream().filter(a -> a.getBlock().getType().isAir()).collect(Collectors.toList());
-        int minX = airBlocks.stream().map(Location::getBlockX).min(Integer::compare).orElseGet(() -> 0);
-        int minY = airBlocks.stream().map(Location::getBlockY).min(Integer::compare).orElseGet(() -> 0);
-        int minZ = airBlocks.stream().map(Location::getBlockZ).min(Integer::compare).orElseGet(() -> 0);
-        int maxX = airBlocks.stream().map(Location::getBlockX).max(Integer::compare).orElseGet(() -> 0);
-        int maxY = airBlocks.stream().map(Location::getBlockY).max(Integer::compare).orElseGet(() -> 0);
-        int maxZ = airBlocks.stream().map(Location::getBlockZ).max(Integer::compare).orElseGet(() -> 0);
-        
-        if (minX == 0 && minY == 0 && minZ == 0 && maxX == 0 && maxY == 0 && maxZ == 0) {
-            CLFeatures.getInstance().getLogger().warning("Invalid portal detected: " + this.getName() + " " + getInitialBlock());
-            isValid = false;
-        }
-        
-        box = new BoundingBox(minX, minY, minZ, maxX + 1D, maxY + 1D, maxZ + 1D);
-        
-        Block block = getInitialBlock().getBlock();
-        BlockFace facing = block.getType() == Material.LECTERN ? ((Directional) getInitialBlock().getBlock().getBlockData()).getFacing().getOppositeFace() : BlockFace.NORTH;
-        targetLocation = new Location(getInitialBlock().getWorld(), box.getCenterX(), box.getMinY(), box.getCenterZ()).setDirection(facing.getOppositeFace().getDirection());
     }
     
     private Optional<String> getCurrentTarget(ItemStack item) {
@@ -197,10 +202,11 @@ public class PortalFeatureInstance extends BlueprintFeatureInstance implements A
         if (target == null || this == target || !target.isValid())
             return;
         
-        airBlocks.forEach(a -> {
-            w.spawnParticle(Particle.SPELL_WITCH, a.clone().add(Math.random(), Math.random(), Math.random()), 3);
-            w.spawnParticle(Particle.PORTAL, a.clone().add(Math.random(), Math.random(), Math.random()), 3);
-        });
+        int volume = (int) box.getVolume();
+        for (int i = 0; i < volume; i++) {
+            w.spawnParticle(Particle.SPELL_WITCH, box.getCenterX(), box.getCenterY(), box.getCenterZ(), 3, box.getWidthX() / 4, box.getHeight() / 4, box.getWidthZ() / 4);
+            w.spawnParticle(Particle.PORTAL, box.getCenterX(), box.getCenterY(), box.getCenterZ(), 3, box.getWidthX() / 4, box.getHeight() / 4, box.getWidthZ() / 4);
+        }
         
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.hasMetadata(PortalFeature.LOOP_METADATA) || !box.contains(p.getLocation().toVector()))
@@ -259,7 +265,15 @@ public class PortalFeatureInstance extends BlueprintFeatureInstance implements A
         
         this.name = (String) map.getOrDefault("name", "");
         this.lastUsage = ((Number) map.get("lastUsed")).longValue();
-        calcInitialStuff();
+        
+        this.box = (BoundingBox) map.getOrDefault("boundingBox", calculateBoundingBox(getStructure()));
+        if(this.box == null)
+            this.isValid = false;
+        else
+            this.targetLocation = (Location) map.getOrDefault("targetLocation", calculateTargetLocation(getInitialBlock().getBlock(), box));
+        
+        if(!this.isValid)
+            CLFeatures.getInstance().getLogger().warning("Invalid portal detected: " + this.getName() + " " + getInitialBlock());
     }
     
     @Override
@@ -268,6 +282,8 @@ public class PortalFeatureInstance extends BlueprintFeatureInstance implements A
         
         map.put("name", name);
         map.put("lastUsed", lastUsage);
+        map.put("boundingBox", box);
+        map.put("targetLocation", targetLocation);
         
         return map;
     }

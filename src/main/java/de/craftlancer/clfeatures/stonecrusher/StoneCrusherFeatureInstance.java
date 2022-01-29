@@ -82,16 +82,16 @@ public class StoneCrusherFeatureInstance extends BlueprintFeatureInstance {
     protected void tick() {
         World w = getInitialBlock().getWorld();
         
+        // don't process feature in unloaded chunks
+        if (!w.isChunkLoaded(inputChest.getBlockX() >> 4, inputChest.getBlockZ() >> 4)
+                || !w.isChunkLoaded(outputChest.getBlockX() >> 4, outputChest.getBlockZ() >> 4))
+            return;
+
         if (input == null || output == null) {
             facing = ((Directional) getInitialBlock().getBlock().getBlockData()).getFacing().getOppositeFace();
             input = ((Chest) getInputChest().getBlock().getState()).getInventory();
             output = ((Chest) getOutputChest().getBlock().getState()).getInventory();
         }
-        
-        // don't process feature in unloaded chunks
-        if (!w.isChunkLoaded(inputChest.getBlockX() >> 4, inputChest.getBlockZ() >> 4)
-                || !w.isChunkLoaded(outputChest.getBlockX() >> 4, outputChest.getBlockZ() >> 4))
-            return;
         
         for (int i = 0; i < getManager().getCrushesPerTick(); i++)
             getManager().getLootTable().entrySet().stream().anyMatch(a -> doCrushing(a.getKey(), a.getValue()));
