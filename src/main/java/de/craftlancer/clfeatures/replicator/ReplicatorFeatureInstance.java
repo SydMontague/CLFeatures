@@ -2,6 +2,7 @@ package de.craftlancer.clfeatures.replicator;
 
 import de.craftlancer.clfeatures.BlueprintFeatureInstance;
 import de.craftlancer.clfeatures.CLFeatures;
+import de.craftlancer.core.LambdaRunnable;
 import de.craftlancer.core.Utils;
 import de.craftlancer.core.structure.BlockStructure;
 import net.md_5.bungee.api.ChatColor;
@@ -114,7 +115,7 @@ public class ReplicatorFeatureInstance extends BlueprintFeatureInstance {
         }
         
         map.put("daylightDetector", daylightSensor);
-        displayItem.remove();
+        new LambdaRunnable(() -> displayItem.remove()).runTask(getManager().getPlugin());
         
         return map;
     }
