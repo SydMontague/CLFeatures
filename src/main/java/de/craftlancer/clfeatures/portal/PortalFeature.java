@@ -233,7 +233,7 @@ public class PortalFeature extends BlueprintFeature<PortalFeatureInstance> {
             giveFeatureItem(p, portal);
             p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "Portal successfully moved back to your inventory.");
         } else
-            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to move this portal. You need 3 Lesser Fragments.");
+            p.sendMessage(CLFeatures.CC_PREFIX + ChatColor.YELLOW + "You can't afford to move this portal. You need 500 aether.");
         
         p.removeMetadata(getMoveMetaData(), getPlugin());
         return true;
