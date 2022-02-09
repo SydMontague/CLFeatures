@@ -51,14 +51,15 @@ public class TrophyDepositorAddScoreCommand extends SubCommand {
         double score;
         try {
             score = Double.parseDouble(args[2]);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return CLFeatures.CC_PREFIX + "You must enter a valid score.";
         }
         
-        feature.setScore(player.getUniqueId(), feature.getScore(player.getUniqueId()) + score);
+        double newScore = feature.getScore(player.getUniqueId()) + score;
+        feature.setScore(player.getUniqueId(), newScore);
+        player.sendMessage(CLFeatures.CC_PREFIX + "§aYou have earned " + String.format("%.2f", score) + " trophies. Use /stats to see your total score.");
         
-        return CLFeatures.CC_PREFIX + "§a" + player.getName() + "'s score is " + String.format("%.2f", score) + ".";
+        return CLFeatures.CC_PREFIX + "§a" + player.getName() + "'s score is " + String.format("%.2f", newScore) + ".";
     }
     
     @Override
