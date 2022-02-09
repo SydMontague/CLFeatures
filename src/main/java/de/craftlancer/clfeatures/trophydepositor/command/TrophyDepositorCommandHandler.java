@@ -17,5 +17,6 @@ public class TrophyDepositorCommandHandler extends FeatureCommandHandler {
         registerSubCommand("setScore", new TrophyDepositorSetScoreCommand(plugin, feature));
         registerSubCommand("clearBoosts", new TrophyDepositorClearBoostsCommand(plugin, feature));
         registerSubCommand("resetAll", new TrophyDepositorResetAllCommand(plugin, feature));
+        registerSubCommand("addScore", new TrophyDepositorAddScoreCommand(plugin, feature));
     }
 }
